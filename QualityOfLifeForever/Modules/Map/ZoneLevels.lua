@@ -12,6 +12,8 @@ local L = ns.NewLocale({
 		CONTINENT_MAP_DESC = "Shows the range of the zone under the cursor.",
 		RANGE = "Level %d–%d",
 		NAMED_RANGE = "%s: level %d–%d",
+		SINGLE = "Level %d",
+		NAMED_SINGLE = "%s: level %d",
 	},
 	deDE = {
 		TITLE = "Zonen-Levelbereiche",
@@ -23,6 +25,8 @@ local L = ns.NewLocale({
 		CONTINENT_MAP_DESC = "Zeigt den Bereich der Zone unter dem Mauszeiger.",
 		RANGE = "Stufe %d–%d",
 		NAMED_RANGE = "%s: Stufe %d–%d",
+		SINGLE = "Stufe %d",
+		NAMED_SINGLE = "%s: Stufe %d",
 	},
 })
 
@@ -45,7 +49,6 @@ local module = ns:NewModule("ZoneLevels", {
 -- uiMapID = { min, max }. Derived from the leveling routes in
 -- https://mobalytics.gg/wow-forever/guides/zone-map-level-ranges: lowest start
 -- and highest end of all route steps that name the zone.
--- TODO: Zephras Isle (1-12), Riverglades (35-45), Mount Hyjal (60) – uiMapIDs unknown.
 local LEVELS = {
 	-- Eastern Kingdoms
 	[1429] = { 1, 10 }, -- Elwynn Forest
@@ -68,6 +71,7 @@ local LEVELS = {
 	[1428] = { 50, 60 }, -- Burning Steppes
 	[1422] = { 50, 60 }, -- Western Plaguelands
 	[1423] = { 50, 60 }, -- Eastern Plaguelands
+	[2548] = { 35, 45 }, -- Riverglades
 	-- Kalimdor
 	[1438] = { 1, 11 }, -- Teldrassil
 	[1411] = { 1, 10 }, -- Durotar
@@ -86,6 +90,9 @@ local LEVELS = {
 	[1448] = { 48, 55 }, -- Felwood
 	[1452] = { 50, 60 }, -- Winterspring
 	[1451] = { 50, 60 }, -- Silithus
+	[2482] = { 60, 60 }, -- Mount Hyjal
+	-- Skyborne starting zone
+	[2521] = { 1, 12 }, -- Zephras Isle
 }
 
 local UPDATE_INTERVAL = 0.1
@@ -136,7 +143,13 @@ function module:Update()
 		return
 	end
 	local minLevel, maxLevel = range[1], range[2]
-	if name then
+	if minLevel == maxLevel then
+		if name then
+			text:SetFormattedText(L.NAMED_SINGLE, name, minLevel)
+		else
+			text:SetFormattedText(L.SINGLE, minLevel)
+		end
+	elseif name then
 		text:SetFormattedText(L.NAMED_RANGE, name, minLevel, maxLevel)
 	else
 		text:SetFormattedText(L.RANGE, minLevel, maxLevel)
