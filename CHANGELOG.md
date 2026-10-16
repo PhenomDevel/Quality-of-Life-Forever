@@ -1,9 +1,6 @@
 # Changelog
 
-Uploaded as release notes by the packager (see `.pkgmeta`). Before tagging a
-release, rename "Unreleased" to the version.
-
-## Unreleased
+## v0.1.0-beta1 (2026-10-16)
 
 Initial release. Every feature is a module that can be toggled individually
 in Options → AddOns → Quality of Life Forever (or via `/qol`).
@@ -19,10 +16,10 @@ in Options → AddOns → Quality of Life Forever (or via `/qol`).
 - Anchor tooltips to the cursor, tooltip scale and background opacity
 
 ### Camera
-- Max camera distance (`cameraDistanceMaxZoomFactor` up to 4.0)
+- Zoom the camera out further
 
 ### Graphics
-- Sliders for graphics CVars not available in the game options
+- Extra graphics settings not available in the game options
 
 ### Merchant
 - Auto repair (optionally with guild funds)
