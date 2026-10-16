@@ -10,6 +10,12 @@ module off restores your previous game settings.
 
 ### Interface
 
+#### Movable windows
+Drag Blizzard windows (character, merchant, mail, quests, friends, collections,
+professions, …) by their title bar. Protected windows are left out.
+- Remember positions – also after a reload
+- Reset positions
+
 #### Skip cinematics
 Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
 watch it.
