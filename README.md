@@ -14,12 +14,24 @@ or disabled individually.
 
 ## Modules
 
-| Module             | Category | Default | Description |
-|--------------------|----------|---------|-------------|
-| Auto repair        | Merchant | on      | Repairs all items at a merchant, optionally using guild funds |
-| Auto sell junk     | Merchant | on      | Sells poor quality (grey) items at a merchant |
-| Fast loot          | Loot     | off     | Loots all slots instantly when auto loot is active |
-| Auto decline duels | Social   | off     | Declines duel requests |
+| Module                          | Category  | Default | Description |
+|---------------------------------|-----------|---------|-------------|
+| Hide name on player frame       | Character | off     | Hides your name on the player unit frame |
+| Anchor tooltip to cursor        | Tooltip   | off     | Default-anchored tooltips follow the cursor (3 positions) |
+| Max camera distance             | Camera    | off     | Sets `cameraDistanceMaxZoomFactor` (1.0–4.0) |
+| Advanced graphics settings      | Graphics  | off     | Sliders for hidden graphics CVars, Apply/Restore buttons |
+| Auto repair                     | Merchant  | on      | Repairs all items at a merchant, optionally using guild funds |
+| Auto sell junk                  | Merchant  | on      | Sells poor quality (grey) items at a merchant |
+| Confirm bind on pickup when solo| Loot      | off     | Auto-confirms the BoP loot dialog outside of groups |
+| Auto loot                       | Loot      | off     | Turns on the game's auto loot setting |
+| Fast loot                       | Loot      | off     | Loots all slots instantly when auto loot is active |
+| Instant quest text              | Quests    | off     | Shows quest text without fade-in |
+| Accept summons & resurrections  | Social    | off     | Auto-accepts out of combat and outside boss encounters |
+| Auto decline duels              | Social    | off     | Declines duel requests |
+| Decline guild invites & charters| Social    | off     | Declines guild invites and charter signature requests |
+| Class colors in chat            | Chat      | off     | Colors player names in chat by class |
+
+CVar-based modules restore your previous values when disabled.
 
 Roadmap: [`docs/IDEAS.md`](docs/IDEAS.md)
 
