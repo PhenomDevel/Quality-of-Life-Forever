@@ -11,7 +11,7 @@ Einstellungsfenster (*Optionen → AddOns → Quality of Life Forever*) oder per
    eintragen – **oberhalb** von `Core\Bootstrap.lua`.
 3. Texte in `Locales/enUS.lua` **und** `Locales/deDE.lua` ergänzen
    (Schlüssel-Präfix = Modulname in `UPPER_SNAKE_CASE`).
-4. Test in `tests/run.lua` ergänzen und `luacheck . && lua5.1 tests/run.lua` ausführen.
+4. `luacheck .` ausführen und das Modul im Spiel testen.
    Neue WoW-API-Funktionen müssen in `.luacheckrc` unter `read_globals` stehen.
 
 ## `ns:NewModule(name, info)`
