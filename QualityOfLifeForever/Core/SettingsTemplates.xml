@@ -10,10 +10,10 @@
 	</Frame>
 	<!-- Section title inside a module's options ("header" option type). -->
 	<Frame name="QualityOfLifeForeverSettingsSubheaderTemplate" mixin="QualityOfLifeForeverSettingsNoteMixin" virtual="true">
-		<Size y="26"/>
+		<Size y="22"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="LEFT" justifyV="BOTTOM" wordwrap="false"/>
+				<FontString parentKey="Text" inherits="GameFontHighlightSmall" justifyH="LEFT" justifyV="BOTTOM" wordwrap="false"/>
 			</Layer>
 		</Layers>
 	</Frame>

@@ -11,8 +11,10 @@ local L = ns.L
 		  ├─ Loot
 		  └─ ...
 
-	Every module gets an enable checkbox. Its options are nested below it and are
-	only editable while the module is enabled. The settings are bound directly to
+	Every module gets a section header with its title and an "Enabled" checkbox.
+	Its options are nested below it and are only editable while the module is
+	enabled. Group headers inside a module indent the options after them by one
+	more level. The settings are bound directly to
 	the saved variables, so no extra save step is needed.
 ]]
 
@@ -36,17 +38,21 @@ function QualityOfLifeForeverSettingsNoteMixin:Init(initializer)
 	self.Text:SetText(data.text)
 end
 
-local function AddText(layout, template, text, indented)
+-- level: 0, 1 or 2 indent steps (true = 1).
+local function AddText(layout, template, text, level)
 	if text then
+		if level == true then
+			level = 1
+		end
 		layout:AddInitializer(Settings.CreateElementInitializer(template, {
 			text = text,
-			indent = indented and INDENT_SIZE or 0,
+			indent = (level or 0) * INDENT_SIZE,
 		}))
 	end
 end
 
 local function AddNote(layout, text, indented)
-	AddText(layout, NOTE_TEMPLATE, text, indented)
+	AddText(layout, NOTE_TEMPLATE, text, indented and 1 or 0)
 end
 
 local function RegisterSetting(category, variable, key, tbl, name, defaultValue, onChange)
@@ -100,11 +106,15 @@ local function CreateButton(layout, module, option, parentInitializer)
 	return initializer
 end
 
+-- Blizzard's rows only know one indent level (parent initializer).
+local function IndentTwice(initializer)
+	initializer.GetIndent = function()
+		return 2 * INDENT_SIZE
+	end
+end
+
 local function CreateOptionControl(category, layout, module, option, parentInitializer)
-	if option.type == "header" then
-		AddText(layout, SUBHEADER_TEMPLATE, option.label, true)
-		return
-	elseif option.type == "button" then
+	if option.type == "button" then
 		return CreateButton(layout, module, option, parentInitializer)
 	end
 
@@ -161,12 +171,28 @@ local function AddModule(category, layout, module)
 		end
 	)
 	module.settings.enabled = enabledSetting
+
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(module.title, module.description))
 	local enabledInitializer = Settings.CreateCheckbox(category, enabledSetting, module.description)
+	-- The setting keeps the module title as its name (settings search).
+	enabledInitializer.data.name = L.SETTING_MODULE_ENABLED
+	if enabledInitializer.AddSearchTags then
+		enabledInitializer:AddSearchTags(module.title)
+	end
 	AddNote(layout, module.note, false)
 
+	local grouped = false
 	for _, option in ipairs(module.options) do
-		CreateOptionControl(category, layout, module, option, enabledInitializer)
-		AddNote(layout, option.note, true)
+		if option.type == "header" then
+			AddText(layout, SUBHEADER_TEMPLATE, option.label, true)
+			grouped = true
+		else
+			local initializer = CreateOptionControl(category, layout, module, option, enabledInitializer)
+			if grouped then
+				IndentTwice(initializer)
+			end
+			AddText(layout, NOTE_TEMPLATE, option.note, grouped and 2 or 1)
+		end
 	end
 end
 
