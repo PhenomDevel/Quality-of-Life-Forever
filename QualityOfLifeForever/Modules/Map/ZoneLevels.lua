@@ -12,8 +12,8 @@ local L = ns.NewLocale({
 		CONTINENT_MAP_DESC = "Shows the range on every zone of the continent.",
 		HOVER = "In the zone name on hover",
 		HOVER_DESC = "Adds the range to the zone name shown when hovering a zone on a continent map.",
-		MINIMAP = "Below the minimap",
-		MINIMAP_DESC = "Shows the range of your current zone below the minimap.",
+		MINIMAP = "On the minimap",
+		MINIMAP_DESC = "Shows the range of your current zone at the bottom of the minimap.",
 		LEVEL = "Level %s",
 	},
 	deDE = {
@@ -26,8 +26,8 @@ local L = ns.NewLocale({
 		CONTINENT_MAP_DESC = "Zeigt den Bereich auf jeder Zone des Kontinents.",
 		HOVER = "Im Zonennamen beim Überfahren",
 		HOVER_DESC = "Ergänzt den Bereich am Zonennamen, der beim Überfahren einer Zone auf der Kontinentkarte erscheint.",
-		MINIMAP = "Unter der Minimap",
-		MINIMAP_DESC = "Zeigt den Bereich deiner aktuellen Zone unter der Minimap.",
+		MINIMAP = "Auf der Minimap",
+		MINIMAP_DESC = "Zeigt den Bereich deiner aktuellen Zone unten auf der Minimap.",
 		LEVEL = "Stufe %s",
 	},
 })
@@ -108,7 +108,7 @@ local LABEL_FONT_SIZE = 16
 
 -- zoneText: top right of the map frame (zone maps).
 -- labels: font strings on the map canvas (continent maps), reused.
--- minimapText: below the minimap (current zone).
+-- minimapText: bottom of the minimap (current zone).
 local zoneText, labelFrame, minimapText
 local labels = {}
 -- Localized zone name -> uiMapID, for the hover label.
@@ -280,7 +280,8 @@ function module:OnEnable()
 		labelFrame:SetFrameLevel(canvas:GetFrameLevel() + 10)
 
 		minimapText = CreateText(Minimap, MINIMAP_FONT_SIZE)
-		minimapText:SetPoint("TOP", Minimap, "BOTTOM", 0, -4)
+		-- Inside the minimap: the client shows player coordinates right below it.
+		minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 12)
 	end
 	self:SecureHook(WorldMapFrame, "OnMapChanged", self.QueueUpdate)
 	self:HookAreaLabel()
