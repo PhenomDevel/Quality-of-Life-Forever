@@ -1,0 +1,34 @@
+## Interface: 16001
+## Title: Quality of Life |cff33ff99Forever|r
+## Notes: Many small quality-of-life improvements that can be toggled individually.
+## Notes-deDE: Viele kleine Komfortverbesserungen, die einzeln ein- und ausgeschaltet werden können.
+## Author: PhenomDevel
+## Version: @project-version@
+## Category: Quality of Life
+## Category-deDE: Komfort
+## IconTexture: Interface\Icons\INV_Misc_Gear_01
+## SavedVariables: QualityOfLifeForeverDB
+## AddonCompartmentFunc: QualityOfLifeForever_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: QualityOfLifeForever_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: QualityOfLifeForever_OnAddonCompartmentLeave
+
+# Locales (enUS must be loaded first, it defines the fallback table)
+Locales\enUS.lua
+Locales\deDE.lua
+
+# Core
+Core\Init.lua
+Core\Utils.lua
+Core\Database.lua
+Core\ModuleManager.lua
+Core\Settings.lua
+Core\SlashCommands.lua
+
+# Modules
+Modules\Merchant\AutoRepair.lua
+Modules\Merchant\AutoSellJunk.lua
+Modules\Loot\FastLoot.lua
+Modules\Social\AutoDeclineDuels.lua
+
+# Bootstrap (must be last)
+Core\Bootstrap.lua

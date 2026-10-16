@@ -1,0 +1,36 @@
+name: Release
+
+# Push a tag like v0.1.0 to build the zip and attach it to a GitHub release.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua 5.1 and luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.1 luarocks zip
+          sudo luarocks install luacheck
+
+      - name: Lint and test
+        run: |
+          luacheck .
+          lua5.1 tests/run.lua
+
+      - name: Package
+        id: package
+        run: echo "zip=$(tools/package.sh "${GITHUB_REF_NAME#v}")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "${{ steps.package.outputs.zip }}" --title "$GITHUB_REF_NAME" --generate-notes
