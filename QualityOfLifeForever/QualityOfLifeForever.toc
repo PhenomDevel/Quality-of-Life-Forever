@@ -26,6 +26,7 @@ Core\SlashCommands.lua
 
 # Modules: one section per category, alphabetical within a section
 # EasySettings
+Modules\EasySettings\AutoLoot.lua
 
 # Character
 
