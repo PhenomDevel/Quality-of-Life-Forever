@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter StaticPopup_Show GetChatWindowInfo GetChannelList FCF_OpenNewWindow C_Timer Constants NUM_CHAT_WINDOWS ACCEPT CANCEL strtrim
+-- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter StaticPopup_Show GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer Constants NUM_CHAT_WINDOWS ACCEPT CANCEL strtrim
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -36,7 +36,7 @@ local L = ns.NewLocale({
 	},
 })
 
-local DEFAULT_KEYWORDS = "boost, carry, discord.gg, recruit, rekrut"
+local DEFAULT_KEYWORDS = "boost, goldselling, carry"
 local EVENTS = { "CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL" }
 local DIALOG = "QUALITYOFLIFEFOREVER_SPAM_KEYWORDS"
 
@@ -112,10 +112,18 @@ function module:GetSpamFrame()
 end
 
 function module:CreateSpamFrame()
+	-- FCF_OpenNewWindow selects the new tab; keep the current one selected.
+	local selected = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
 	local frame = FCF_OpenNewWindow(L.TAB, true)
 	if not frame then
 		self:Print(L.NO_FREE_WINDOW)
 		return
+	end
+	if selected then
+		FCFDock_SelectWindow(GENERAL_CHAT_DOCK, selected)
+		if ChatFrameUtil and ChatFrameUtil.SetLastActiveWindow and selected.editBox then
+			ChatFrameUtil.SetLastActiveWindow(selected.editBox)
+		end
 	end
 	frame:AddMessageGroup("SAY")
 	frame:AddMessageGroup("YELL")
