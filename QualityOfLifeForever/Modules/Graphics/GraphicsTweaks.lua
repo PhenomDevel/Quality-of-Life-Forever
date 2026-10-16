@@ -3,8 +3,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Advanced graphics",
-		NOTE = "CVars not available in the game options",
-		DESC = "Graphics CVars not exposed in the game options. Adjust the sliders and press Apply. Disabling restores your previous values.",
+		NOTE = "Not in the game options · higher values cost performance",
+		DESC = "Graphics CVars not exposed in the game options. Adjust the sliders and press Apply. Disabling restores your previous values.\n\nHigher values than the game's presets can noticeably lower your frame rate.",
 		APPLY = "Apply",
 		APPLY_DESC = "Write the values above to the game.",
 		RESTORE = "Restore",
@@ -34,8 +34,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Erweiterte Grafik",
-		NOTE = "CVars, die nicht in den Spieloptionen stehen",
-		DESC = "Grafik-CVars, die nicht in den Spieloptionen stehen. Regler einstellen und „Anwenden“ drücken. Beim Deaktivieren werden die vorherigen Werte wiederhergestellt.",
+		NOTE = "Nicht in den Spieloptionen · höhere Werte kosten Leistung",
+		DESC = "Grafik-CVars, die nicht in den Spieloptionen stehen. Regler einstellen und „Anwenden“ drücken. Beim Deaktivieren werden die vorherigen Werte wiederhergestellt.\n\nWerte über den Voreinstellungen des Spiels können die Bildrate spürbar senken.",
 		APPLY = "Anwenden",
 		APPLY_DESC = "Schreibt die obigen Werte ins Spiel.",
 		RESTORE = "Wiederherstellen",
@@ -68,14 +68,16 @@ local L = ns.NewLocale({
 -- CVar name doubles as option key and locale key. `engineDefault`, `min` and
 -- `max` were measured with /qol cvarinfo on Forever 1.60.1 (70425); the engine
 -- silently rejects values outside min..max. `unbounded` CVars accept any value,
--- their slider range is our choice. `default` is the preset applied by Apply.
+-- their slider range is our choice. lodObjectFadeScale (engine max 5000) and
+-- terrainLodDist are limited to 1000 for performance. `default` is the preset
+-- applied by Apply.
 local CVARS = {
 	{ cvar = "groundEffectDensity", default = 256, engineDefault = 16, min = 16, max = 256, step = 8 },
 	{ cvar = "groundEffectDist", default = 500, engineDefault = 70, min = 40, max = 500, step = 10 },
 	{ cvar = "groundEffectFade", default = 370, engineDefault = 70, min = 0, max = 500, step = 10, unbounded = true },
-	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 5000, step = 50 },
+	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 1000, step = 50 },
 	{ cvar = "lodObjectCullSize", default = 8, engineDefault = 15, min = 1, max = 100, step = 1 },
-	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 5000, step = 50, unbounded = true },
+	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 1000, step = 50, unbounded = true },
 	{ cvar = "ResampleAlwaysSharpen", default = true, engineDefault = 0 },
 	{ cvar = "reflectionMode", default = 3, engineDefault = 3, min = 0, max = 4, step = 1 },
 	{ cvar = "weatherDensity", default = 3, engineDefault = 2, min = 0, max = 3, step = 1 },
@@ -136,7 +138,13 @@ local module = ns:NewModule("GraphicsTweaks", {
 
 function module:Apply()
 	for _, entry in ipairs(CVARS) do
-		self:SetCVar(entry.cvar, self.db[entry.cvar])
+		local value = self.db[entry.cvar]
+		-- Saved values from before a max was lowered.
+		if entry.max and value > entry.max then
+			value = entry.max
+			self:SetOption(entry.cvar, value)
+		end
+		self:SetCVar(entry.cvar, value)
 	end
 	self:Print(L.APPLIED)
 end
