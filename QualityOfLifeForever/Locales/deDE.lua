@@ -26,6 +26,7 @@ L.CATEGORY_GRAPHICS = "Grafik"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "Allgemein"
+L.SETTING_MODULE_ENABLED = "Aktiviert"
 L.SETTINGS_MODULE_OPTIONS = "Optionen"
 L.SETTING_PRINT_MESSAGES = "Chatnachrichten anzeigen"
 L.SETTING_PRINT_MESSAGES_DESC = "Zeigt Rückmeldungen der Module im Chatfenster an (z. B. Reparaturkosten, verkaufter Plunder)."
