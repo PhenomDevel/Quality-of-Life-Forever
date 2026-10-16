@@ -30,6 +30,7 @@ Core\SlashCommands.lua
 # Game settings (shortcuts to Blizzard options/CVars)
 
 # Interface
+Modules\Interface\Nameplates.lua
 Modules\Interface\SkipCinematics.lua
 
 # Cooldown manager
