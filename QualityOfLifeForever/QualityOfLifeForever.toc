@@ -52,6 +52,7 @@ Modules\Loot\FastLoot.lua
 Modules\Quests\InstantQuestText.lua
 
 # Social
+Modules\Social\AutoAcceptSummonResurrect.lua
 Modules\Social\AutoDeclineDuels.lua
 
 # Chat
