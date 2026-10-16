@@ -11,9 +11,11 @@ module off restores your previous game settings.
 ### Interface
 
 #### Game font
-Replaces the standard interface font with one of the game's fonts. Chat
+Replaces the standard interface font with one of the game's fonts and
+changes its size. Chat
 windows switch after `/reload`.
-- Font: Friz Quadrata, Arial Narrow, Skurri, Morpheus
+- Font: Friz Quadrata, Arial Narrow, Skurri, Morpheus (previewed in the list)
+- Size: 80–150%
 
 #### Skip cinematics
 Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
