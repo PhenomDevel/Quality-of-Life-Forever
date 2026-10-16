@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<defs>
+	<radialGradient id="bg" cx="50%" cy="42%" r="70%">
+		<stop offset="0" stop-color="#1d2a4a"/>
+		<stop offset="1" stop-color="#070b16"/>
+	</radialGradient>
+	<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+		<stop offset="0" stop-color="#ffe7a3"/>
+		<stop offset="0.45" stop-color="#e0a93a"/>
+		<stop offset="1" stop-color="#8a5a12"/>
+	</linearGradient>
+	<radialGradient id="disc" cx="50%" cy="40%" r="60%">
+		<stop offset="0" stop-color="#16213b"/>
+		<stop offset="1" stop-color="#0a0f1d"/>
+	</radialGradient>
+	<linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+		<stop offset="0" stop-color="#8dffcb"/>
+		<stop offset="1" stop-color="#1fcf7d"/>
+	</linearGradient>
+	<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+		<feGaussianBlur stdDeviation="9" result="b"/>
+		<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+	</filter>
+	<filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+		<feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.6"/>
+	</filter>
+</defs>
+<rect width="512" height="512" rx="72" fill="url(#bg)"/>
+<g filter="url(#shadow)">
+	<path d="M442.0,256.0 L469.6,269.4 L465.8,298.3 L435.7,304.1 L432.1,315.8 L427.8,327.2 L422.8,338.3 L417.1,349.0 L434.2,374.4 L416.5,397.5 L387.5,387.5 L378.6,395.8 L369.2,403.6 L359.3,410.7 L349.0,417.1 L351.2,447.7 L324.3,458.8 L304.1,435.7 L292.3,438.4 L280.3,440.4 L268.2,441.6 L256.0,442.0 L242.6,469.6 L213.7,465.8 L207.9,435.7 L196.2,432.1 L184.8,427.8 L173.7,422.8 L163.0,417.1 L137.6,434.2 L114.5,416.5 L124.5,387.5 L116.2,378.6 L108.4,369.2 L101.3,359.3 L94.9,349.0 L64.3,351.2 L53.2,324.3 L76.3,304.1 L73.6,292.3 L71.6,280.3 L70.4,268.2 L70.0,256.0 L42.4,242.6 L46.2,213.7 L76.3,207.9 L79.9,196.2 L84.2,184.8 L89.2,173.7 L94.9,163.0 L77.8,137.6 L95.5,114.5 L124.5,124.5 L133.4,116.2 L142.8,108.4 L152.7,101.3 L163.0,94.9 L160.8,64.3 L187.7,53.2 L207.9,76.3 L219.7,73.6 L231.7,71.6 L243.8,70.4 L256.0,70.0 L269.4,42.4 L298.3,46.2 L304.1,76.3 L315.8,79.9 L327.2,84.2 L338.3,89.2 L349.0,94.9 L374.4,77.8 L397.5,95.5 L387.5,124.5 L395.8,133.4 L403.6,142.8 L410.7,152.7 L417.1,163.0 L447.7,160.8 L458.8,187.7 L435.7,207.9 L438.4,219.7 L440.4,231.7 L441.6,243.8 Z" fill="url(#gold)" stroke="#5a3a08" stroke-width="3" stroke-linejoin="round"/>
+	<circle cx="256" cy="256" r="160" fill="#5a3a08"/>
+	<circle cx="256" cy="256" r="154" fill="url(#disc)"/>
+	<circle cx="256" cy="256" r="154" fill="none" stroke="#ffe7a3" stroke-opacity="0.25" stroke-width="2"/>
+</g>
+<g transform="translate(256,256) scale(1.08)" filter="url(#glow)">
+	<path d="M0,0 C40,-62 118,-62 118,0 C118,62 40,62 0,0 C-40,-62 -118,-62 -118,0 C-118,62 -40,62 0,0 Z" fill="none" stroke="url(#green)" stroke-width="26" stroke-linejoin="round" stroke-linecap="round"/>
+	<path d="M0,0 C40,-62 118,-62 118,0 C118,62 40,62 0,0 C-40,-62 -118,-62 -118,0 C-118,62 -40,62 0,0 Z" fill="none" stroke="#e9fff4" stroke-opacity="0.45" stroke-width="5" stroke-linejoin="round" transform="translate(0,-4)"/>
+</g>
+</svg>
