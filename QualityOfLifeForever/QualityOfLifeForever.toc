@@ -57,6 +57,7 @@ Modules\Social\AutoDeclineDuels.lua
 Modules\Social\AutoDeclineGuildInvites.lua
 
 # Chat
+Modules\Chat\ChatClassColors.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
