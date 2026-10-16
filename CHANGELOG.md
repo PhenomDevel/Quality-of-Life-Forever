@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.2.0 (2026-10-16)
+
+### World map
+- New: zone level ranges, colored by your level
+  - On continent maps on every zone and in the zone name on hover
+  - On zone maps at the bottom of the map
+  - At the bottom of the minimap for your current zone
+
+### Graphics
+- Object view distance and terrain detail distance are limited to 1000
+- Note that higher values cost performance
+
 ## v0.1.1 (2026-10-16)
 
 - New addon icon in the addon list and the addon compartment
