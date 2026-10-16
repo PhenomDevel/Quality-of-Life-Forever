@@ -29,6 +29,7 @@ Core\SlashCommands.lua
 
 # Character
 Modules\Character\HidePlayerName.lua
+Modules\Character\ShowDurability.lua
 
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
