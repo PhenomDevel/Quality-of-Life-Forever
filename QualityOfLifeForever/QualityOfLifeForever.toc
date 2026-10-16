@@ -8,6 +8,7 @@
 ## Category-deDE: Komfort
 ## IconTexture: Interface\Icons\INV_Misc_Gear_01
 ## SavedVariables: QualityOfLifeForeverDB
+## X-Curse-Project-ID: 1748279
 ## AddonCompartmentFunc: QualityOfLifeForever_OnAddonCompartmentClick
 ## AddonCompartmentFuncOnEnter: QualityOfLifeForever_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: QualityOfLifeForever_OnAddonCompartmentLeave
