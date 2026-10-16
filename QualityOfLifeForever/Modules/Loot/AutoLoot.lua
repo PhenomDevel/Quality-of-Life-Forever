@@ -14,7 +14,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("AutoLoot", {
 	title = L.TITLE,
 	description = L.DESC,
-	category = "EASYSETTINGS",
+	category = "LOOT",
 })
 
 function module:OnEnable()
