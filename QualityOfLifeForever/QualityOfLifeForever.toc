@@ -29,6 +29,7 @@ Core\SlashCommands.lua
 Modules\EasySettings\AutoLoot.lua
 
 # Character
+Modules\Character\HidePlayerName.lua
 
 # Tooltip
 
