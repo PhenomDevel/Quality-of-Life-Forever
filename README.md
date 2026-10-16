@@ -17,7 +17,7 @@ watch it.
 - Movies
 - Only seen movies – play each movie once, skip it afterwards
 
-### Cooldown manager
+### Cooldown Manager
 
 #### Keybinds
 Shows the keybind of the matching action button on the icons of the cooldown

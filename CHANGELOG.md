@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Cooldown manager
+### Cooldown Manager
 - New: keybinds – the key of the action button on each cooldown manager
   icon; size, position and offset adjustable per bar
 
