@@ -54,6 +54,7 @@ Modules\Graphics\GraphicsTweaks.lua
 # Merchant
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
+Modules\Merchant\TrainAll.lua
 
 # Loot
 Modules\Loot\AutoConfirmBindOnPickup.lua
