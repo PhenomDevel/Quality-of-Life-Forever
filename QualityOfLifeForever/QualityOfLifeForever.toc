@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## Category: Quality of Life
 ## Category-deDE: Komfort
-## IconTexture: Interface\Icons\INV_Misc_Gear_01
+## IconTexture: Interface\AddOns\QualityOfLifeForever\Media\Logo
 ## SavedVariables: QualityOfLifeForeverDB
 ## X-Curse-Project-ID: 1748279
 ## AddonCompartmentFunc: QualityOfLifeForever_OnAddonCompartmentClick

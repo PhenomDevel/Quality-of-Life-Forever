@@ -8,7 +8,8 @@ QualityOfLifeForever/        addon folder (the only thing that gets installed)
   Locales/                   enUS (base) + deDE
   Core/                      DB, module registry/lifecycle, settings panel, slash commands
   Modules/<Category>/        one file per module
-docs/                        module API, template, roadmap
+  Media/                     Logo.tga (64x64, 32-bit TGA from docs/media/logo.png)
+docs/                        module API, template, roadmap, logo source
 .pkgmeta                     packaging config (BigWigs packager)
 ```
 
