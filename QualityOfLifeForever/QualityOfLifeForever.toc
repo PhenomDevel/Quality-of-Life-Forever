@@ -74,6 +74,7 @@ Modules\Chat\ShortChannelNames.lua
 Modules\Chat\SpamFilter.lua
 
 # Map
+Modules\Map\WorldMapWindow.lua
 Modules\Map\ZoneLevels.lua
 
 # Bootstrap (must be last)
