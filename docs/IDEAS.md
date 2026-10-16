@@ -71,7 +71,7 @@ Several hooks, own UI or noticeable Forever restrictions.
 | 22 | [-] ~~Mail: collect all~~ | Merchant | dropped: Blizzard's mailbox already has "Open All" | – |
 | 23 | [x] Shorten channel prefixes (`ShortChannelNames`) | Chat | replace channel names in messages | medium: chat restrictions in instances |
 | 24 | [x] Copyable URLs (`CopyableURLs`) | Chat | turn URLs into links, click opens a copy box | medium: chat restrictions in instances |
-| 25 | [ ] Cooldown manager: keybinds (show, position, size, font) | Cooldown manager | map spells to action bar bindings, overlay text; position/size/font as options of one module | medium: verify cooldown manager structure in Forever |
+| 25 | [x] Cooldown manager: keybinds (`CooldownKeybinds`) (show, position, size, font) | Cooldown manager | map spells to action bar bindings, overlay text; position/size/font as options of one module | medium: verify cooldown manager structure in Forever |
 | 26 | [-] ~~Player notes~~ | Social | dropped | – |
 | 27 | [x] Spam filter, matches moved to a "Spam" tab (`SpamFilter`) | Chat | message filter with own keyword list | medium: chat restrictions, false positives |
 | 28 | [x] Smaller/movable world map (`WorldMapWindow`) | World map | change and persist map size/position | medium |
