@@ -17,7 +17,7 @@ L.UNKNOWN_VERSION = "dev"
 -- Categories
 L.CATEGORY_GENERAL = "General"
 L.CATEGORY_INTERFACE = "Interface"
-L.CATEGORY_COOLDOWN_MANAGER = "Cooldown manager"
+L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Merchant"
 L.CATEGORY_LOOT = "Loot"
 L.CATEGORY_SOCIAL = "Social"

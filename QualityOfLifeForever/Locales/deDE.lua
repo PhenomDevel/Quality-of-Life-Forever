@@ -12,7 +12,7 @@ L.ADDON_LOADED = "Version %s geladen. Gib |cffffd100/qol|r für die Optionen ein
 -- Categories
 L.CATEGORY_GENERAL = "Allgemein"
 L.CATEGORY_INTERFACE = "Oberfläche"
-L.CATEGORY_COOLDOWN_MANAGER = "Cooldown-Manager"
+L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Händler"
 L.CATEGORY_LOOT = "Beute"
 L.CATEGORY_SOCIAL = "Soziales"

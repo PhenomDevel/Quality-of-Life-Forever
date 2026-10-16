@@ -6,8 +6,8 @@ local Utils = ns.Utils
 --------------------------------------------------------------------------------
 -- Categories
 --------------------------------------------------------------------------------
--- Every module belongs to exactly one category. The order here is the order of
--- the sub pages in the settings panel. Empty categories are not shown.
+-- Every module belongs to exactly one category. The sub pages in the settings
+-- panel are sorted by localized name. Empty categories are not shown.
 
 ns.categories = {
 	{ id = "GAME_SETTINGS", name = L.CATEGORY_GAME_SETTINGS },
@@ -25,6 +25,10 @@ ns.categories = {
 	{ id = "MAP", name = L.CATEGORY_MAP },
 	{ id = "GENERAL", name = L.CATEGORY_GENERAL },
 }
+
+table.sort(ns.categories, function(a, b)
+	return a.name:lower() < b.name:lower()
+end)
 
 local categoryById = {}
 for _, category in ipairs(ns.categories) do
