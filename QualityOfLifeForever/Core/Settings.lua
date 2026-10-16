@@ -11,11 +11,10 @@ local L = ns.L
 		  ├─ Loot
 		  └─ ...
 
-	Every module gets a section header with its title and an "Enabled" checkbox.
-	Its options are nested below it and are only editable while the module is
-	enabled. Group headers inside a module indent the options after them by one
-	more level. The settings are bound directly to
-	the saved variables, so no extra save step is needed.
+	Every module gets an enable checkbox. Its options are nested below it and are
+	only editable while the module is enabled. Group headers inside a module
+	indent the options after them by one more level. The settings are bound
+	directly to the saved variables, so no extra save step is needed.
 ]]
 
 local VARIABLE_PREFIX = "QOLFOREVER_"
@@ -172,13 +171,7 @@ local function AddModule(category, layout, module)
 	)
 	module.settings.enabled = enabledSetting
 
-	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(module.title, module.description))
 	local enabledInitializer = Settings.CreateCheckbox(category, enabledSetting, module.description)
-	-- The setting keeps the module title as its name (settings search).
-	enabledInitializer.data.name = L.SETTING_MODULE_ENABLED
-	if enabledInitializer.AddSearchTags then
-		enabledInitializer:AddSearchTags(module.title)
-	end
 	AddNote(layout, module.note, false)
 
 	local grouped = false
