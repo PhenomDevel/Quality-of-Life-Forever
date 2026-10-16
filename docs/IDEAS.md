@@ -25,7 +25,7 @@ still needs in-game verification.
 | 1 | [x] Auto loot (`AutoLoot`) | Loot | CVar `autoLootDefault` | low |
 | 2 | [x] Hide name on player frame (`HidePlayerName`) | Character | alpha on the player frame name | low: region name in Forever |
 | 3 | [x] Max camera distance, default 4.0 (`CameraZoom`) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
-| 4 | [x] Advanced graphics settings (`GraphicsTweaks`) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
+| 4 | [x] Advanced graphics settings (`GraphicsTweaks`) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges measured with `/qol cvarinfo` (Forever 1.60.1) |
 | 5 | [x] Class colors in chat (`ChatClassColors`) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
 | 6 | [x] Instant quest text (`InstantQuestText`) | Quests | CVar `instantQuestText` (read by `QuestFrameDetailPanel_OnShow`) | low |
 | 7 | [x] Auto-decline guild invites/charters (`AutoDeclineGuildInvites`) | Social | events → `DeclineGuild` / `ClosePetition` | low |

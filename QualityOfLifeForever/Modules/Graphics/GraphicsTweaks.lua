@@ -10,16 +10,26 @@ local L = ns.NewLocale({
 		RESTORE_DESC = "Restore the values from before the first Apply.",
 		APPLIED = "Graphics settings applied.",
 		RESTORED = "Graphics settings restored.",
-		RANGE_HINT = "Ranges are estimates; the client may clamp values.",
+		RANGE = "CVar %s · default %s · range %s–%s",
+		UNBOUNDED = "CVar %s · default %s · no engine limit (slider %s–%s)",
 		groundEffectDensity = "Ground clutter density",
+		groundEffectDensity_DESC = "How densely grass, small plants and rocks are placed on the ground.",
 		groundEffectDist = "Ground clutter distance",
+		groundEffectDist_DESC = "Distance up to which ground clutter is drawn.",
 		groundEffectFade = "Ground clutter fade distance",
-		lodObjectFadeScale = "Object fade scale",
-		lodObjectCullSize = "Object cull size (lower = more objects)",
+		groundEffectFade_DESC = "Distance at which ground clutter starts to fade out. Values above the clutter distance have no visible effect.",
+		lodObjectFadeScale = "Object fade distance scale",
+		lodObjectFadeScale_DESC = "Scales the distance at which objects (trees, buildings, props) fade in and switch detail levels. 100 = standard, higher = visible further away.",
+		lodObjectCullSize = "Object cull size",
+		lodObjectCullSize_DESC = "Objects that appear smaller than this on screen are not drawn. Lower = more small objects in the distance.",
 		terrainLodDist = "Terrain detail distance",
+		terrainLodDist_DESC = "Distance up to which terrain is drawn at full detail; beyond it a coarser version is used.",
 		ResampleAlwaysSharpen = "Always sharpen when resampling",
-		reflectionMode = "Water reflections (0-3)",
-		weatherDensity = "Weather density (0-3)",
+		ResampleAlwaysSharpen_DESC = "Applies sharpening whenever the image is resampled to the screen resolution.",
+		reflectionMode = "Water reflections",
+		reflectionMode_DESC = "Detail level of reflections on water surfaces. Higher = more of the world is reflected.",
+		weatherDensity = "Weather density",
+		weatherDensity_DESC = "Amount of weather particles such as rain, snow and sand.",
 	},
 	deDE = {
 		TITLE = "Erweiterte Grafikeinstellungen",
@@ -30,31 +40,54 @@ local L = ns.NewLocale({
 		RESTORE_DESC = "Stellt die Werte von vor dem ersten „Anwenden“ wieder her.",
 		APPLIED = "Grafikeinstellungen angewendet.",
 		RESTORED = "Grafikeinstellungen wiederhergestellt.",
-		RANGE_HINT = "Wertebereiche sind geschätzt; der Client kann Werte begrenzen.",
+		RANGE = "CVar %s · Standard %s · Bereich %s–%s",
+		UNBOUNDED = "CVar %s · Standard %s · keine Engine-Grenze (Regler %s–%s)",
 		groundEffectDensity = "Bodendetail-Dichte",
+		groundEffectDensity_DESC = "Wie dicht Gras, kleine Pflanzen und Steine auf dem Boden platziert werden.",
 		groundEffectDist = "Bodendetail-Sichtweite",
+		groundEffectDist_DESC = "Entfernung, bis zu der Bodendetails dargestellt werden.",
 		groundEffectFade = "Bodendetail-Ausblendweite",
-		lodObjectFadeScale = "Objekt-Ausblendskalierung",
-		lodObjectCullSize = "Objekt-Cull-Größe (kleiner = mehr Objekte)",
+		groundEffectFade_DESC = "Entfernung, ab der Bodendetails ausgeblendet werden. Werte über der Bodendetail-Sichtweite haben keinen sichtbaren Effekt.",
+		lodObjectFadeScale = "Objekt-Sichtweitenfaktor",
+		lodObjectFadeScale_DESC = "Skaliert die Entfernung, ab der Objekte (Bäume, Gebäude, Deko) eingeblendet werden und ihre Detailstufe wechseln. 100 = Standard, höher = weiter sichtbar.",
+		lodObjectCullSize = "Objekt-Mindestgröße",
+		lodObjectCullSize_DESC = "Objekte, die auf dem Bildschirm kleiner erscheinen, werden nicht gezeichnet. Kleiner = mehr kleine Objekte in der Ferne.",
 		terrainLodDist = "Gelände-Detailweite",
+		terrainLodDist_DESC = "Entfernung, bis zu der das Gelände in voller Detailstufe dargestellt wird; dahinter wird eine gröbere Version verwendet.",
 		ResampleAlwaysSharpen = "Beim Resampling immer schärfen",
-		reflectionMode = "Wasserspiegelungen (0-3)",
-		weatherDensity = "Wetterdichte (0-3)",
+		ResampleAlwaysSharpen_DESC = "Schärft das Bild immer, wenn es auf die Bildschirmauflösung umgerechnet wird.",
+		reflectionMode = "Wasserspiegelungen",
+		reflectionMode_DESC = "Detailstufe der Spiegelungen auf Wasseroberflächen. Höher = mehr von der Welt wird gespiegelt.",
+		weatherDensity = "Wetterdichte",
+		weatherDensity_DESC = "Menge der Wetterpartikel wie Regen, Schnee und Sand.",
 	},
 })
 
--- CVar name doubles as option key and locale key. Ranges are estimates.
+-- CVar name doubles as option key and locale key. `engineDefault`, `min` and
+-- `max` were measured with /qol cvarinfo on Forever 1.60.1 (70425); the engine
+-- silently rejects values outside min..max. `unbounded` CVars accept any value,
+-- their slider range is our choice. `default` is the preset applied by Apply.
 local CVARS = {
-	{ cvar = "groundEffectDensity", default = 256, min = 16, max = 256, step = 8 },
-	{ cvar = "groundEffectDist", default = 500, min = 50, max = 500, step = 10 },
-	{ cvar = "groundEffectFade", default = 370, min = 0, max = 500, step = 10 },
-	{ cvar = "lodObjectFadeScale", default = 200, min = 50, max = 200, step = 10 },
-	{ cvar = "lodObjectCullSize", default = 8, min = 0, max = 35, step = 1 },
-	{ cvar = "terrainLodDist", default = 1000, min = 200, max = 1000, step = 50 },
-	{ cvar = "ResampleAlwaysSharpen", default = true },
-	{ cvar = "reflectionMode", default = 3, min = 0, max = 3, step = 1 },
-	{ cvar = "weatherDensity", default = 3, min = 0, max = 3, step = 1 },
+	{ cvar = "groundEffectDensity", default = 256, engineDefault = 16, min = 16, max = 256, step = 8 },
+	{ cvar = "groundEffectDist", default = 500, engineDefault = 70, min = 40, max = 500, step = 10 },
+	{ cvar = "groundEffectFade", default = 370, engineDefault = 70, min = 0, max = 500, step = 10, unbounded = true },
+	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 5000, step = 50 },
+	{ cvar = "lodObjectCullSize", default = 8, engineDefault = 15, min = 1, max = 100, step = 1 },
+	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 5000, step = 50, unbounded = true },
+	{ cvar = "ResampleAlwaysSharpen", default = true, engineDefault = 0 },
+	{ cvar = "reflectionMode", default = 3, engineDefault = 3, min = 0, max = 4, step = 1 },
+	{ cvar = "weatherDensity", default = 3, engineDefault = 2, min = 0, max = 3, step = 1 },
 }
+
+local function BuildTooltip(entry)
+	local limits
+	if entry.min then
+		limits = (entry.unbounded and L.UNBOUNDED or L.RANGE):format(entry.cvar, entry.engineDefault, entry.min, entry.max)
+	else
+		limits = L.RANGE:format(entry.cvar, entry.engineDefault, 0, 1)
+	end
+	return L[entry.cvar .. "_DESC"] .. "\n\n" .. limits
+end
 
 local defaults, options = {}, {}
 for _, entry in ipairs(CVARS) do
@@ -63,7 +96,7 @@ for _, entry in ipairs(CVARS) do
 		key = entry.cvar,
 		type = type(entry.default) == "boolean" and "checkbox" or "slider",
 		label = L[entry.cvar],
-		tooltip = ("CVar %s\n%s"):format(entry.cvar, L.RANGE_HINT),
+		tooltip = BuildTooltip(entry),
 		min = entry.min,
 		max = entry.max,
 		step = entry.step,
