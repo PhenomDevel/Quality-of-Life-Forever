@@ -3,7 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto-accept summons & resurrections",
+		TITLE = "Auto-accept: summons",
+		NOTE = "Summons and resurrections, out of combat",
 		DESC = "Automatically accepts summons and resurrections while you are out of combat and no boss encounter is in progress.",
 		SUMMONS = "Summons",
 		SUMMONS_DESC = "Accept summons (e.g. warlock summoning, meeting stones).",
@@ -15,7 +16,8 @@ local L = ns.NewLocale({
 		ACCEPTED_RESURRECT = "Accepted resurrection from %s.",
 	},
 	deDE = {
-		TITLE = "Beschwörung & Wiederbelebung automatisch annehmen",
+		TITLE = "Auto-Annahme: Beschwörungen",
+		NOTE = "Beschwörungen und Wiederbelebungen, außerhalb des Kampfes",
 		DESC = "Nimmt Beschwörungen und Wiederbelebungen automatisch an, solange du nicht im Kampf bist und kein Bosskampf läuft.",
 		SUMMONS = "Beschwörungen",
 		SUMMONS_DESC = "Beschwörungen annehmen (z. B. Hexenmeister, Versammlungssteine).",
@@ -31,6 +33,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("AutoAcceptSummonResurrect", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "SOCIAL",
 	defaults = {
 		summons = true,

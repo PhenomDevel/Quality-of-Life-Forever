@@ -12,7 +12,7 @@ local L = ns.NewLocale({
 		SOLD = "Sold %d junk item(s) for %s.",
 	},
 	deDE = {
-		TITLE = "Plunder automatisch verkaufen",
+		TITLE = "Auto-Verkauf: Plunder",
 		DESC = "Verkauft beim Besuch eines Händlers automatisch alle Gegenstände schlechter Qualität (grau).",
 		SUMMARY = "Zusammenfassung anzeigen",
 		SUMMARY_DESC = "Gibt die Anzahl der verkauften Gegenstände und das erhaltene Gold aus.",

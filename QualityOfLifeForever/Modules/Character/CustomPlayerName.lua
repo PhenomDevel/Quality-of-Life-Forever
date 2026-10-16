@@ -3,7 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Custom name on player frame",
+		TITLE = "Custom player name",
+		NOTE = "Shown on the player frame",
 		DESC = "Shows a name of your choice on the player unit frame instead of your character name. Only visible to you.",
 		SET = "Name",
 		SET_BUTTON = "Change…",
@@ -11,7 +12,8 @@ local L = ns.NewLocale({
 		DIALOG = "Name on the player frame (empty = character name):",
 	},
 	deDE = {
-		TITLE = "Eigener Name im Spielerrahmen",
+		TITLE = "Eigener Spielername",
+		NOTE = "Wird im Spielerrahmen angezeigt",
 		DESC = "Zeigt im Spielerrahmen einen Namen deiner Wahl statt deines Charakternamens an. Nur für dich sichtbar.",
 		SET = "Name",
 		SET_BUTTON = "Ändern…",
@@ -26,6 +28,7 @@ local MAX_LETTERS = 32
 local module = ns:NewModule("CustomPlayerName", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "CHARACTER",
 	defaults = {
 		name = "",

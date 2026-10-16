@@ -14,22 +14,27 @@ or disabled individually.
 
 ## Modules
 
-| Module                          | Category  | Default | Description |
-|---------------------------------|-----------|---------|-------------|
-| Hide name on player frame       | Character | off     | Hides your name on the player unit frame |
-| Anchor tooltip to cursor        | Tooltip   | off     | Default-anchored tooltips follow the cursor (3 positions) |
-| Max camera distance             | Camera    | off     | Sets `cameraDistanceMaxZoomFactor` (1.0–4.0) |
-| Advanced graphics settings      | Graphics  | off     | Sliders for hidden graphics CVars, Apply/Restore buttons |
-| Auto repair                     | Merchant  | on      | Repairs all items at a merchant, optionally using guild funds |
-| Auto sell junk                  | Merchant  | on      | Sells poor quality (grey) items at a merchant |
-| Confirm bind on pickup when solo| Loot      | off     | Auto-confirms the BoP loot dialog outside of groups |
-| Auto loot                       | Loot      | off     | Turns on the game's auto loot setting |
-| Fast loot                       | Loot      | off     | Loots all slots instantly when auto loot is active |
-| Instant quest text              | Quests    | off     | Shows quest text without fade-in |
-| Auto-accept summons & resurrections | Social | off     | Auto-accepts out of combat and outside boss encounters |
-| Auto decline duels              | Social    | off     | Declines duel requests |
-| Auto-decline guild invites & charters | Social | off     | Declines guild invites and charter signature requests |
-| Class colors in chat            | Chat      | off     | Colors player names in chat by class |
+| Module                     | Category  | Default | Description                                                   |
+|----------------------------|-----------|---------|---------------------------------------------------------------|
+| Hide player name           | Character | off     | Hides your name on the player unit frame                      |
+| Custom player name         | Character | off     | Shows a name of your choice on the player frame               |
+| Show durability            | Character | off     | Durability in percent on the character frame                  |
+| Skip cinematics            | Interface | off     | Skips cinematics and movies (hold Shift to watch)             |
+| Tooltip tweaks             | Tooltip   | off     | Cursor anchor, scale and background opacity                   |
+| Max camera distance        | Camera    | off     | Sets `cameraDistanceMaxZoomFactor` (1.0–4.0)                  |
+| Advanced graphics          | Graphics  | off     | Sliders for hidden graphics CVars, Apply/Restore buttons      |
+| Auto repair                | Merchant  | on      | Repairs all items at a merchant, optionally using guild funds |
+| Auto sell junk             | Merchant  | on      | Sells poor quality (grey) items at a merchant                 |
+| Auto-confirm BoP loot      | Loot      | off     | Confirms the Bind on Pickup dialog when not in a group        |
+| Auto loot                  | Loot      | off     | Turns on the game's auto loot setting                         |
+| Fast loot                  | Loot      | off     | Loots all slots instantly when auto loot is active            |
+| Instant quest text         | Quests    | off     | Shows quest text without fade-in                              |
+| Quest progress in chat     | Quests    | off     | Copies quest progress messages into the chat frame            |
+| Auto-accept: group invites | Social    | off     | From friends and guild members                                |
+| Auto-accept: summons       | Social    | off     | Summons and resurrections, out of combat                      |
+| Auto-decline: duels        | Social    | off     | Declines duel requests                                        |
+| Auto-decline: guild        | Social    | off     | Guild invites and charter signature requests                  |
+| Class colors in chat       | Chat      | off     | Colors player names in chat by class                          |
 
 CVar-based modules restore your previous values when disabled.
 

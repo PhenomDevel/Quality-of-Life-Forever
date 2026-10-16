@@ -200,6 +200,7 @@ ns.moduleOrder = {}
 	info = {
 		title           = string, shown in the settings panel (localized)
 		description     = string, tooltip of the enable checkbox (localized)
+		note            = optional short gray line shown below the title (localized)
 		category        = one of the ids in ns.categories (default "GENERAL")
 		defaultEnabled  = boolean (default false)
 		defaults        = table of option defaults, stored in module.db
@@ -207,6 +208,7 @@ ns.moduleOrder = {}
 		                  { key, type = "checkbox" | "slider" | "dropdown", label, tooltip,
 		                    min, max, step, format (slider), values (dropdown) }
 		                  { type = "button", label, buttonText, tooltip, onClick(module) }
+		                  Every option may have a `note` (gray line below it).
 		combatProtected = boolean, enable/disable is deferred until out of combat
 		requiresReload  = boolean, ask for a /reload after disabling
 	}
@@ -230,6 +232,7 @@ function ns:NewModule(name, info)
 		name = name,
 		title = info.title or name,
 		description = info.description or "",
+		note = info.note,
 		category = category,
 		defaultEnabled = info.defaultEnabled == true,
 		defaults = info.defaults or {},

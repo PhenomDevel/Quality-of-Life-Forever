@@ -3,7 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto-accept group invites",
+		TITLE = "Auto-accept: group invites",
+		NOTE = "From friends and guild members",
 		DESC = "Automatically accepts group invites from friends and guild members. Role-check invites and invites that would remove you from a queue are left to you.",
 		FRIENDS = "Friends",
 		FRIENDS_DESC = "Battle.net and character friends.",
@@ -14,7 +15,8 @@ local L = ns.NewLocale({
 		ACCEPTED = "Accepted group invite from %s.",
 	},
 	deDE = {
-		TITLE = "Gruppeneinladungen automatisch annehmen",
+		TITLE = "Auto-Annahme: Einladungen",
+		NOTE = "Gruppeneinladungen von Freunden und Gilde",
 		DESC = "Nimmt Gruppeneinladungen von Freunden und Gildenmitgliedern automatisch an. Einladungen mit Rollenauswahl und solche, die dich aus einer Warteschlange entfernen würden, bleiben dir überlassen.",
 		FRIENDS = "Freunde",
 		FRIENDS_DESC = "Battle.net- und Charakterfreunde.",
@@ -29,6 +31,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("AutoAcceptGroupInvites", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "SOCIAL",
 	defaults = {
 		friends = true,
