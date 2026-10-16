@@ -81,4 +81,4 @@ Several hooks, own UI or noticeable Forever restrictions.
 | # | Idea | Area | Why |
 |---|------|------|-----|
 | 29 | [-] ~~Move/scale Blizzard frames~~ | Interface | dropped: a fixed frame list covers too little; dedicated addons do this better |
-| 30 | [ ] Semi-transparent fog of war | World map | The API only returns *explored* map tiles. Unexplored areas would need our own map data collected in-game (other addons' data is off-limits). Feasibility open. |
+| 30 | [-] ~~Semi-transparent fog of war~~ | World map | dropped: the API only returns *explored* map tiles; unexplored areas would need overlay data collected in-game for every zone (other addons' data is off-limits) |
