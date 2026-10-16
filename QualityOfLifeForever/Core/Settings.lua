@@ -19,6 +19,28 @@ local L = ns.L
 
 local VARIABLE_PREFIX = "QOLFOREVER_"
 
+-- Dropdown entries with a `font` file are drawn in that font (preview). Called
+-- by Blizzard's option inserter after all entries were added.
+local function ApplyEntryFonts(rootDescription, values)
+	local fonts = {}
+	for _, entry in ipairs(values) do
+		fonts[entry.value] = entry.font
+	end
+	if not next(fonts) then
+		return
+	end
+	for _, description in rootDescription:EnumerateElementDescriptions() do
+		local data = description:GetData()
+		local font = type(data) == "table" and fonts[data.value]
+		if font then
+			description:AddInitializer(function(button)
+				local _, size, flags = button.fontString:GetFont()
+				button.fontString:SetFont(font, size, flags or "")
+			end)
+		end
+	end
+end
+
 -- Optional gray note below a row ("note" on a module or option). Uses its own
 -- template; Blizzard's rows have a fixed label width, so long explanations go
 -- here instead of into the label.
@@ -147,6 +169,9 @@ local function CreateOptionControl(category, layout, module, option, parentIniti
 			return container:GetData()
 		end
 		initializer = Settings.CreateDropdown(category, setting, GetOptions, option.tooltip)
+		initializer.customOptionHandler = function(rootDescription)
+			ApplyEntryFonts(rootDescription, option.values)
+		end
 	else
 		error(("Module %q option %q has unknown type %q"):format(module.name, option.key, tostring(option.type)))
 	end

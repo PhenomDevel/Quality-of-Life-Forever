@@ -5,16 +5,20 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Game font",
 		NOTE = "Replaces the standard interface font",
-		DESC = "Replaces the standard interface font (Friz Quadrata) and Arial Narrow with one of the game's fonts. Decorative fonts stay as they are. Only for clients with Latin script.",
+		DESC = "Replaces the standard interface font (Friz Quadrata) and Arial Narrow with one of the game's fonts and optionally changes its size. Decorative fonts stay as they are. Only for clients with Latin script.",
 		FONT = "Font",
 		FONT_DESC = "Font used instead of Friz Quadrata and Arial Narrow. Chat windows keep their font until /reload.",
+		SIZE = "Size",
+		SIZE_DESC = "Scales the size of the replaced fonts. Large values can make text overflow its frame.",
 	},
 	deDE = {
 		TITLE = "Spielschrift",
 		NOTE = "Ersetzt die Standardschrift der Oberfläche",
-		DESC = "Ersetzt die Standardschrift der Oberfläche (Friz Quadrata) und Arial Narrow durch eine der Schriften des Spiels. Zierschriften bleiben unverändert. Nur für Clients mit lateinischer Schrift.",
+		DESC = "Ersetzt die Standardschrift der Oberfläche (Friz Quadrata) und Arial Narrow durch eine der Schriften des Spiels und ändert auf Wunsch ihre Größe. Zierschriften bleiben unverändert. Nur für Clients mit lateinischer Schrift.",
 		FONT = "Schriftart",
 		FONT_DESC = "Schrift, die statt Friz Quadrata und Arial Narrow verwendet wird. Chatfenster behalten ihre Schrift bis /reload.",
+		SIZE = "Größe",
+		SIZE_DESC = "Skaliert die Größe der ersetzten Schriften. Große Werte können Text über seinen Rahmen hinauslaufen lassen.",
 	},
 })
 
@@ -35,7 +39,11 @@ local LATIN = {
 
 local values = {}
 for _, font in ipairs(FONTS) do
-	values[#values + 1] = { value = font.file, label = font.label }
+	values[#values + 1] = { value = font.file, label = font.label, font = font.file }
+end
+
+local function FormatPercent(value)
+	return ("%d%%"):format(value * 100 + 0.5)
 end
 
 local module = ns:NewModule("GameFont", {
@@ -45,13 +53,15 @@ local module = ns:NewModule("GameFont", {
 	category = "INTERFACE",
 	defaults = {
 		font = FONTS[2].file,
+		scale = 1,
 	},
 	options = {
 		{ key = "font", type = "dropdown", label = L.FONT, tooltip = L.FONT_DESC, values = values },
+		{ key = "scale", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 0.8, max = 1.5, step = 0.05, format = FormatPercent },
 	},
 })
 
--- font object -> original font file
+-- font object -> { file = original file, size = original size }
 local originals = {}
 
 local function FileName(path)
@@ -68,23 +78,21 @@ function module:Apply()
 		if font and font.GetFont then
 			local file, size, flags = font:GetFont()
 			local original = originals[font]
-			if not original and REPLACED[FileName(file)] then
-				original = file
-				originals[font] = file
+			if not original and size and REPLACED[FileName(file)] then
+				original = { file = file, size = size }
+				originals[font] = original
 			end
-			if original and size and file ~= self.db.font then
-				font:SetFont(self.db.font, size, flags or "")
+			if original then
+				font:SetFont(self.db.font, original.size * self.db.scale, flags or "")
 			end
 		end
 	end
 end
 
 function module:Restore()
-	for font, file in pairs(originals) do
-		local _, size, flags = font:GetFont()
-		if size then
-			font:SetFont(file, size, flags or "")
-		end
+	for font, original in pairs(originals) do
+		local _, _, flags = font:GetFont()
+		font:SetFont(original.file, original.size, flags or "")
 	end
 	wipe(originals)
 end
