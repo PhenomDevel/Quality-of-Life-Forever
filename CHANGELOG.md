@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-### Interface
-- New: movable windows – drag Blizzard windows (character, merchant, mail,
-  quests, collections, …) by their title bar; positions are saved
-
 ### Cooldown Manager
 - New: keybinds – the key of the action button on each cooldown manager
   icon; size, position and offset adjustable per bar

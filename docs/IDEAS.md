@@ -80,5 +80,5 @@ Several hooks, own UI or noticeable Forever restrictions.
 
 | # | Idea | Area | Why |
 |---|------|------|-----|
-| 29 | [x] Move Blizzard frames (`MovableFrames`) | Interface | done: drag handle over the title bar, positions re-applied after the panel manager; protected frames skipped; no scaling (some frames scale themselves to fit) |
+| 29 | [-] ~~Move/scale Blizzard frames~~ | Interface | dropped: a fixed frame list covers too little; dedicated addons do this better |
 | 30 | [ ] Semi-transparent fog of war | World map | The API only returns *explored* map tiles. Unexplored areas would need our own map data collected in-game (other addons' data is off-limits). Feasibility open. |
