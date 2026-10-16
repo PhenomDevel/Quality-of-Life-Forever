@@ -30,6 +30,7 @@ Core\SlashCommands.lua
 # Character
 
 # Tooltip
+Modules\Tooltip\TooltipAnchor.lua
 
 # Camera
 
