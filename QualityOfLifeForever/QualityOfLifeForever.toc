@@ -60,6 +60,7 @@ Modules\Loot\AutoLoot.lua
 Modules\Loot\FastLoot.lua
 
 # Quests
+Modules\Quests\AutoQuest.lua
 Modules\Quests\InstantQuestText.lua
 Modules\Quests\QuestProgress.lua
 
