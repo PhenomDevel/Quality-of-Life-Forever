@@ -28,18 +28,23 @@ Core\SlashCommands.lua
 # Game settings (shortcuts to Blizzard options/CVars)
 
 # Character
+Modules\Character\HidePlayerName.lua
 
 # Tooltip
+Modules\Tooltip\TooltipAnchor.lua
 
 # Camera
+Modules\Camera\CameraZoom.lua
 
 # Graphics
+Modules\Graphics\GraphicsTweaks.lua
 
 # Merchant
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
 
 # Loot
+Modules\Loot\AutoConfirmBindOnPickup.lua
 Modules\Loot\AutoLoot.lua
 Modules\Loot\FastLoot.lua
 
