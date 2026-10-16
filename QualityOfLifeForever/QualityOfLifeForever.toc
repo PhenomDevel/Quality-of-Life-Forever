@@ -67,6 +67,7 @@ Modules\Social\AutoDeclineGuildInvites.lua
 
 # Chat
 Modules\Chat\ChatClassColors.lua
+Modules\Chat\ShortChannelNames.lua
 
 # Map
 Modules\Map\ZoneLevels.lua
