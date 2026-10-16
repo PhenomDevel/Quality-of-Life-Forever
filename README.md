@@ -22,8 +22,8 @@ watch it.
 #### Keybinds
 Shows the keybind of the matching action button on the icons of the cooldown
 manager.
-- Show on: essential cooldowns, utility cooldowns
-- Display: font size (8–38 px), position (corners, edges, center)
+- Separately for essential and utility cooldowns: show, font size (8–38 px),
+  position (corners, edges, center), horizontal/vertical offset (±30 px)
 
 ### Character
 

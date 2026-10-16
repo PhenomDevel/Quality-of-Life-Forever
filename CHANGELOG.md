@@ -4,7 +4,7 @@
 
 ### Cooldown manager
 - New: keybinds – the key of the action button on each cooldown manager
-  icon; size and position adjustable
+  icon; size, position and offset adjustable per bar
 
 ### World map
 - New: movable world map – scale the windowed map and drag it by its title
