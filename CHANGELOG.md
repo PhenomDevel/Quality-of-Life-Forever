@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0-beta1 (2026-10-16)
+## v0.1.0 (2026-10-16)
 
 Initial release. Every feature is a module that can be toggled individually
 in Options → AddOns → Quality of Life Forever (or via `/qol`).
