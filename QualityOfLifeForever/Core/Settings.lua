@@ -22,6 +22,7 @@ local VARIABLE_PREFIX = "QOLFOREVER_"
 -- template; Blizzard's rows have a fixed label width, so long explanations go
 -- here instead of into the label.
 local NOTE_TEMPLATE = "QualityOfLifeForeverSettingsNoteTemplate"
+local SUBHEADER_TEMPLATE = "QualityOfLifeForeverSettingsSubheaderTemplate"
 local INDENT_SIZE = 15 -- Blizzard_SettingControls.lua indentSize
 
 QualityOfLifeForeverSettingsNoteMixin = {}
@@ -35,13 +36,17 @@ function QualityOfLifeForeverSettingsNoteMixin:Init(initializer)
 	self.Text:SetText(data.text)
 end
 
-local function AddNote(layout, text, indented)
+local function AddText(layout, template, text, indented)
 	if text then
-		layout:AddInitializer(Settings.CreateElementInitializer(NOTE_TEMPLATE, {
+		layout:AddInitializer(Settings.CreateElementInitializer(template, {
 			text = text,
 			indent = indented and INDENT_SIZE or 0,
 		}))
 	end
+end
+
+local function AddNote(layout, text, indented)
+	AddText(layout, NOTE_TEMPLATE, text, indented)
 end
 
 local function RegisterSetting(category, variable, key, tbl, name, defaultValue, onChange)
@@ -96,7 +101,10 @@ local function CreateButton(layout, module, option, parentInitializer)
 end
 
 local function CreateOptionControl(category, layout, module, option, parentInitializer)
-	if option.type == "button" then
+	if option.type == "header" then
+		AddText(layout, SUBHEADER_TEMPLATE, option.label, true)
+		return
+	elseif option.type == "button" then
 		return CreateButton(layout, module, option, parentInitializer)
 	end
 

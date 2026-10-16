@@ -3,6 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
+		SECTION_MAIN = "Accept",
+		SECTION_MESSAGES = "Messages",
 		TITLE = "Auto-accept: summons",
 		NOTE = "Summons and resurrections, out of combat",
 		DESC = "Automatically accepts summons and resurrections while you are out of combat and no boss encounter is in progress.",
@@ -16,6 +18,8 @@ local L = ns.NewLocale({
 		ACCEPTED_RESURRECT = "Accepted resurrection from %s.",
 	},
 	deDE = {
+		SECTION_MAIN = "Annehmen",
+		SECTION_MESSAGES = "Nachrichten",
 		TITLE = "Auto-Annahme: Beschwörungen",
 		NOTE = "Beschwörungen und Wiederbelebungen, außerhalb des Kampfes",
 		DESC = "Nimmt Beschwörungen und Wiederbelebungen automatisch an, solange du nicht im Kampf bist und kein Bosskampf läuft.",
@@ -41,8 +45,10 @@ local module = ns:NewModule("AutoAcceptSummonResurrect", {
 		notify = true,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_MAIN },
 		{ key = "summons", type = "checkbox", label = L.SUMMONS, tooltip = L.SUMMONS_DESC },
 		{ key = "resurrections", type = "checkbox", label = L.RESURRECTIONS, tooltip = L.RESURRECTIONS_DESC },
+		{ type = "header", label = L.SECTION_MESSAGES },
 		{ key = "notify", type = "checkbox", label = L.NOTIFY, tooltip = L.NOTIFY_DESC },
 	},
 })

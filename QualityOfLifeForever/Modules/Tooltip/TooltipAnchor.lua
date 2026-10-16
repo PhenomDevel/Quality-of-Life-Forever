@@ -4,6 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Tooltip tweaks",
+		SECTION_POSITION = "Position",
+		SECTION_APPEARANCE = "Appearance",
 		DESC = "Position, scale and background transparency of tooltips.",
 		ANCHOR = "Position",
 		ANCHOR_DESC = "Where tooltips that use the default position are placed.",
@@ -18,6 +20,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Tooltip-Anpassungen",
+		SECTION_POSITION = "Position",
+		SECTION_APPEARANCE = "Darstellung",
 		DESC = "Position, Größe und Hintergrund-Transparenz von Tooltips.",
 		ANCHOR = "Position",
 		ANCHOR_DESC = "Wo Tooltips mit Standardposition erscheinen.",
@@ -49,6 +53,7 @@ local module = ns:NewModule("TooltipAnchor", {
 		alpha = 1,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_POSITION },
 		{
 			key = "anchor",
 			type = "dropdown",
@@ -61,6 +66,7 @@ local module = ns:NewModule("TooltipAnchor", {
 				{ value = "ANCHOR_CURSOR_LEFT", label = L.ANCHOR_CURSOR_LEFT },
 			},
 		},
+		{ type = "header", label = L.SECTION_APPEARANCE },
 		{ key = "scale", type = "slider", label = L.SCALE, tooltip = L.SCALE_DESC, min = 0.5, max = 2, step = 0.05, format = FormatPercent },
 		{ key = "alpha", type = "slider", label = L.ALPHA, tooltip = L.ALPHA_DESC, min = 0, max = 1, step = 0.05, format = FormatPercent },
 	},

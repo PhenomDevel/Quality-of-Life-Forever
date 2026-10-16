@@ -3,6 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
+		SECTION_MAIN = "Accept from",
+		SECTION_MESSAGES = "Messages",
 		TITLE = "Auto-accept: group invites",
 		NOTE = "From friends and guild members",
 		DESC = "Automatically accepts group invites from friends and guild members. Role-check invites and invites that would remove you from a queue are left to you.",
@@ -15,6 +17,8 @@ local L = ns.NewLocale({
 		ACCEPTED = "Accepted group invite from %s.",
 	},
 	deDE = {
+		SECTION_MAIN = "Annehmen von",
+		SECTION_MESSAGES = "Nachrichten",
 		TITLE = "Auto-Annahme: Einladungen",
 		NOTE = "Gruppeneinladungen von Freunden und Gilde",
 		DESC = "Nimmt Gruppeneinladungen von Freunden und Gildenmitgliedern automatisch an. Einladungen mit Rollenauswahl und solche, die dich aus einer Warteschlange entfernen würden, bleiben dir überlassen.",
@@ -39,8 +43,10 @@ local module = ns:NewModule("AutoAcceptGroupInvites", {
 		notify = true,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_MAIN },
 		{ key = "friends", type = "checkbox", label = L.FRIENDS, tooltip = L.FRIENDS_DESC },
 		{ key = "guild", type = "checkbox", label = L.GUILD, tooltip = L.GUILD_DESC },
+		{ type = "header", label = L.SECTION_MESSAGES },
 		{ key = "notify", type = "checkbox", label = L.NOTIFY, tooltip = L.NOTIFY_DESC },
 	},
 })

@@ -3,6 +3,8 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
+		SECTION_MAIN = "Decline",
+		SECTION_MESSAGES = "Messages",
 		TITLE = "Auto-decline: guild",
 		NOTE = "Guild invites and charters",
 		DESC = "Automatically declines guild invitations and guild charter signature requests.",
@@ -16,6 +18,8 @@ local L = ns.NewLocale({
 		DECLINED_PETITION = "Declined guild charter from %s.",
 	},
 	deDE = {
+		SECTION_MAIN = "Ablehnen",
+		SECTION_MESSAGES = "Nachrichten",
 		TITLE = "Auto-Ablehnung: Gilde",
 		NOTE = "Gildeneinladungen und Satzungen",
 		DESC = "Lehnt Gildeneinladungen und Anfragen zum Unterschreiben von Gildensatzungen automatisch ab.",
@@ -41,8 +45,10 @@ local module = ns:NewModule("AutoDeclineGuildInvites", {
 		notify = true,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_MAIN },
 		{ key = "invites", type = "checkbox", label = L.INVITES, tooltip = L.INVITES_DESC },
 		{ key = "petitions", type = "checkbox", label = L.PETITIONS, tooltip = L.PETITIONS_DESC },
+		{ type = "header", label = L.SECTION_MESSAGES },
 		{ key = "notify", type = "checkbox", label = L.NOTIFY, tooltip = L.NOTIFY_DESC },
 	},
 })

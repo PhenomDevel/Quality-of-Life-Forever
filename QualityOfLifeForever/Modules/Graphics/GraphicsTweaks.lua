@@ -13,6 +13,10 @@ local L = ns.NewLocale({
 		RESTORED = "Graphics settings restored.",
 		RANGE = "CVar %s · default %s · range %s–%s",
 		UNBOUNDED = "CVar %s · default %s · no engine limit (slider %s–%s)",
+		SECTION_CLUTTER = "Ground clutter",
+		SECTION_DISTANCE = "View distance",
+		SECTION_EFFECTS = "Effects",
+		SECTION_ACTIONS = "Actions",
 		groundEffectDensity = "Ground clutter density",
 		groundEffectDensity_DESC = "How densely grass, small plants and rocks are placed on the ground.",
 		groundEffectDist = "Ground clutter distance",
@@ -44,6 +48,10 @@ local L = ns.NewLocale({
 		RESTORED = "Grafikeinstellungen wiederhergestellt.",
 		RANGE = "CVar %s · Standard %s · Bereich %s–%s",
 		UNBOUNDED = "CVar %s · Standard %s · keine Engine-Grenze (Regler %s–%s)",
+		SECTION_CLUTTER = "Bodendetails",
+		SECTION_DISTANCE = "Sichtweite",
+		SECTION_EFFECTS = "Effekte",
+		SECTION_ACTIONS = "Aktionen",
 		groundEffectDensity = "Bodendetail-Dichte",
 		groundEffectDensity_DESC = "Wie dicht Gras, kleine Pflanzen und Steine auf dem Boden platziert werden.",
 		groundEffectDist = "Bodendetail-Sichtweite",
@@ -70,15 +78,15 @@ local L = ns.NewLocale({
 -- silently rejects values outside min..max. `unbounded` CVars accept any value,
 -- their slider range is our choice. lodObjectFadeScale (engine max 5000) and
 -- terrainLodDist are limited to 1000 for performance. `default` is the preset
--- applied by Apply.
+-- applied by Apply. `section` starts a new group in the settings.
 local CVARS = {
-	{ cvar = "groundEffectDensity", default = 256, engineDefault = 16, min = 16, max = 256, step = 8 },
+	{ cvar = "groundEffectDensity", section = "SECTION_CLUTTER", default = 256, engineDefault = 16, min = 16, max = 256, step = 8 },
 	{ cvar = "groundEffectDist", default = 500, engineDefault = 70, min = 40, max = 500, step = 10 },
 	{ cvar = "groundEffectFade", default = 370, engineDefault = 70, min = 0, max = 500, step = 10, unbounded = true },
-	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 1000, step = 50 },
+	{ cvar = "lodObjectFadeScale", section = "SECTION_DISTANCE", default = 200, engineDefault = 100, min = 50, max = 1000, step = 50 },
 	{ cvar = "lodObjectCullSize", default = 8, engineDefault = 15, min = 1, max = 100, step = 1 },
 	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 1000, step = 50, unbounded = true },
-	{ cvar = "ResampleAlwaysSharpen", default = true, engineDefault = 0 },
+	{ cvar = "ResampleAlwaysSharpen", section = "SECTION_EFFECTS", default = true, engineDefault = 0 },
 	{ cvar = "reflectionMode", default = 3, engineDefault = 3, min = 0, max = 4, step = 1 },
 	{ cvar = "weatherDensity", default = 3, engineDefault = 2, min = 0, max = 3, step = 1 },
 }
@@ -96,6 +104,9 @@ end
 local defaults, options = {}, {}
 for _, entry in ipairs(CVARS) do
 	defaults[entry.cvar] = entry.default
+	if entry.section then
+		options[#options + 1] = { type = "header", label = L[entry.section] }
+	end
 	options[#options + 1] = {
 		key = entry.cvar,
 		type = type(entry.default) == "boolean" and "checkbox" or "slider",
@@ -107,6 +118,7 @@ for _, entry in ipairs(CVARS) do
 	}
 end
 
+options[#options + 1] = { type = "header", label = L.SECTION_ACTIONS }
 options[#options + 1] = {
 	type = "button",
 	label = L.APPLY,
