@@ -43,7 +43,7 @@ function module:OnEnable()
 	if self.db.expanded == nil then
 		self.db.expanded = BuffFrame.isExpanded ~= false
 	end
-	self:SecureHook(BuffFrame, "SetBuffsExpandedState", function(_, expanded)
+	self:SecureHook(BuffFrame, "SetBuffsExpandedState", function(_, _, expanded)
 		self.db.expanded = expanded and true or false
 	end)
 	self:Restore()
