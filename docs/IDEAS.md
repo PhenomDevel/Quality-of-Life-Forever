@@ -57,7 +57,6 @@ One hook or event, some logic or a small display.
 | 14 | [ ] Vendor price in tooltip | Merchant | item tooltip post-call, sell price × stack | low |
 | 15 | [ ] Accept group invites from friends/guild | Social | check inviter against friends list/guild | low |
 | 16 | [ ] Skip cinematics | Interface | cancel on start, optionally only already seen ones | medium: some can't be cancelled |
-| 17 | [ ] Buy full stack with Shift | Merchant | hook merchant item click, buy max stack | low |
 | 18 | [ ] Quest progress in chat | Quests | forward progress messages to chat | low |
 | 19 | [ ] Durability on character frame | Interface | percentage per equipment slot | low |
 | 20 | [ ] Zone level ranges | World map | level range from the map API | medium: only if the API returns data in Forever |
