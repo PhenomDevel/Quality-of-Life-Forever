@@ -90,7 +90,7 @@ Agreed after closing tiers 1–4. Ordered by effort.
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
 | 31 | [ ] Chat comfort | Chat | arrow keys in the edit box without Alt (`SetAltArrowKeyMode`), longer chat history (`SetMaxLines`), hide chat buttons, Shift + mouse wheel jumps to top/bottom | low: `SetMaxLines` clears the frame once |
-| 32 | [ ] Nameplate settings | Interface | CVars `nameplateMaxDistance`, `nameplateMotion`, `nameplateShowFriends` via `SetCVar`, applied out of combat | low: CVar ranges in Forever unverified |
+| 32 | [-] ~~Nameplate settings~~ | Interface | dropped | – |
 | 33 | [ ] Skip single gossip option | Quests | `GOSSIP_SHOW` → select the only option when there are no quests; Shift pauses | low |
 | 34 | [ ] Auto accept / turn in quests | Quests | `QUEST_DETAIL`/`QUEST_PROGRESS`/`QUEST_COMPLETE`, gossip and greeting quest lists; stops at reward choices; Shift pauses | medium: quests with item/money costs |
 | 35 | [ ] Tooltip extras | Tooltip | unit post-call: guild rank, target of target, class colored name; item/spell post-call: IDs | medium: unit names/lines may be secret |
