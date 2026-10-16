@@ -30,7 +30,6 @@ Core\SlashCommands.lua
 # Game settings (shortcuts to Blizzard options/CVars)
 
 # Interface
-Modules\Interface\GameFont.lua
 Modules\Interface\SkipCinematics.lua
 
 # Character
