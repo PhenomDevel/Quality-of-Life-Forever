@@ -35,6 +35,29 @@ function ns:Debug(...)
 end
 
 --------------------------------------------------------------------------------
+-- Locales
+--------------------------------------------------------------------------------
+
+-- Module-local strings: { enUS = {...}, deDE = {...} }. Lookup order:
+-- client locale -> enUS -> key (missing strings stay visible in-game).
+function ns.NewLocale(strings)
+	local fallback = assert(strings.enUS, "NewLocale: enUS strings are required")
+	local current = strings[GetLocale()] or fallback
+	return setmetatable({}, {
+		__index = function(_, key)
+			local value = current[key]
+			if value == nil then
+				value = fallback[key]
+			end
+			if value == nil then
+				return key
+			end
+			return value
+		end,
+	})
+end
+
+--------------------------------------------------------------------------------
 -- Error handling
 --------------------------------------------------------------------------------
 

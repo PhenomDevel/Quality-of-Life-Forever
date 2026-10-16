@@ -31,12 +31,17 @@ old Classic Era API.
 
 ## Conventions
 - Lua 5.1, tabs for indentation, English code comments, no external libraries (no Ace3).
-- All user-facing strings go through `ns.L`; add every key to `Locales/enUS.lua`
-  and translate it in `Locales/deDE.lua`.
+- All docs (`*.md`) in English; in-game strings in enUS + deDE.
+- Modules are self-contained in one file: strings via `ns.NewLocale({ enUS = …, deDE = … })`,
+  WoW API declared inline (`-- luacheck: read globals …`). Core strings stay in `Locales/`.
+- One PR per module; a module PR only adds its file plus one line in its `.toc`
+  category section. Don't touch `docs/IDEAS.md`/`README.md` in module PRs
+  (updated in a separate docs PR) to avoid conflicts between parallel PRs.
 - Module names are SavedVariables keys – never rename a released module without a migration in `Core/Database.lua`.
 - `OnDisable` must undo everything `OnEnable` did; events are unregistered automatically.
-- Each option in `info.options` needs a default in `info.defaults`.
-- New WoW API globals must be added to `read_globals` in `.luacheckrc`.
+- Each option in `info.options` (except buttons) needs a default in `info.defaults`.
+- `.luacheckrc` holds core globals only.
+- Changing CVars: use `self:SetCVar()`, which restores the user's value on disable.
 
 ## Checks
 - `luacheck .` must pass before committing

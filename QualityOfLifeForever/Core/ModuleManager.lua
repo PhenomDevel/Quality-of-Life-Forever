@@ -10,7 +10,12 @@ local Utils = ns.Utils
 -- the sub pages in the settings panel. Empty categories are not shown.
 
 ns.categories = {
+	{ id = "EASYSETTINGS", name = L.CATEGORY_EASYSETTINGS },
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
+	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
+	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
+	{ id = "CAMERA", name = L.CATEGORY_CAMERA },
+	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
 	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },
 	{ id = "LOOT", name = L.CATEGORY_LOOT },
 	{ id = "QUESTS", name = L.CATEGORY_QUESTS },
@@ -98,6 +103,42 @@ function Module:UnregisterAllEvents()
 	end
 end
 
+-- CVars -----------------------------------------------------------------------
+-- The first value seen per CVar is persisted in the module DB and restored on
+-- disable, so the user's own setting survives reloads while the module is on.
+
+function Module:SetCVar(name, value)
+	local current = C_CVar.GetCVar(name)
+	if current == nil then
+		self:Debug("unknown CVar", name)
+		return false
+	end
+	local backup = self.db.cvarBackup
+	if not backup then
+		backup = {}
+		self.db.cvarBackup = backup
+	end
+	if backup[name] == nil then
+		backup[name] = current
+	end
+	if type(value) == "boolean" then
+		value = value and "1" or "0"
+	end
+	C_CVar.SetCVar(name, tostring(value))
+	return true
+end
+
+function Module:RestoreCVars()
+	local backup = self.db.cvarBackup
+	if not backup then
+		return
+	end
+	for name, value in pairs(backup) do
+		C_CVar.SetCVar(name, value)
+	end
+	self.db.cvarBackup = nil
+end
+
 -- Hooks -----------------------------------------------------------------------
 -- Secure hooks cannot be removed again, so the wrapper checks whether the module
 -- is enabled. Hooking the same target twice only replaces the callback.
@@ -165,6 +206,7 @@ ns.moduleOrder = {}
 		options         = list of option descriptors for the settings panel
 		                  { key, type = "checkbox" | "slider" | "dropdown", label, tooltip,
 		                    min, max, step, format (slider), values (dropdown) }
+		                  { type = "button", label, buttonText, tooltip, onClick(module) }
 		combatProtected = boolean, enable/disable is deferred until out of combat
 		requiresReload  = boolean, ask for a /reload after disabling
 	}
@@ -172,7 +214,8 @@ ns.moduleOrder = {}
 	Callbacks a module may implement:
 		OnInitialize()          once, after the saved variables are loaded
 		OnEnable()              every time the module gets enabled (also on login)
-		OnDisable()             every time the module gets disabled
+		OnDisable()             every time the module gets disabled (events are
+		                        unregistered and CVars restored afterwards)
 		OnOptionChanged(key, value)
 ]]
 function ns:NewModule(name, info)
@@ -254,6 +297,7 @@ local function Disable(module)
 	if module.OnDisable then
 		Utils.SafeCall(module.OnDisable, module)
 	end
+	Utils.SafeCall(module.RestoreCVars, module)
 end
 
 -- Brings the runtime state of a module in line with its saved `enabled` flag.

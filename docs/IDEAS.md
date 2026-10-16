@@ -1,40 +1,38 @@
-# Ideen-Backlog
+# Roadmap
 
-Abgestimmte Liste der Module, sortiert nach **Machbarkeit und Aufwand**: Wir
-arbeiten von oben nach unten. Die Einschätzung beruht auf der modernen
-WoW-API. Jede Annahme (z. B. „CVar existiert“) wird vor der Umsetzung im
-Forever-Client geprüft, weil Forever eigene Grenzen und die
-Midnight-Addon-Einschränkungen (Secret Values, geschützte Funktionen) hat.
+Agreed module list, ordered by **feasibility and effort** – we work top to
+bottom. Estimates are based on the modern WoW API; every assumption (e.g. "the
+CVar exists") is verified in the Forever client, which has its own limits and
+the Midnight addon restrictions (secret values, protected functions).
 
-Alle Module werden **eigenständig geschrieben** – kein Code und keine Daten aus
-anderen Addons (siehe `CLAUDE.md`).
+All modules are **written from scratch** – no code or data from other addons
+(see `CLAUDE.md`).
 
-`[x]` = umgesetzt, `[ ]` = geplant
+`[x]` done · `[~]` PR open · `[ ]` planned
 
-## Bereits umgesetzt
-- [x] Automatisch reparieren (`AutoRepair`)
-- [x] Plunder automatisch verkaufen (`AutoSellJunk`)
-- [x] Schnelles Plündern (`FastLoot`)
-- [x] Duelle automatisch ablehnen (`AutoDeclineDuels`)
+## Done
+- [x] Auto repair (`AutoRepair`)
+- [x] Auto sell junk (`AutoSellJunk`)
+- [x] Fast loot (`FastLoot`)
+- [x] Auto decline duels (`AutoDeclineDuels`)
 
-## Stufe 1 – Sehr einfach
-Eine Spieleinstellung (CVar) oder ein einzelnes Event, kaum eigene Oberfläche.
+## Tier 1 – very easy
+Single CVar or event, hardly any UI.
 
-| # | Idee | Bereich | Ansatz | Risiko |
-|---|------|---------|--------|--------|
-| 1 | [ ] Automatisches Plündern | EasySettings | CVar `autoLootDefault` als Schalter | gering |
-| 2 | [ ] Automatisch reparieren | EasySettings | Schalter für das bestehende Modul `AutoRepair` | gering |
-| 3 | [ ] Eigenen Namen ein-/ausblenden | Charakter | CVar für den eigenen Namen | gering |
-| 4 | [ ] Maximale Zoomdistanz (Vorgabe 4.0) | Kamera | CVar für den Zoomfaktor | mittel: der Client begrenzt den Wert evtl. unter 4.0 |
-| 5 | [ ] Versteckte Grafikeinstellungen | Grafik | CVars setzen, alte Werte speichern und beim Ausschalten wiederherstellen | gering: einzelne Werte evtl. gesperrt |
-| 6 | [ ] Klassenfarben im Chat | Chat | vorhandene Spieleinstellung als Schalter, falls in Forever verfügbar | gering |
-| 7 | [ ] Questtext sofort anzeigen | Quests | Spieleinstellung für das Einblenden des Questtexts, falls vorhanden | mittel: sonst Stufe 2 |
-| 8 | [ ] Gildeneinladungen/Petitionen ablehnen | Soziales | Event abfangen und ablehnen | gering |
-| 9 | [ ] „Beim Aufheben gebunden“ solo bestätigen | Beute | Event abfangen, nur ohne Gruppe bestätigen | gering |
-| 10 | [ ] Beschwörung/Wiederbelebung annehmen | Soziales | Events abfangen, nur außerhalb des Kampfes | gering |
-| 11 | [ ] Tooltip an der Maus verankern | Tooltip | Standard-Ankerfunktion per Secure Hook umsetzen | gering |
+| # | Idea | Area | Approach | Risk |
+|---|------|------|----------|------|
+| 1 | [~] Auto loot (#6) | EasySettings | CVar `autoLootDefault` | low |
+| 2 | [~] Hide name on player frame (#7) | Character | alpha on the player frame name | low: region name in Forever |
+| 3 | [~] Max camera distance, default 4.0 (#9) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
+| 4 | [~] Advanced graphics settings (#10) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
+| 5 | [~] Class colors in chat (#15) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
+| 6 | [~] Instant quest text (#12) | Quests | CVar `questFadingDisable` | medium: CVar may not exist → tier 2 hook |
+| 7 | [~] Decline guild invites/charters (#14) | Social | events → `DeclineGuild` / `ClosePetition` | low |
+| 8 | [~] Confirm bind on pickup when solo (#11) | Loot | `LOOT_BIND_CONFIRM` → `ConfirmLootSlot` | low |
+| 9 | [~] Accept summons/resurrections (#13) | Social | events, only out of combat/encounter | low |
+| 10 | [~] Anchor tooltip to cursor (#8) | Tooltip | post-hook `GameTooltip_SetDefaultAnchor` | low |
 
-Grafik-Vorgabewerte für #5:
+Graphics defaults for #4:
 ```
 /console groundEffectDensity 256
 /console groundEffectFade 370
@@ -47,39 +45,39 @@ Grafik-Vorgabewerte für #5:
 /console weatherdensity 3
 ```
 
-## Stufe 2 – Einfach
-Ein Hook oder Event, etwas Logik oder eine kleine Anzeige.
+## Tier 2 – easy
+One hook or event, some logic or a small display.
 
-| # | Idee | Bereich | Ansatz | Risiko |
-|---|------|---------|--------|--------|
-| 12 | [ ] Tooltip-Schriftgröße | Tooltip | Schriftobjekte des Tooltips skalieren | gering |
-| 13 | [ ] Tooltip-Transparenz | Tooltip | Hintergrund-Alpha des Tooltips setzen | gering |
-| 14 | [ ] Händlerpreis im Tooltip | Händler | Tooltip-Erweiterung für Gegenstände, Verkaufspreis × Stapel | gering |
-| 15 | [ ] Gruppeneinladungen von Freunden/Gilde annehmen | Soziales | Einladung abfangen, Absender gegen Freundesliste/Gilde prüfen | gering |
-| 16 | [ ] Zwischensequenzen überspringen | Oberfläche | beim Start abbrechen, optional nur bereits gesehene | mittel: manche Sequenzen nicht abbrechbar |
-| 17 | [ ] Stapelkauf mit Shift | Händler | Klick auf Händlerware abfangen, vollen Stapel kaufen | gering |
-| 18 | [ ] Questfortschritt im Chat | Quests | Fortschrittsmeldungen abfangen und im Chat ausgeben | gering |
-| 19 | [ ] Haltbarkeit im Charakterfenster | Oberfläche | Prozentwert an jedem Ausrüstungsfeld | gering |
-| 20 | [ ] Stufenbereiche der Zonen | Weltkarte | Stufenbereich aus der Karten-API anzeigen | mittel: nur machbar, wenn die API in Forever Daten liefert |
+| # | Idea | Area | Approach | Risk |
+|---|------|------|----------|------|
+| 11 | [ ] Custom name on player frame | Character | re-apply custom text after Blizzard name updates (hook); text entry via button + popup edit box (Settings API has no text field) | low: region name in Forever |
+| 12 | [ ] Tooltip font size | Tooltip | scale the tooltip font objects | low |
+| 13 | [ ] Tooltip transparency | Tooltip | set tooltip background alpha | low |
+| 14 | [ ] Vendor price in tooltip | Merchant | item tooltip post-call, sell price × stack | low |
+| 15 | [ ] Accept group invites from friends/guild | Social | check inviter against friends list/guild | low |
+| 16 | [ ] Skip cinematics | Interface | cancel on start, optionally only already seen ones | medium: some can't be cancelled |
+| 17 | [ ] Buy full stack with Shift | Merchant | hook merchant item click, buy max stack | low |
+| 18 | [ ] Quest progress in chat | Quests | forward progress messages to chat | low |
+| 19 | [ ] Durability on character frame | Interface | percentage per equipment slot | low |
+| 20 | [ ] Zone level ranges | World map | level range from the map API | medium: only if the API returns data in Forever |
 
-## Stufe 3 – Mittel
-Mehrere Hooks, eigene Oberfläche oder spürbare Forever-Einschränkungen.
+## Tier 3 – medium
+Several hooks, own UI or noticeable Forever restrictions.
 
-| # | Idee | Bereich | Ansatz | Risiko |
-|---|------|---------|--------|--------|
-| 21 | [ ] Gegenstandsstufe (Ausrüstung + Taschen) | Oberfläche | Charakterfenster einfach, Taschen aufwendiger | gering |
-| 22 | [ ] Post: alles einsammeln | Händler | Knopf im Briefkasten, Briefe gedrosselt abarbeiten, volle Taschen beachten | mittel |
-| 23 | [ ] Kanal-Präfixe kürzen | Chat | Kanalnamen in Chatnachrichten ersetzen | mittel: Chat-Einschränkungen in Instanzen |
-| 24 | [ ] URLs kopierbar | Chat | URLs als Link markieren, Klick öffnet Kopierfeld | mittel: Chat-Einschränkungen in Instanzen |
-| 25 | [ ] Cooldown-Manager: Tastenbelegungen anzeigen, Position, Größe, Schriftart | Cooldown-Manager | Zauber den Aktionsleisten-Tasten zuordnen, Text auf die Symbole legen; Position/Größe/Schriftart als Optionen desselben Moduls | mittel: Aufbau des Cooldown-Managers in Forever prüfen |
-| 26 | [ ] Spielernotizen | Soziales | Notizen speichern, im Tooltip zeigen, Eingabe per Rechtsklickmenü | mittel: Spielernamen evtl. als Secret Value |
-| 27 | [ ] Spam-Filter (optional Gildenwerbung in eigenen Tab) | Chat | Nachrichtenfilter mit eigener Schlagwortliste | mittel: Chat-Einschränkungen, Fehlalarme |
-| 28 | [ ] Weltkarte verkleinern/verschiebbar | Weltkarte | Größe und Position der Karte ändern und speichern | mittel |
+| # | Idea | Area | Approach | Risk |
+|---|------|------|----------|------|
+| 21 | [ ] Item level (equipment + bags) | Interface | character frame easy, bags more work | low |
+| 22 | [ ] Mail: collect all | Merchant | mailbox button, throttled processing, full bags | medium |
+| 23 | [ ] Shorten channel prefixes | Chat | replace channel names in messages | medium: chat restrictions in instances |
+| 24 | [ ] Copyable URLs | Chat | turn URLs into links, click opens a copy box | medium: chat restrictions in instances |
+| 25 | [ ] Cooldown manager: keybinds (show, position, size, font) | Cooldown manager | map spells to action bar bindings, overlay text; position/size/font as options of one module | medium: verify cooldown manager structure in Forever |
+| 26 | [ ] Player notes | Social | store notes, show in tooltip, edit via context menu | medium: player names may be secret |
+| 27 | [ ] Spam filter (optional guild recruitment tab) | Chat | message filter with own keyword list | medium: chat restrictions, false positives |
+| 28 | [ ] Smaller/movable world map | World map | change and persist map size/position | medium |
 
-## Stufe 4 – Aufwendig oder unklar
+## Tier 4 – complex or unclear
 
-| # | Idee | Bereich | Warum aufwendig |
-|---|------|---------|-----------------|
-| 29 | [ ] Blizzard-Fenster verschieben/skalieren | Oberfläche | viele Fenster einzeln, teils geschützt im Kampf, teils erst bei Bedarf geladen, Positionen speichern |
-| 30 | [ ] Halbtransparenter Nebel des Krieges | Weltkarte | Die API liefert nur die *erkundeten* Kartenteile. Für unerforschte Bereiche bräuchten wir eigene Kartendaten, die wir selbst im Spiel erheben müssten (Daten aus anderen Addons sind tabu). Machbarkeit offen. |
-| 31 | [ ] Charakter umbenennen | Charakter | Anforderung noch unklar, vor der Umsetzung klären |
+| # | Idea | Area | Why |
+|---|------|------|-----|
+| 29 | [ ] Move/scale Blizzard frames | Interface | many frames, some protected in combat or load-on-demand, persist positions |
+| 30 | [ ] Semi-transparent fog of war | World map | The API only returns *explored* map tiles. Unexplored areas would need our own map data collected in-game (other addons' data is off-limits). Feasibility open. |

@@ -1,11 +1,32 @@
+-- luacheck: read globals CanGuildBankRepair CanMerchantRepair GetGuildBankWithdrawMoney GetMoney GetRepairAllCost IsInGuild RepairAllItems
 local _, ns = ...
 
-local L = ns.L
 local Utils = ns.Utils
 
+local L = ns.NewLocale({
+	enUS = {
+		TITLE = "Auto repair",
+		DESC = "Automatically repair all items when visiting a merchant that can repair.",
+		USE_GUILD = "Use guild funds",
+		USE_GUILD_DESC = "Try to pay with guild bank funds first and fall back to your own gold.",
+		DONE = "Repaired all items for %s.",
+		DONE_GUILD = "Repaired all items for %s (guild funds).",
+		NO_MONEY = "Not enough gold to repair (%s needed).",
+	},
+	deDE = {
+		TITLE = "Automatisch reparieren",
+		DESC = "Repariert automatisch alle Gegenstände beim Besuch eines Händlers, der reparieren kann.",
+		USE_GUILD = "Gildengold verwenden",
+		USE_GUILD_DESC = "Versucht zuerst mit Gildenbankgold zu bezahlen und nutzt sonst dein eigenes Gold.",
+		DONE = "Alle Gegenstände für %s repariert.",
+		DONE_GUILD = "Alle Gegenstände für %s repariert (Gildengold).",
+		NO_MONEY = "Nicht genug Gold zum Reparieren (%s benötigt).",
+	},
+})
+
 local module = ns:NewModule("AutoRepair", {
-	title = L.AUTO_REPAIR_TITLE,
-	description = L.AUTO_REPAIR_DESC,
+	title = L.TITLE,
+	description = L.DESC,
 	category = "MERCHANT",
 	defaultEnabled = true,
 	defaults = {
@@ -15,8 +36,8 @@ local module = ns:NewModule("AutoRepair", {
 		{
 			key = "useGuildFunds",
 			type = "checkbox",
-			label = L.AUTO_REPAIR_USE_GUILD,
-			tooltip = L.AUTO_REPAIR_USE_GUILD_DESC,
+			label = L.USE_GUILD,
+			tooltip = L.USE_GUILD_DESC,
 		},
 	},
 })
@@ -39,11 +60,11 @@ end
 
 function module:RepairWithOwnMoney(cost)
 	if GetMoney() < cost then
-		self:Print(L.AUTO_REPAIR_NO_MONEY:format(Utils.FormatMoney(cost)))
+		self:Print(L.NO_MONEY:format(Utils.FormatMoney(cost)))
 		return
 	end
 	RepairAllItems(false)
-	self:Print(L.AUTO_REPAIR_DONE:format(Utils.FormatMoney(cost)))
+	self:Print(L.DONE:format(Utils.FormatMoney(cost)))
 end
 
 function module:MERCHANT_SHOW()
@@ -66,7 +87,7 @@ function module:MERCHANT_SHOW()
 			if remaining and remaining > 0 then
 				self:RepairWithOwnMoney(remaining)
 			else
-				self:Print(L.AUTO_REPAIR_DONE_GUILD:format(Utils.FormatMoney(cost)))
+				self:Print(L.DONE_GUILD:format(Utils.FormatMoney(cost)))
 			end
 		end)
 		return

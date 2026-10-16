@@ -36,7 +36,44 @@ local function RegisterSetting(category, variable, key, tbl, name, defaultValue,
 	return setting
 end
 
-local function CreateOptionControl(category, module, option, parentInitializer)
+local function DefaultSliderFormatter(value)
+	if value == math.floor(value) then
+		return tostring(value)
+	end
+	return ("%.1f"):format(value)
+end
+
+local function SetParent(initializer, module, parentInitializer)
+	if parentInitializer then
+		initializer:SetParentInitializer(parentInitializer, function()
+			return module.db.enabled
+		end)
+	end
+end
+
+-- Buttons have no saved value, they only run an action.
+local function CreateButton(layout, module, option, parentInitializer)
+	local initializer = CreateSettingsButtonInitializer(
+		option.label,
+		option.buttonText or option.label,
+		function()
+			if module.enabled then
+				ns.Utils.SafeCall(option.onClick, module)
+			end
+		end,
+		option.tooltip,
+		true
+	)
+	layout:AddInitializer(initializer)
+	SetParent(initializer, module, parentInitializer)
+	return initializer
+end
+
+local function CreateOptionControl(category, layout, module, option, parentInitializer)
+	if option.type == "button" then
+		return CreateButton(layout, module, option, parentInitializer)
+	end
+
 	local defaultValue = module.defaults[option.key]
 	local setting = RegisterSetting(
 		category,
@@ -56,7 +93,7 @@ local function CreateOptionControl(category, module, option, parentInitializer)
 		initializer = Settings.CreateCheckbox(category, setting, option.tooltip)
 	elseif option.type == "slider" then
 		local sliderOptions = Settings.CreateSliderOptions(option.min, option.max, option.step or 1)
-		sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, option.format)
+		sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, option.format or DefaultSliderFormatter)
 		initializer = Settings.CreateSlider(category, setting, sliderOptions, option.tooltip)
 	elseif option.type == "dropdown" then
 		local function GetOptions()
@@ -71,15 +108,11 @@ local function CreateOptionControl(category, module, option, parentInitializer)
 		error(("Module %q option %q has unknown type %q"):format(module.name, option.key, tostring(option.type)))
 	end
 
-	if parentInitializer then
-		initializer:SetParentInitializer(parentInitializer, function()
-			return module.db.enabled
-		end)
-	end
+	SetParent(initializer, module, parentInitializer)
 	return initializer
 end
 
-local function AddModule(category, module)
+local function AddModule(category, layout, module)
 	module.settings = {}
 
 	local enabledSetting = RegisterSetting(
@@ -97,7 +130,7 @@ local function AddModule(category, module)
 	local enabledInitializer = Settings.CreateCheckbox(category, enabledSetting, module.description)
 
 	for _, option in ipairs(module.options) do
-		CreateOptionControl(category, module, option, enabledInitializer)
+		CreateOptionControl(category, layout, module, option, enabledInitializer)
 	end
 end
 
@@ -135,9 +168,9 @@ function ns:BuildSettings()
 			end
 		end
 		if #modules > 0 then
-			local subcategory = Settings.RegisterVerticalLayoutSubcategory(root, categoryInfo.name)
+			local subcategory, layout = Settings.RegisterVerticalLayoutSubcategory(root, categoryInfo.name)
 			for _, module in ipairs(modules) do
-				AddModule(subcategory, module)
+				AddModule(subcategory, layout, module)
 			end
 		end
 	end

@@ -17,7 +17,12 @@ L.CATEGORY_LOOT = "Beute"
 L.CATEGORY_SOCIAL = "Soziales"
 L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
-L.CATEGORY_MAP = "Karte & Minimap"
+L.CATEGORY_MAP = "Weltkarte"
+L.CATEGORY_EASYSETTINGS = "EasySettings"
+L.CATEGORY_CHARACTER = "Charakter"
+L.CATEGORY_TOOLTIP = "Tooltip"
+L.CATEGORY_CAMERA = "Kamera"
+L.CATEGORY_GRAPHICS = "Grafik"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "Allgemein"
@@ -51,30 +56,3 @@ L.RESET_CONFIRM = "Alle Einstellungen von Quality of Life Forever zurücksetzen 
 
 -- Addon compartment
 L.COMPARTMENT_HINT = "|cffffd100Klicken|r, um die Optionen zu öffnen."
-
--- Module: AutoRepair
-L.AUTO_REPAIR_TITLE = "Automatisch reparieren"
-L.AUTO_REPAIR_DESC = "Repariert automatisch alle Gegenstände beim Besuch eines Händlers, der reparieren kann."
-L.AUTO_REPAIR_USE_GUILD = "Gildengold verwenden"
-L.AUTO_REPAIR_USE_GUILD_DESC = "Versucht zuerst mit Gildenbankgold zu bezahlen und nutzt sonst dein eigenes Gold."
-L.AUTO_REPAIR_DONE = "Alle Gegenstände für %s repariert."
-L.AUTO_REPAIR_DONE_GUILD = "Alle Gegenstände für %s repariert (Gildengold)."
-L.AUTO_REPAIR_NO_MONEY = "Nicht genug Gold zum Reparieren (%s benötigt)."
-
--- Module: AutoSellJunk
-L.AUTO_SELL_JUNK_TITLE = "Plunder automatisch verkaufen"
-L.AUTO_SELL_JUNK_DESC = "Verkauft beim Besuch eines Händlers automatisch alle Gegenstände schlechter Qualität (grau)."
-L.AUTO_SELL_JUNK_SUMMARY = "Zusammenfassung anzeigen"
-L.AUTO_SELL_JUNK_SUMMARY_DESC = "Gibt die Anzahl der verkauften Gegenstände und das erhaltene Gold aus."
-L.AUTO_SELL_JUNK_SOLD = "%d Plundergegenstände für %s verkauft."
-
--- Module: FastLoot
-L.FAST_LOOT_TITLE = "Schnelles Plündern"
-L.FAST_LOOT_DESC = "Plündert bei aktivem automatischem Plündern alle Gegenstände sofort, ohne auf das Beutefenster zu warten."
-
--- Module: AutoDeclineDuels
-L.AUTO_DECLINE_DUELS_TITLE = "Duelle automatisch ablehnen"
-L.AUTO_DECLINE_DUELS_DESC = "Lehnt alle Duellanfragen automatisch ab."
-L.AUTO_DECLINE_DUELS_NOTIFY = "Im Chat benachrichtigen"
-L.AUTO_DECLINE_DUELS_NOTIFY_DESC = "Gibt eine Nachricht aus, wenn eine Duellanfrage abgelehnt wurde."
-L.AUTO_DECLINE_DUELS_DECLINED = "Duellanfrage von %s abgelehnt."

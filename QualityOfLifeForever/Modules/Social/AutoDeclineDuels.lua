@@ -1,10 +1,26 @@
+-- luacheck: read globals CancelDuel
 local _, ns = ...
 
-local L = ns.L
+local L = ns.NewLocale({
+	enUS = {
+		TITLE = "Auto decline duels",
+		DESC = "Automatically decline all duel requests.",
+		NOTIFY = "Notify in chat",
+		NOTIFY_DESC = "Print a message when a duel request was declined.",
+		DECLINED = "Declined duel request from %s.",
+	},
+	deDE = {
+		TITLE = "Duelle automatisch ablehnen",
+		DESC = "Lehnt alle Duellanfragen automatisch ab.",
+		NOTIFY = "Im Chat benachrichtigen",
+		NOTIFY_DESC = "Gibt eine Nachricht aus, wenn eine Duellanfrage abgelehnt wurde.",
+		DECLINED = "Duellanfrage von %s abgelehnt.",
+	},
+})
 
 local module = ns:NewModule("AutoDeclineDuels", {
-	title = L.AUTO_DECLINE_DUELS_TITLE,
-	description = L.AUTO_DECLINE_DUELS_DESC,
+	title = L.TITLE,
+	description = L.DESC,
 	category = "SOCIAL",
 	defaultEnabled = false,
 	defaults = {
@@ -14,8 +30,8 @@ local module = ns:NewModule("AutoDeclineDuels", {
 		{
 			key = "notify",
 			type = "checkbox",
-			label = L.AUTO_DECLINE_DUELS_NOTIFY,
-			tooltip = L.AUTO_DECLINE_DUELS_NOTIFY_DESC,
+			label = L.NOTIFY,
+			tooltip = L.NOTIFY_DESC,
 		},
 	},
 })
@@ -28,6 +44,6 @@ function module:DUEL_REQUESTED(playerName)
 	CancelDuel()
 	StaticPopup_Hide("DUEL_REQUESTED")
 	if self.db.notify then
-		self:Print(L.AUTO_DECLINE_DUELS_DECLINED:format(tostring(playerName)))
+		self:Print(L.DECLINED:format(tostring(playerName)))
 	end
 end

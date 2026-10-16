@@ -1,10 +1,20 @@
+-- luacheck: read globals GetCVarBool GetNumLootItems IsModifiedClick LootSlot
 local _, ns = ...
 
-local L = ns.L
+local L = ns.NewLocale({
+	enUS = {
+		TITLE = "Fast loot",
+		DESC = "Loot all items instantly when auto loot is active instead of waiting for the loot window.",
+	},
+	deDE = {
+		TITLE = "Schnelles Plündern",
+		DESC = "Plündert bei aktivem automatischem Plündern alle Gegenstände sofort, ohne auf das Beutefenster zu warten.",
+	},
+})
 
 local module = ns:NewModule("FastLoot", {
-	title = L.FAST_LOOT_TITLE,
-	description = L.FAST_LOOT_DESC,
+	title = L.TITLE,
+	description = L.DESC,
 	category = "LOOT",
 	defaultEnabled = false,
 })
