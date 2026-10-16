@@ -11,12 +11,13 @@ local L = ns.NewLocale({
 		KEYWORDS_DESC = "Edit the comma-separated keyword list (case-insensitive, matched anywhere in the message).\n\nDefault: %s",
 		EDIT = "Edit",
 		CREATE_TAB = "Spam tab",
-		CREATE_TAB_DESC = "Creates the \"Spam\" chat tab if it doesn't exist. It is created automatically only the first time the module is enabled.",
+		CREATE_TAB_DESC = "Creates the \"Spam\" chat tab if it doesn't exist. Enabling the module also creates it.",
 		CREATE = "Create",
 		DIALOG = "Keywords, separated by commas:",
 		TAB_CREATED = "Created the \"Spam\" chat tab.",
 		TAB_EXISTS = "The \"Spam\" chat tab already exists.",
 		NO_FREE_WINDOW = "No free chat window left to create the \"Spam\" tab.",
+		TAB_MISSING = "The \"Spam\" chat tab is gone, so the spam filter was disabled. Enable it again to recreate the tab.",
 	},
 	deDE = {
 		TITLE = "Spamfilter",
@@ -27,12 +28,13 @@ local L = ns.NewLocale({
 		KEYWORDS_DESC = "Bearbeitet die kommagetrennte Stichwortliste (ohne Groß-/Kleinschreibung, irgendwo in der Nachricht).\n\nStandard: %s",
 		EDIT = "Bearbeiten",
 		CREATE_TAB = "Spam-Tab",
-		CREATE_TAB_DESC = "Erstellt den Chat-Tab „Spam“, falls er fehlt. Automatisch wird er nur beim ersten Aktivieren des Moduls erstellt.",
+		CREATE_TAB_DESC = "Erstellt den Chat-Tab „Spam“, falls er fehlt. Auch das Aktivieren des Moduls erstellt ihn.",
 		CREATE = "Erstellen",
 		DIALOG = "Stichwörter, durch Kommas getrennt:",
 		TAB_CREATED = "Chat-Tab „Spam“ erstellt.",
 		TAB_EXISTS = "Der Chat-Tab „Spam“ existiert bereits.",
 		NO_FREE_WINDOW = "Kein freies Chatfenster mehr für den Tab „Spam“.",
+		TAB_MISSING = "Der Chat-Tab „Spam“ fehlt, daher wurde der Spamfilter deaktiviert. Aktiviere ihn erneut, um den Tab wieder zu erstellen.",
 	},
 })
 
@@ -181,26 +183,36 @@ function module:OnInitialize()
 	}
 end
 
+-- tabCreated is true while the module is enabled with its tab. Enabled with
+-- tabCreated set but no tab means the tab was closed since the last session
+-- (the check runs at login): turn the module off instead of recreating it.
+-- Turning it off clears the flag, so the next enable creates the tab again.
+function module:CheckSpamFrame()
+	if self:GetSpamFrame() then
+		self.db.tabCreated = true
+	elseif self.db.tabCreated then
+		self:Print(L.TAB_MISSING)
+		ns:SetModuleEnabled(self, false)
+	elseif self:CreateSpamFrame() then
+		self.db.tabCreated = true
+	end
+end
+
 function module:OnEnable()
 	self:ParseKeywords()
-	-- Only once, so a tab the user closed isn't recreated. Delayed because chat
-	-- windows are set up after PLAYER_LOGIN.
-	if not self.db.tabCreated then
-		C_Timer.After(1, function()
-			if self.enabled and not self.db.tabCreated then
-				self.db.tabCreated = true
-				if not self:GetSpamFrame() then
-					self:CreateSpamFrame()
-				end
-			end
-		end)
-	end
+	-- Delayed because chat windows are set up after PLAYER_LOGIN.
+	C_Timer.After(2, function()
+		if self.enabled then
+			self:CheckSpamFrame()
+		end
+	end)
 	for _, event in ipairs(EVENTS) do
 		AddFilter(event, Filter)
 	end
 end
 
 function module:OnDisable()
+	self.db.tabCreated = false
 	for _, event in ipairs(EVENTS) do
 		RemoveFilter(event, Filter)
 	end
