@@ -27,7 +27,7 @@ still needs in-game verification.
 | 3 | [x] Max camera distance, default 4.0 (`CameraZoom`) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
 | 4 | [x] Advanced graphics settings (`GraphicsTweaks`) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
 | 5 | [x] Class colors in chat (`ChatClassColors`) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
-| 6 | [x] Instant quest text (`InstantQuestText`) | Quests | CVar `questFadingDisable` | medium: CVar may not exist → tier 2 hook |
+| 6 | [x] Instant quest text (`InstantQuestText`) | Quests | CVar `instantQuestText` (read by `QuestFrameDetailPanel_OnShow`) | low |
 | 7 | [x] Decline guild invites/charters (`AutoDeclineGuildInvites`) | Social | events → `DeclineGuild` / `ClosePetition` | low |
 | 8 | [x] Confirm bind on pickup when solo (`AutoConfirmBindOnPickup`) | Loot | `LOOT_BIND_CONFIRM` → `ConfirmLootSlot` | low |
 | 9 | [x] Accept summons/resurrections (`AutoAcceptSummonResurrect`) | Social | events, only out of combat/encounter | low |
