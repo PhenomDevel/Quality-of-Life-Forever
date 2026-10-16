@@ -10,6 +10,11 @@ module off restores your previous game settings.
 
 ### Interface
 
+#### Game font
+Replaces the standard interface font with one of the game's fonts. Chat
+windows switch after `/reload`.
+- Font: Friz Quadrata, Arial Narrow, Skurri, Morpheus
+
 #### Skip cinematics
 Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
 watch it.

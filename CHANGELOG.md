@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Interface
+- New: game font – replace the standard interface font with Friz Quadrata,
+  Arial Narrow, Skurri or Morpheus
+
 ### World map
 - New: movable world map – scale the windowed map and drag it by its title
   bar; the position is saved
