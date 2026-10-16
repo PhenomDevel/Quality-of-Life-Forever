@@ -44,8 +44,9 @@ in-game; there are no automated tests.
 
 ## Release
 
-Update `CHANGELOG.md`, then push a `v*` tag (`v0.1.0`, or `v0.1.0-beta1` /
-`-alpha1` for test releases). The workflow lints and runs the
+Add a section for the version to `CHANGELOG.md` (the whole file is uploaded
+as release notes, so keep it user-facing), then push a `v*` tag (`v0.1.0`, or
+`v0.1.0-beta1` / `-alpha1` for test releases). The workflow lints and runs the
 [BigWigs packager](https://github.com/BigWigsMods/packager), which uploads to
 CurseForge (project ID 1748279 via `## X-Curse-Project-ID`, secret `CF_API_KEY`) and GitHub releases.
 The CurseForge upload is skipped without ID or secret.
