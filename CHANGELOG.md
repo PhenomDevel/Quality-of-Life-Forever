@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### World map
+- New: movable world map – scale the windowed map and drag it by its title
+  bar; the position is saved
+
 ## v0.3.0 (2026-10-16)
 
 ### Character
