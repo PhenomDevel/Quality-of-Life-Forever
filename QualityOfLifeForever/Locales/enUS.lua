@@ -1,8 +1,8 @@
 local _, ns = ...
 
--- enUS is the base locale. Every key must exist here; other locales only
--- override what they translate. Missing keys fall back to the key itself so a
--- typo shows up visibly in-game instead of raising an error.
+-- Core strings only; module strings live in the module file (ns.NewLocale).
+-- enUS is the base locale, other locales override what they translate.
+-- Missing keys resolve to the key itself, so typos are visible in-game.
 local L = setmetatable({}, {
 	__index = function(_, key)
 		return key
@@ -22,7 +22,12 @@ L.CATEGORY_LOOT = "Loot"
 L.CATEGORY_SOCIAL = "Social"
 L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
-L.CATEGORY_MAP = "Map & Minimap"
+L.CATEGORY_MAP = "World map"
+L.CATEGORY_EASYSETTINGS = "EasySettings"
+L.CATEGORY_CHARACTER = "Character"
+L.CATEGORY_TOOLTIP = "Tooltip"
+L.CATEGORY_CAMERA = "Camera"
+L.CATEGORY_GRAPHICS = "Graphics"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"
@@ -56,30 +61,3 @@ L.RESET_CONFIRM = "Reset all Quality of Life Forever settings and reload the UI?
 
 -- Addon compartment
 L.COMPARTMENT_HINT = "|cffffd100Click|r to open the options."
-
--- Module: AutoRepair
-L.AUTO_REPAIR_TITLE = "Auto repair"
-L.AUTO_REPAIR_DESC = "Automatically repair all items when visiting a merchant that can repair."
-L.AUTO_REPAIR_USE_GUILD = "Use guild funds"
-L.AUTO_REPAIR_USE_GUILD_DESC = "Try to pay with guild bank funds first and fall back to your own gold."
-L.AUTO_REPAIR_DONE = "Repaired all items for %s."
-L.AUTO_REPAIR_DONE_GUILD = "Repaired all items for %s (guild funds)."
-L.AUTO_REPAIR_NO_MONEY = "Not enough gold to repair (%s needed)."
-
--- Module: AutoSellJunk
-L.AUTO_SELL_JUNK_TITLE = "Auto sell junk"
-L.AUTO_SELL_JUNK_DESC = "Automatically sell all poor quality (grey) items when visiting a merchant."
-L.AUTO_SELL_JUNK_SUMMARY = "Show summary"
-L.AUTO_SELL_JUNK_SUMMARY_DESC = "Print the number of sold items and the earned gold."
-L.AUTO_SELL_JUNK_SOLD = "Sold %d junk item(s) for %s."
-
--- Module: FastLoot
-L.FAST_LOOT_TITLE = "Fast loot"
-L.FAST_LOOT_DESC = "Loot all items instantly when auto loot is active instead of waiting for the loot window."
-
--- Module: AutoDeclineDuels
-L.AUTO_DECLINE_DUELS_TITLE = "Auto decline duels"
-L.AUTO_DECLINE_DUELS_DESC = "Automatically decline all duel requests."
-L.AUTO_DECLINE_DUELS_NOTIFY = "Notify in chat"
-L.AUTO_DECLINE_DUELS_NOTIFY_DESC = "Print a message when a duel request was declined."
-L.AUTO_DECLINE_DUELS_DECLINED = "Declined duel request from %s."

@@ -1,11 +1,28 @@
+-- luacheck: read globals BACKPACK_CONTAINER NUM_BAG_SLOTS NUM_TOTAL_EQUIPPED_BAG_SLOTS C_Container C_Item GetItemInfo
 local _, ns = ...
 
-local L = ns.L
 local Utils = ns.Utils
 
+local L = ns.NewLocale({
+	enUS = {
+		TITLE = "Auto sell junk",
+		DESC = "Automatically sell all poor quality (grey) items when visiting a merchant.",
+		SUMMARY = "Show summary",
+		SUMMARY_DESC = "Print the number of sold items and the earned gold.",
+		SOLD = "Sold %d junk item(s) for %s.",
+	},
+	deDE = {
+		TITLE = "Plunder automatisch verkaufen",
+		DESC = "Verkauft beim Besuch eines Händlers automatisch alle Gegenstände schlechter Qualität (grau).",
+		SUMMARY = "Zusammenfassung anzeigen",
+		SUMMARY_DESC = "Gibt die Anzahl der verkauften Gegenstände und das erhaltene Gold aus.",
+		SOLD = "%d Plundergegenstände für %s verkauft.",
+	},
+})
+
 local module = ns:NewModule("AutoSellJunk", {
-	title = L.AUTO_SELL_JUNK_TITLE,
-	description = L.AUTO_SELL_JUNK_DESC,
+	title = L.TITLE,
+	description = L.DESC,
 	category = "MERCHANT",
 	defaultEnabled = true,
 	defaults = {
@@ -15,8 +32,8 @@ local module = ns:NewModule("AutoSellJunk", {
 		{
 			key = "showSummary",
 			type = "checkbox",
-			label = L.AUTO_SELL_JUNK_SUMMARY,
-			tooltip = L.AUTO_SELL_JUNK_SUMMARY_DESC,
+			label = L.SUMMARY,
+			tooltip = L.SUMMARY_DESC,
 		},
 	},
 })
@@ -73,7 +90,7 @@ end
 
 function module:PrintSummary(count, value)
 	if count > 0 and self.db.showSummary then
-		self:Print(L.AUTO_SELL_JUNK_SOLD:format(count, Utils.FormatMoney(value)))
+		self:Print(L.SOLD:format(count, Utils.FormatMoney(value)))
 	end
 end
 

@@ -23,7 +23,8 @@ globals = {
 	"StaticPopupDialogs",
 }
 
--- WoW API used by the addon. Add new entries when a module needs them.
+-- WoW API used by the core. Modules declare their own API usage inline:
+--   -- luacheck: read globals SomeApiFunction C_Something
 read_globals = {
 	-- Lua extensions provided by the client
 	"wipe",
@@ -43,46 +44,20 @@ read_globals = {
 
 	-- Settings
 	"Settings",
+	"CreateSettingsButtonInitializer",
 	"CreateSettingsListSectionHeaderInitializer",
 	"MinimalSliderWithSteppersMixin",
 
-	-- C_ namespaces
+	-- General API
 	"C_AddOns",
-	"C_Container",
 	"C_CurrencyInfo",
-	"C_Item",
+	"C_CVar",
 	"C_Timer",
 	"Enum",
-
-	-- General API
 	"GetAddOnMetadata",
 	"GetCoinTextureString",
-	"GetCVarBool",
-	"GetItemInfo",
 	"GetLocale",
 	"GetTime",
 	"InCombatLockdown",
-	"IsModifiedClick",
 	"ReloadUI",
-
-	-- Bags
-	"BACKPACK_CONTAINER",
-	"NUM_BAG_SLOTS",
-	"NUM_TOTAL_EQUIPPED_BAG_SLOTS",
-
-	-- Merchant & money
-	"CanGuildBankRepair",
-	"CanMerchantRepair",
-	"GetGuildBankWithdrawMoney",
-	"GetMoney",
-	"GetRepairAllCost",
-	"IsInGuild",
-	"RepairAllItems",
-
-	-- Loot
-	"GetNumLootItems",
-	"LootSlot",
-
-	-- Social
-	"CancelDuel",
 }

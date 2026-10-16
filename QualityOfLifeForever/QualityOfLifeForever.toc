@@ -24,11 +24,30 @@ Core\ModuleManager.lua
 Core\Settings.lua
 Core\SlashCommands.lua
 
-# Modules
+# Modules: one section per category, alphabetical within a section
+# EasySettings
+
+# Character
+
+# Tooltip
+
+# Camera
+
+# Graphics
+
+# Merchant
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
+
+# Loot
 Modules\Loot\FastLoot.lua
+
+# Quests
+
+# Social
 Modules\Social\AutoDeclineDuels.lua
+
+# Chat
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
