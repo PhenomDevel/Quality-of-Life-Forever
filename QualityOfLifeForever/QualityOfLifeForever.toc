@@ -49,6 +49,7 @@ Modules\Loot\AutoConfirmBindOnPickup.lua
 Modules\Loot\FastLoot.lua
 
 # Quests
+Modules\Quests\InstantQuestText.lua
 
 # Social
 Modules\Social\AutoDeclineDuels.lua
