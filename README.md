@@ -10,18 +10,20 @@ module off restores your previous game settings.
 
 ### Interface
 
-#### Cooldown manager keybinds
-Shows the keybind of the matching action button on the icons of the cooldown
-manager.
-- Show on: essential cooldowns, utility cooldowns
-- Display: font size, position
-
 #### Skip cinematics
 Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
 watch it.
 - In-game cinematics
 - Movies
 - Only seen movies – play each movie once, skip it afterwards
+
+### Cooldown manager
+
+#### Keybinds
+Shows the keybind of the matching action button on the icons of the cooldown
+manager.
+- Show on: essential cooldowns, utility cooldowns
+- Display: font size (8–38 px), position (corners, edges, center)
 
 ### Character
 

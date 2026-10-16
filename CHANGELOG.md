@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-### Interface
-- New: cooldown manager keybinds – the key of the action button on each
-  cooldown manager icon
+### Cooldown manager
+- New: keybinds – the key of the action button on each cooldown manager
+  icon; size and position adjustable
 
 ### World map
 - New: movable world map – scale the windowed map and drag it by its title
