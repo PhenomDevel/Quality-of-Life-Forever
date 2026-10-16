@@ -27,6 +27,9 @@ Core\SlashCommands.lua
 # Modules: one section per category, alphabetical within a section
 # Game settings (shortcuts to Blizzard options/CVars)
 
+# Interface
+Modules\Interface\SkipCinematics.lua
+
 # Character
 Modules\Character\HidePlayerName.lua
 
