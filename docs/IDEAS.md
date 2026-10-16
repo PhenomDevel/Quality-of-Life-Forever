@@ -55,7 +55,7 @@ One hook or event, some logic or a small display.
 | 11 | [x] Custom name on player frame (`CustomPlayerName`) | Character | re-apply custom text after Blizzard name updates (hook); text entry via button + popup edit box (Settings API has no text field) | low: region name in Forever |
 | 12 | [x] Tooltip font size (`TooltipAnchor`: scale) | Tooltip | scale the tooltip font objects | low |
 | 13 | [x] Tooltip transparency (`TooltipAnchor`) | Tooltip | set tooltip background alpha | low |
-| 14 | [ ] Vendor price in tooltip | Merchant | item tooltip post-call, sell price × stack | low |
+| 14 | [-] ~~Vendor price in tooltip~~ | Merchant | dropped: Forever shows the sell price natively | – |
 | 15 | [x] Accept group invites from friends/guild (`AutoAcceptGroupInvites`) | Social | check inviter against friends list/guild | low |
 | 16 | [x] Skip cinematics (`SkipCinematics`) | Interface | cancel on start, optionally only already seen ones | medium: some can't be cancelled |
 | 18 | [x] Quest progress in chat (`QuestProgress`) | Quests | forward progress messages to chat | low |
