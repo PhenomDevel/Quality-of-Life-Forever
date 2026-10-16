@@ -48,6 +48,7 @@ Modules\Loot\FastLoot.lua
 Modules\Social\AutoDeclineDuels.lua
 
 # Chat
+Modules\Chat\ChatClassColors.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
