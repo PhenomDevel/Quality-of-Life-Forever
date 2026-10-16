@@ -40,6 +40,7 @@ Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
 
 # Loot
+Modules\Loot\AutoConfirmBindOnPickup.lua
 Modules\Loot\FastLoot.lua
 
 # Quests
