@@ -28,6 +28,7 @@ Core\SlashCommands.lua
 # Game settings (shortcuts to Blizzard options/CVars)
 
 # Character
+Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
 
 # Tooltip
