@@ -21,8 +21,9 @@ old Classic Era API.
 - Other addons may only be named as *feature inspiration* ("what"), never as a
   source for the implementation ("how"). Do not open or read their source code
   while implementing a feature.
-- Data (e.g. map overlay coordinates, zone level ranges, item lists) must come
-  from the game API at runtime or be collected by us in-game – never taken
+- Data (e.g. map overlay coordinates, zone level ranges, item lists) comes
+  from the game API at runtime, is collected by us in-game, or is taken from
+  public references such as wikis (name the source in a comment) – never
   from another addon's data files.
 - Allowed references: the official WoW API (function/event names and
   signatures, documented behavior) and Blizzard's UI only to learn which
