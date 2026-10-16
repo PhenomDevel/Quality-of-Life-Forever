@@ -3,11 +3,13 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Confirm bind on pickup when solo",
+		TITLE = "Auto-confirm BoP loot",
+		NOTE = "Bind on Pickup dialog, only when not in a group",
 		DESC = "Automatically confirms the \"Bind on Pickup\" loot dialog while you are not in a group.",
 	},
 	deDE = {
-		TITLE = "„Beim Aufheben gebunden“ solo bestätigen",
+		TITLE = "Auto-Bestätigung: BoP",
+		NOTE = "„Beim Aufheben gebunden“, nur ohne Gruppe",
 		DESC = "Bestätigt die Abfrage „Beim Aufheben gebunden“ beim Plündern automatisch, solange du in keiner Gruppe bist.",
 	},
 })
@@ -15,6 +17,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("AutoConfirmBindOnPickup", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "LOOT",
 })
 

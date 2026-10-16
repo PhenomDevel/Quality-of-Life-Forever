@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<!-- Gray explanatory line below a settings row, see Core/Settings.lua. -->
+	<Frame name="QualityOfLifeForeverSettingsNoteTemplate" mixin="QualityOfLifeForeverSettingsNoteMixin" virtual="true">
+		<Size y="16"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Text" inherits="GameFontDisableSmall" justifyH="LEFT" wordwrap="false"/>
+			</Layer>
+		</Layers>
+	</Frame>
+</Ui>

@@ -14,6 +14,7 @@ ignore = { "212/_.*" }
 globals = {
 	"QualityOfLifeForever",
 	"QualityOfLifeForeverDB",
+	"QualityOfLifeForeverSettingsNoteMixin",
 	"QualityOfLifeForever_OnAddonCompartmentClick",
 	"QualityOfLifeForever_OnAddonCompartmentEnter",
 	"QualityOfLifeForever_OnAddonCompartmentLeave",

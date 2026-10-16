@@ -22,6 +22,7 @@ Core\Utils.lua
 Core\Database.lua
 Core\ModuleManager.lua
 Core\Settings.lua
+Core\SettingsTemplates.xml
 Core\SlashCommands.lua
 
 # Modules: one section per category, alphabetical within a section

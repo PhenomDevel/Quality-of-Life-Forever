@@ -3,11 +3,13 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Hide name on player frame",
+		TITLE = "Hide player name",
+		NOTE = "On the player frame",
 		DESC = "Hides your character name on the player unit frame.",
 	},
 	deDE = {
-		TITLE = "Namen im Spielerrahmen ausblenden",
+		TITLE = "Spielername ausblenden",
+		NOTE = "Im Spielerrahmen",
 		DESC = "Blendet deinen Charakternamen im Spielerrahmen aus.",
 	},
 })
@@ -15,6 +17,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("HidePlayerName", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "CHARACTER",
 })
 

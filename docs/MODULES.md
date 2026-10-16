@@ -23,6 +23,7 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 |-------------------|---------|-------------|
 | `title`           | string  | Name in the settings panel (localized) |
 | `description`     | string  | Tooltip of the enable checkbox (localized) |
+| `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
 | `category`        | string  | `GAME_SETTINGS`, `INTERFACE`, `CHARACTER`, `TOOLTIP`, `CAMERA`, `GRAPHICS`, `MERCHANT`, `LOOT`, `QUESTS`, `SOCIAL`, `CHAT`, `MAP`, `GENERAL` |
 | `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
 | `defaults`        | table   | Option defaults, merged into `self.db` |
@@ -44,7 +45,7 @@ without a migration in `Core/Database.lua`.
   onClick = function(module) ... end }   -- no key/default; only runs while enabled
 ```
 
-Every option except buttons needs an entry in `defaults`. Options are only
+Any option may have a `note` (gray line below it). Every option except buttons needs an entry in `defaults`. Options are only
 editable while the module is enabled.
 
 ## Lifecycle
