@@ -1,25 +1,33 @@
--- luacheck: read globals WorldMapFrame C_Map C_Timer Enum UnitLevel CreateFrame GameFontNormal
+-- luacheck: read globals WorldMapFrame Minimap C_Map C_Timer Enum UnitLevel CreateFrame GameFontNormal
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Zone level ranges",
-		NOTE = "Level range on the world map",
+		NOTE = "Level range on the world map and minimap",
 		DESC = "Shows the level range of zones on the world map, colored by your level.",
 		ZONE_MAP = "On zone maps",
-		ZONE_MAP_DESC = "Shows the range of the zone in the top right corner of the map.",
+		ZONE_MAP_DESC = "Shows the range of the zone at the bottom of the map.",
 		CONTINENT_MAP = "On continent maps",
 		CONTINENT_MAP_DESC = "Shows the range on every zone of the continent.",
+		HOVER = "In the zone name on hover",
+		HOVER_DESC = "Adds the range to the zone name shown when hovering a zone on a continent map.",
+		MINIMAP = "Below the minimap",
+		MINIMAP_DESC = "Shows the range of your current zone below the minimap.",
 		LEVEL = "Level %s",
 	},
 	deDE = {
 		TITLE = "Zonen-Levelbereiche",
-		NOTE = "Levelbereich auf der Weltkarte",
+		NOTE = "Levelbereich auf Weltkarte und Minimap",
 		DESC = "Zeigt den Levelbereich der Zonen auf der Weltkarte, eingefärbt nach deiner Stufe.",
 		ZONE_MAP = "Auf Zonenkarten",
-		ZONE_MAP_DESC = "Zeigt den Bereich der Zone oben rechts auf der Karte.",
+		ZONE_MAP_DESC = "Zeigt den Bereich der Zone unten auf der Karte.",
 		CONTINENT_MAP = "Auf Kontinentkarten",
 		CONTINENT_MAP_DESC = "Zeigt den Bereich auf jeder Zone des Kontinents.",
+		HOVER = "Im Zonennamen beim Überfahren",
+		HOVER_DESC = "Ergänzt den Bereich am Zonennamen, der beim Überfahren einer Zone auf der Kontinentkarte erscheint.",
+		MINIMAP = "Unter der Minimap",
+		MINIMAP_DESC = "Zeigt den Bereich deiner aktuellen Zone unter der Minimap.",
 		LEVEL = "Stufe %s",
 	},
 })
@@ -32,10 +40,14 @@ local module = ns:NewModule("ZoneLevels", {
 	defaults = {
 		zoneMap = true,
 		continentMap = true,
+		hover = true,
+		minimap = true,
 	},
 	options = {
 		{ key = "zoneMap", type = "checkbox", label = L.ZONE_MAP, tooltip = L.ZONE_MAP_DESC },
 		{ key = "continentMap", type = "checkbox", label = L.CONTINENT_MAP, tooltip = L.CONTINENT_MAP_DESC },
+		{ key = "hover", type = "checkbox", label = L.HOVER, tooltip = L.HOVER_DESC },
+		{ key = "minimap", type = "checkbox", label = L.MINIMAP, tooltip = L.MINIMAP_DESC },
 	},
 })
 
@@ -89,14 +101,19 @@ local LEVELS = {
 	[2521] = { 1, 12 }, -- Zephras Isle
 }
 
-local ZONE_FONT_SIZE = 22
+local ZONE_FONT_SIZE = 26
+local MINIMAP_FONT_SIZE = 13
 -- In canvas units; the canvas is scaled with the map zoom.
-local LABEL_FONT_SIZE = 26
+local LABEL_FONT_SIZE = 16
 
 -- zoneText: top right of the map frame (zone maps).
 -- labels: font strings on the map canvas (continent maps), reused.
-local zoneText, labelFrame
+-- minimapText: below the minimap (current zone).
+local zoneText, labelFrame, minimapText
 local labels = {}
+-- Localized zone name -> uiMapID, for the hover label.
+local zoneByName
+local areaLabelHooked, settingAreaLabel
 
 local function GetColor(minLevel, maxLevel)
 	local level = UnitLevel("player")
@@ -175,6 +192,70 @@ function module:Update()
 	end
 end
 
+-- Zone the player is in; walks up from sub-zone, city and dungeon maps.
+local function GetPlayerZone()
+	local mapID = C_Map.GetBestMapForUnit("player")
+	while mapID do
+		if LEVELS[mapID] then
+			return mapID
+		end
+		local info = C_Map.GetMapInfo(mapID)
+		if not info or info.mapType <= Enum.UIMapType.Zone then
+			return
+		end
+		mapID = info.parentMapID
+	end
+end
+
+function module:UpdateMinimap()
+	local mapID = self.db.minimap and GetPlayerZone()
+	if mapID then
+		minimapText:SetFormattedText(L.LEVEL, FormatRange(LEVELS[mapID]))
+		minimapText:Show()
+	else
+		minimapText:Hide()
+	end
+end
+
+-- Blizzard's hover label on the map (zone name on continent maps) belongs to
+-- a map data provider; its Name font string is set whenever the hovered area
+-- changes. Hooking SetText avoids depending on the provider's methods.
+function module:HookAreaLabel()
+	if areaLabelHooked then
+		return
+	end
+	for provider in pairs(WorldMapFrame.dataProviders or {}) do
+		local label = type(provider) == "table" and provider.Label
+		if type(label) == "table" and label.Name and label.Name.SetText then
+			areaLabelHooked = true
+			self:SecureHook(label.Name, "SetText", self.OnAreaLabelSetText)
+			return
+		end
+	end
+	self:Debug("world map area label not found")
+end
+
+function module:OnAreaLabelSetText(fontString, name)
+	if settingAreaLabel or not self.db.hover or type(name) ~= "string" then
+		return
+	end
+	if not zoneByName then
+		zoneByName = {}
+		for mapID in pairs(LEVELS) do
+			local info = C_Map.GetMapInfo(mapID)
+			if info then
+				zoneByName[info.name] = mapID
+			end
+		end
+	end
+	local mapID = zoneByName[name]
+	if mapID then
+		settingAreaLabel = true
+		fontString:SetText(("%s (%s)"):format(name, FormatRange(LEVELS[mapID])))
+		settingAreaLabel = false
+	end
+end
+
 -- The canvas gets its size for the new map during the change; update after it.
 function module:QueueUpdate()
 	C_Timer.After(0, function()
@@ -191,21 +272,41 @@ function module:OnEnable()
 		overlay:SetAllPoints(container)
 		overlay:SetFrameLevel(container:GetFrameLevel() + 20)
 		zoneText = CreateText(overlay, ZONE_FONT_SIZE)
-		zoneText:SetPoint("TOPRIGHT", overlay, "TOPRIGHT", -16, -48)
+		zoneText:SetPoint("BOTTOM", overlay, "BOTTOM", 0, 16)
 
 		local canvas = container.Child
 		labelFrame = CreateFrame("Frame", nil, canvas)
 		labelFrame:SetAllPoints(canvas)
 		labelFrame:SetFrameLevel(canvas:GetFrameLevel() + 10)
+
+		minimapText = CreateText(Minimap, MINIMAP_FONT_SIZE)
+		minimapText:SetPoint("TOP", Minimap, "BOTTOM", 0, -4)
 	end
 	self:SecureHook(WorldMapFrame, "OnMapChanged", self.QueueUpdate)
+	self:HookAreaLabel()
 	self:HookScript(WorldMapFrame, "OnShow", self.QueueUpdate)
-	self:RegisterEvent("PLAYER_LEVEL_UP", "QueueUpdate")
+	self:RegisterEvent("PLAYER_LEVEL_UP", "OnLevelUp")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateMinimap")
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdateMinimap")
+	self:RegisterEvent("ZONE_CHANGED", "UpdateMinimap")
+	self:RegisterEvent("ZONE_CHANGED_INDOORS", "UpdateMinimap")
+	self:QueueUpdate()
+	self:UpdateMinimap()
+end
+
+-- UnitLevel may still return the old level during the event.
+function module:OnLevelUp()
+	C_Timer.After(0, function()
+		if self.enabled then
+			self:UpdateMinimap()
+		end
+	end)
 	self:QueueUpdate()
 end
 
 function module:OnDisable()
 	if zoneText then
+		minimapText:Hide()
 		zoneText:Hide()
 		for _, label in ipairs(labels) do
 			label:Hide()
@@ -215,4 +316,5 @@ end
 
 function module:OnOptionChanged()
 	self:QueueUpdate()
+	self:UpdateMinimap()
 end
