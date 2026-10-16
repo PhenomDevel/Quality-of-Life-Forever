@@ -269,6 +269,22 @@ function ns:IterateModules()
 	return ipairs(ns.moduleOrder)
 end
 
+local function CompareTitles(a, b)
+	return a.title:lower() < b.title:lower()
+end
+
+-- Modules sorted by their localized title, for display.
+function ns:GetSortedModules(category)
+	local modules = {}
+	for _, module in ipairs(ns.moduleOrder) do
+		if not category or module.category == category then
+			modules[#modules + 1] = module
+		end
+	end
+	table.sort(modules, CompareTitles)
+	return modules
+end
+
 --------------------------------------------------------------------------------
 -- Lifecycle
 --------------------------------------------------------------------------------
