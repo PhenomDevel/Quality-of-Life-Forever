@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Interface
+- New: remember buff bar state – buffs stay collapsed or expanded after
+  logging in or reloading
+
 ## v0.3.0 (2026-10-16)
 
 ### Character
