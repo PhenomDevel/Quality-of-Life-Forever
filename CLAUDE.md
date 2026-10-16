@@ -6,6 +6,7 @@ including the Midnight addon restrictions (secret values). Do not assume the
 old Classic Era API.
 
 ## Layout
+- Dev setup, release and checks: `docs/DEVELOPMENT.md`.
 - `QualityOfLifeForever/` is the addon folder that gets installed; everything
   else (docs, tools, CI) stays in the repo only.
 - Load order is defined in `QualityOfLifeForever.toc`: Locales → Core → Modules → `Core/Bootstrap.lua` (last).
