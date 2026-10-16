@@ -12,8 +12,7 @@ module off restores your previous game settings.
 
 #### Game font
 Replaces the standard interface font with one of the game's fonts and
-changes its size. Chat
-windows switch after `/reload`.
+changes its size. Chat windows switch after `/reload`.
 - Font: Friz Quadrata, Arial Narrow, Skurri, Morpheus (previewed in the list)
 - Size: 80–150%
 
