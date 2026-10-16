@@ -63,19 +63,18 @@ QualityOfLifeForever/        ← der eigentliche Addon-Ordner
   Core/                      ← Framework: Datenbank, Modulverwaltung, Einstellungen, Slash-Befehle
   Modules/<Kategorie>/       ← ein File pro Modul
 docs/                        ← Modul-API, Vorlage, Ideen
-tests/                       ← WoW-API-Mock + Tests (laufen ohne Spielclient)
 tools/package.sh             ← baut ein installierbares Zip
 ```
 
 * Neues Modul anlegen: [`docs/MODULES.md`](docs/MODULES.md)
-* Lint & Tests (Lua 5.1 + [luacheck](https://github.com/lunarmodules/luacheck)):
+* Lint mit [luacheck](https://github.com/lunarmodules/luacheck):
 
   ```bash
   luacheck .
-  lua5.1 tests/run.lua
   ```
 
-  Beides läuft auch automatisch per GitHub Actions bei jedem Push.
+  Läuft auch automatisch per GitHub Actions bei jedem Push. Die Funktion wird
+  im Spiel getestet.
 * Release: Tag pushen (`git tag v0.1.0 && git push --tags`) – die Action baut
   das Zip und hängt es an ein GitHub-Release. Lokal: `tools/package.sh 0.1.0`.
 

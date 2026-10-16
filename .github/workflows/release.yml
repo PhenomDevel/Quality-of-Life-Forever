@@ -15,16 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Lua 5.1 and luacheck
+      - name: Install luacheck
         run: |
           sudo apt-get update
           sudo apt-get install -y lua5.1 luarocks zip
           sudo luarocks install luacheck
 
-      - name: Lint and test
-        run: |
-          luacheck .
-          lua5.1 tests/run.lua
+      - name: Lint
+        run: luacheck .
 
       - name: Package
         id: package

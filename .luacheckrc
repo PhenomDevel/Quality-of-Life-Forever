@@ -10,11 +10,6 @@ self = false
 unused_args = true
 ignore = { "212/_.*" }
 
-files["tests/"] = {
-	std = "max",
-	globals = { "setfenv" },
-}
-
 -- Globals the addon defines.
 globals = {
 	"QualityOfLifeForever",
