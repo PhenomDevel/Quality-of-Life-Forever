@@ -189,12 +189,7 @@ function ns:BuildSettings()
 	AddGeneralSettings(root, rootLayout)
 
 	for _, categoryInfo in ipairs(ns.categories) do
-		local modules = {}
-		for _, module in ns:IterateModules() do
-			if module.category == categoryInfo.id then
-				modules[#modules + 1] = module
-			end
-		end
+		local modules = ns:GetSortedModules(categoryInfo.id)
 		if #modules > 0 then
 			local subcategory, layout = Settings.RegisterVerticalLayoutSubcategory(root, categoryInfo.name)
 			for _, module in ipairs(modules) do

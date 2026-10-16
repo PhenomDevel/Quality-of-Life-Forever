@@ -35,7 +35,7 @@ end
 
 commands.list = function()
 	ns:Print(L.MODULE_LIST_HEADER)
-	for _, module in ns:IterateModules() do
+	for _, module in ipairs(ns:GetSortedModules()) do
 		local state = module.db.enabled and L.MODULE_STATE_ON or L.MODULE_STATE_OFF
 		ns:Print(("  %s (|cff999999%s|r): %s"):format(module.title, module.name, state))
 	end
