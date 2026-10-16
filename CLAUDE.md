@@ -41,7 +41,8 @@ old Classic Era API.
   (updated in a separate docs PR) to avoid conflicts between parallel PRs.
 - Module names are SavedVariables keys – never rename a released module without a migration in `Core/Database.lua`.
 - `OnDisable` must undo everything `OnEnable` did; events are unregistered automatically.
-- Each option in `info.options` (except buttons) needs a default in `info.defaults`.
+- Each option in `info.options` (except buttons and headers) needs a default in `info.defaults`.
+- Group options with `{ type = "header", label = … }` when a module has distinct sub-groups.
 - `.luacheckrc` holds core globals only.
 - Changing CVars: use `self:SetCVar()`, which restores the user's value on disable.
 

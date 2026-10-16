@@ -208,6 +208,7 @@ ns.moduleOrder = {}
 		                  { key, type = "checkbox" | "slider" | "dropdown", label, tooltip,
 		                    min, max, step, format (slider), values (dropdown) }
 		                  { type = "button", label, buttonText, tooltip, onClick(module) }
+		                  { type = "header", label } (section title, no value)
 		                  Every option may have a `note` (gray line below it).
 		combatProtected = boolean, enable/disable is deferred until out of combat
 		requiresReload  = boolean, ask for a /reload after disabling
