@@ -15,7 +15,7 @@ All modules are **written from scratch** – no code or data from other addons
 - [x] Auto sell junk (`AutoSellJunk`)
 - [x] Fast loot (`FastLoot`)
 - [x] Auto decline duels (`AutoDeclineDuels`)
-- [x] Remember buff bar state (`BuffFrameState`)
+- [-] ~~Remember buff bar state~~ – dropped: setting `BuffFrame.isExpanded` from addon code taints the buff frame, which then fails on secret aura fields
 
 ## Tier 1 – very easy
 Single CVar or event, hardly any UI. All merged; the risk column lists what
