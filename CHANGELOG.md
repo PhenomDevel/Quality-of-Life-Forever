@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.1 (2026-10-16)
+
+- New addon icon in the addon list and the addon compartment
+
 ## v0.1.0 (2026-10-16)
 
 Initial release. Every feature is a module that can be toggled individually
