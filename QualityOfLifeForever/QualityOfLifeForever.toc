@@ -54,6 +54,7 @@ Modules\Loot\FastLoot.lua
 
 # Quests
 Modules\Quests\InstantQuestText.lua
+Modules\Quests\QuestProgress.lua
 
 # Social
 Modules\Social\AutoAcceptGroupInvites.lua
