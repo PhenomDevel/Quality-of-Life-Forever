@@ -45,11 +45,14 @@ in-game; there are no automated tests.
 ## Release
 
 Add a section for the version to `CHANGELOG.md` (the whole file is uploaded
-as release notes, so keep it user-facing), then push a `v*` tag (`v0.1.0`, or
-`v0.1.0-beta1` / `-alpha1` for test releases). The workflow lints and runs the
-[BigWigs packager](https://github.com/BigWigsMods/packager), which uploads to
-CurseForge (project ID 1748279 via `## X-Curse-Project-ID`, secret `CF_API_KEY`) and GitHub releases.
-The CurseForge upload is skipped without ID or secret.
+as release notes, so keep it user-facing), merge it, then run *Actions →
+Release → Run workflow* on `main` with the version (`v0.1.0`, or
+`v0.1.0-beta1` / `-alpha1` for test releases). The workflow checks that the
+changelog has a `## <version>` section and the tag is new, creates the tag,
+lints and runs the [BigWigs packager](https://github.com/BigWigsMods/packager),
+which uploads to CurseForge (project ID 1748279 via `## X-Curse-Project-ID`,
+secret `CF_API_KEY`) and GitHub releases. The CurseForge upload is skipped
+without ID or secret. Pushing a `v*` tag manually triggers the same workflow.
 
 Local test build without upload (zip in `.release/`):
 
