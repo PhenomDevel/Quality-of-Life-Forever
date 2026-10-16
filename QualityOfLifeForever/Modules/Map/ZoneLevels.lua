@@ -1,32 +1,26 @@
--- luacheck: read globals WorldMapFrame C_Map Enum UnitLevel CreateFrame
+-- luacheck: read globals WorldMapFrame C_Map C_Timer Enum UnitLevel CreateFrame GameFontNormal
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Zone level ranges",
 		NOTE = "Level range on the world map",
-		DESC = "Shows the level range of a zone on the world map, colored by your level.",
+		DESC = "Shows the level range of zones on the world map, colored by your level.",
 		ZONE_MAP = "On zone maps",
-		ZONE_MAP_DESC = "Shows the range of the zone the map shows.",
+		ZONE_MAP_DESC = "Shows the range of the zone in the top right corner of the map.",
 		CONTINENT_MAP = "On continent maps",
-		CONTINENT_MAP_DESC = "Shows the range of the zone under the cursor.",
-		RANGE = "Level %d–%d",
-		NAMED_RANGE = "%s: level %d–%d",
-		SINGLE = "Level %d",
-		NAMED_SINGLE = "%s: level %d",
+		CONTINENT_MAP_DESC = "Shows the range on every zone of the continent.",
+		LEVEL = "Level %s",
 	},
 	deDE = {
 		TITLE = "Zonen-Levelbereiche",
 		NOTE = "Levelbereich auf der Weltkarte",
-		DESC = "Zeigt den Levelbereich einer Zone auf der Weltkarte, eingefärbt nach deiner Stufe.",
+		DESC = "Zeigt den Levelbereich der Zonen auf der Weltkarte, eingefärbt nach deiner Stufe.",
 		ZONE_MAP = "Auf Zonenkarten",
-		ZONE_MAP_DESC = "Zeigt den Bereich der angezeigten Zone.",
+		ZONE_MAP_DESC = "Zeigt den Bereich der Zone oben rechts auf der Karte.",
 		CONTINENT_MAP = "Auf Kontinentkarten",
-		CONTINENT_MAP_DESC = "Zeigt den Bereich der Zone unter dem Mauszeiger.",
-		RANGE = "Stufe %d–%d",
-		NAMED_RANGE = "%s: Stufe %d–%d",
-		SINGLE = "Stufe %d",
-		NAMED_SINGLE = "%s: Stufe %d",
+		CONTINENT_MAP_DESC = "Zeigt den Bereich auf jeder Zone des Kontinents.",
+		LEVEL = "Stufe %s",
 	},
 })
 
@@ -95,9 +89,14 @@ local LEVELS = {
 	[2521] = { 1, 12 }, -- Zephras Isle
 }
 
-local UPDATE_INTERVAL = 0.1
+local ZONE_FONT_SIZE = 22
+-- In canvas units; the canvas is scaled with the map zoom.
+local LABEL_FONT_SIZE = 26
 
-local frame, text
+-- zoneText: top right of the map frame (zone maps).
+-- labels: font strings on the map canvas (continent maps), reused.
+local zoneText, labelFrame
+local labels = {}
 
 local function GetColor(minLevel, maxLevel)
 	local level = UnitLevel("player")
@@ -113,73 +112,107 @@ local function GetColor(minLevel, maxLevel)
 	return 0.5, 0.5, 0.5
 end
 
--- Zone the text is about, or nil: the shown zone map, or on a continent map
--- the zone under the cursor.
-function module:GetTargetMap()
+-- Colored "10–20" (or "60"), for embedding in a white text.
+local function FormatRange(range)
+	local minLevel, maxLevel = range[1], range[2]
+	local r, g, b = GetColor(minLevel, maxLevel)
+	local text = minLevel == maxLevel and tostring(minLevel) or ("%d–%d"):format(minLevel, maxLevel)
+	return ("|cff%02x%02x%02x%s|r"):format(r * 255, g * 255, b * 255, text)
+end
+
+local function CreateText(parent, size)
+	local text = parent:CreateFontString(nil, "OVERLAY")
+	local font = GameFontNormal:GetFont()
+	text:SetFont(font, size, "OUTLINE")
+	text:SetTextColor(1, 1, 1)
+	return text
+end
+
+function module:ShowContinentLabels(mapID)
+	local canvas = WorldMapFrame.ScrollContainer.Child
+	local width, height = canvas:GetSize()
+	local count = 0
+	for _, child in ipairs(C_Map.GetMapChildrenInfo(mapID) or {}) do
+		local range = LEVELS[child.mapID]
+		if range then
+			local minX, maxX, minY, maxY = C_Map.GetMapRectOnMap(child.mapID, mapID)
+			if minX then
+				count = count + 1
+				local label = labels[count]
+				if not label then
+					label = CreateText(labelFrame, LABEL_FONT_SIZE)
+					labels[count] = label
+				end
+				label:ClearAllPoints()
+				label:SetPoint("CENTER", canvas, "TOPLEFT", (minX + maxX) / 2 * width, -(minY + maxY) / 2 * height)
+				label:SetText(FormatRange(range))
+				label:Show()
+			end
+		end
+	end
+end
+
+function module:Update()
+	if not zoneText then
+		return
+	end
+	zoneText:Hide()
+	for _, label in ipairs(labels) do
+		label:Hide()
+	end
 	local mapID = WorldMapFrame:GetMapID()
 	local info = mapID and C_Map.GetMapInfo(mapID)
 	if not info then
 		return
 	end
 	if info.mapType == Enum.UIMapType.Continent then
-		if not self.db.continentMap or not WorldMapFrame.ScrollContainer:IsMouseOver() then
-			return
+		if self.db.continentMap then
+			self:ShowContinentLabels(mapID)
 		end
-		local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-		local child = x and C_Map.GetMapInfoAtPosition(mapID, x, y)
-		if child then
-			return child.mapID, child.name
-		end
-	elseif self.db.zoneMap then
-		return mapID
+	elseif self.db.zoneMap and LEVELS[mapID] then
+		zoneText:SetFormattedText(L.LEVEL, FormatRange(LEVELS[mapID]))
+		zoneText:Show()
 	end
 end
 
-function module:Update()
-	local mapID, name = self:GetTargetMap()
-	local range = mapID and LEVELS[mapID]
-	if not range then
-		text:Hide()
-		return
-	end
-	local minLevel, maxLevel = range[1], range[2]
-	if minLevel == maxLevel then
-		if name then
-			text:SetFormattedText(L.NAMED_SINGLE, name, minLevel)
-		else
-			text:SetFormattedText(L.SINGLE, minLevel)
+-- The canvas gets its size for the new map during the change; update after it.
+function module:QueueUpdate()
+	C_Timer.After(0, function()
+		if self.enabled and WorldMapFrame:IsShown() then
+			self:Update()
 		end
-	elseif name then
-		text:SetFormattedText(L.NAMED_RANGE, name, minLevel, maxLevel)
-	else
-		text:SetFormattedText(L.RANGE, minLevel, maxLevel)
-	end
-	text:SetTextColor(GetColor(minLevel, maxLevel))
-	text:Show()
+	end)
 end
 
 function module:OnEnable()
-	if not frame then
+	if not zoneText then
 		local container = WorldMapFrame.ScrollContainer
-		frame = CreateFrame("Frame", nil, container)
-		frame:SetAllPoints(container)
-		frame:SetFrameLevel(container:GetFrameLevel() + 20)
-		text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-		text:SetPoint("BOTTOM", frame, "BOTTOM", 0, 16)
-		local elapsed = 0
-		frame:SetScript("OnUpdate", function(_, delta)
-			elapsed = elapsed + delta
-			if elapsed >= UPDATE_INTERVAL then
-				elapsed = 0
-				module:Update()
-			end
-		end)
+		local overlay = CreateFrame("Frame", nil, container)
+		overlay:SetAllPoints(container)
+		overlay:SetFrameLevel(container:GetFrameLevel() + 20)
+		zoneText = CreateText(overlay, ZONE_FONT_SIZE)
+		zoneText:SetPoint("TOPRIGHT", overlay, "TOPRIGHT", -16, -48)
+
+		local canvas = container.Child
+		labelFrame = CreateFrame("Frame", nil, canvas)
+		labelFrame:SetAllPoints(canvas)
+		labelFrame:SetFrameLevel(canvas:GetFrameLevel() + 10)
 	end
-	frame:Show()
+	self:SecureHook(WorldMapFrame, "OnMapChanged", self.QueueUpdate)
+	self:HookScript(WorldMapFrame, "OnShow", self.QueueUpdate)
+	self:RegisterEvent("PLAYER_LEVEL_UP", "QueueUpdate")
+	self:QueueUpdate()
 end
 
 function module:OnDisable()
-	if frame then
-		frame:Hide()
+	if zoneText then
+		zoneText:Hide()
+		for _, label in ipairs(labels) do
+			label:Hide()
+		end
 	end
+end
+
+function module:OnOptionChanged()
+	self:QueueUpdate()
 end
