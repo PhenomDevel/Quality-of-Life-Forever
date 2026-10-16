@@ -46,6 +46,7 @@ Modules\Loot\FastLoot.lua
 
 # Social
 Modules\Social\AutoDeclineDuels.lua
+Modules\Social\AutoDeclineGuildInvites.lua
 
 # Chat
 
