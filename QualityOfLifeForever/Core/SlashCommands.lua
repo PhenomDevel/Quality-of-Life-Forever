@@ -70,10 +70,12 @@ commands.debug = function()
 end
 
 -- Developer helper: engine help text, default and effective range of CVars.
--- The range is measured by writing extreme values and reading back what the
--- engine keeps; the original value is restored right after. Results are also
--- stored in QualityOfLifeForeverDB.global.cvarInfo for copying.
-local PROBE_LOW, PROBE_HIGH = "-1000000", "1000000"
+-- The engine silently rejects out-of-range values (the CVar keeps its value),
+-- so each bound is found by binary search over integers: the largest/smallest
+-- value that GetCVar reports back after SetCVar. "none" = +/-1e6 accepted.
+-- The original value is restored afterwards. Results are also stored in
+-- QualityOfLifeForeverDB.global.cvarInfo for copying.
+local PROBE_LIMIT = 1000000
 
 local function FindConsoleHelp(name)
 	local lower = name:lower()
@@ -85,13 +87,36 @@ local function FindConsoleHelp(name)
 	return nil
 end
 
-local function ProbeLimit(name, probe, original)
-	if not C_CVar.SetCVar(name, probe) then
-		return "rejected"
+local function Accepts(name, value)
+	C_CVar.SetCVar(name, tostring(value))
+	return tonumber(C_CVar.GetCVar(name)) == value
+end
+
+-- `inside` is an accepted value, `outside` a rejected one; narrows to the last
+-- accepted integer between them.
+local function SearchBound(name, inside, outside)
+	while math.abs(outside - inside) > 1 do
+		local middle = math.floor((inside + outside) / 2)
+		if Accepts(name, middle) then
+			inside = middle
+		else
+			outside = middle
+		end
 	end
-	local value = C_CVar.GetCVar(name)
+	return inside
+end
+
+local function ProbeLimits(name, original)
+	local start = math.floor(tonumber(original))
+	local min, max = "none", "none"
+	if not Accepts(name, -PROBE_LIMIT) then
+		min = Accepts(name, start) and SearchBound(name, start, -PROBE_LIMIT) or "?"
+	end
+	if not Accepts(name, PROBE_LIMIT) then
+		max = Accepts(name, start) and SearchBound(name, start, PROBE_LIMIT) or "?"
+	end
 	C_CVar.SetCVar(name, original)
-	return value == probe and "none" or value
+	return min, max
 end
 
 local function InspectCVar(name)
@@ -101,8 +126,7 @@ local function InspectCVar(name)
 	end
 	local info = { name = name, value = value, default = default, help = FindConsoleHelp(name) }
 	if tonumber(value) and not (isLocked or isSecure or isReadOnly) and not InCombatLockdown() then
-		info.min = ProbeLimit(name, PROBE_LOW, value)
-		info.max = ProbeLimit(name, PROBE_HIGH, value)
+		info.min, info.max = ProbeLimits(name, value)
 	end
 	return info
 end
