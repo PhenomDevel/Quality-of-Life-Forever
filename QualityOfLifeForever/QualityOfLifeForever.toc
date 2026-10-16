@@ -32,6 +32,7 @@ Core\SlashCommands.lua
 # Tooltip
 
 # Camera
+Modules\Camera\CameraZoom.lua
 
 # Graphics
 
