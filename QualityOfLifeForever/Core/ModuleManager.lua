@@ -10,7 +10,7 @@ local Utils = ns.Utils
 -- the sub pages in the settings panel. Empty categories are not shown.
 
 ns.categories = {
-	{ id = "EASYSETTINGS", name = L.CATEGORY_EASYSETTINGS },
+	{ id = "GAME_SETTINGS", name = L.CATEGORY_GAME_SETTINGS },
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
 	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
 	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },

@@ -25,8 +25,7 @@ Core\Settings.lua
 Core\SlashCommands.lua
 
 # Modules: one section per category, alphabetical within a section
-# EasySettings
-Modules\EasySettings\AutoLoot.lua
+# Game settings (shortcuts to Blizzard options/CVars)
 
 # Character
 Modules\Character\HidePlayerName.lua
@@ -46,6 +45,7 @@ Modules\Merchant\AutoSellJunk.lua
 
 # Loot
 Modules\Loot\AutoConfirmBindOnPickup.lua
+Modules\Loot\AutoLoot.lua
 Modules\Loot\FastLoot.lua
 
 # Quests

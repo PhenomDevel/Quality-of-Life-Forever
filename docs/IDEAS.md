@@ -21,7 +21,7 @@ Single CVar or event, hardly any UI.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
-| 1 | [~] Auto loot (#6) | EasySettings | CVar `autoLootDefault` | low |
+| 1 | [x] Auto loot (`AutoLoot`) | Loot | CVar `autoLootDefault` | low |
 | 2 | [~] Hide name on player frame (#7) | Character | alpha on the player frame name | low: region name in Forever |
 | 3 | [~] Max camera distance, default 4.0 (#9) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
 | 4 | [~] Advanced graphics settings (#10) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
