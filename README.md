@@ -10,10 +10,6 @@ module off restores your previous game settings.
 
 ### Interface
 
-#### Remember buff bar state
-Keeps the buffs collapsed or expanded (arrow next to the buff bar) after logging
-in or reloading. Turns on Blizzard's collapse arrow.
-
 #### Skip cinematics
 Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
 watch it.
