@@ -31,6 +31,7 @@ Core\SlashCommands.lua
 Modules\Interface\SkipCinematics.lua
 
 # Character
+Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
 Modules\Character\ShowDurability.lua
 
