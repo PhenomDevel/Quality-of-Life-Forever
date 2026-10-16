@@ -26,9 +26,9 @@ or disabled individually.
 | Auto loot                       | Loot      | off     | Turns on the game's auto loot setting |
 | Fast loot                       | Loot      | off     | Loots all slots instantly when auto loot is active |
 | Instant quest text              | Quests    | off     | Shows quest text without fade-in |
-| Accept summons & resurrections  | Social    | off     | Auto-accepts out of combat and outside boss encounters |
+| Auto-accept summons & resurrections | Social | off     | Auto-accepts out of combat and outside boss encounters |
 | Auto decline duels              | Social    | off     | Declines duel requests |
-| Decline guild invites & charters| Social    | off     | Declines guild invites and charter signature requests |
+| Auto-decline guild invites & charters | Social | off     | Declines guild invites and charter signature requests |
 | Class colors in chat            | Chat      | off     | Colors player names in chat by class |
 
 CVar-based modules restore your previous values when disabled.

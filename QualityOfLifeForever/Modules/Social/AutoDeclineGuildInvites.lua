@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Decline guild invites & petitions",
+		TITLE = "Auto-decline guild invites & charters",
 		DESC = "Automatically declines guild invitations and guild charter signature requests.",
 		INVITES = "Guild invites",
 		INVITES_DESC = "Decline guild invitations.",
@@ -15,7 +15,7 @@ local L = ns.NewLocale({
 		DECLINED_PETITION = "Declined guild charter from %s.",
 	},
 	deDE = {
-		TITLE = "Gildeneinladungen & Petitionen ablehnen",
+		TITLE = "Gildeneinladungen & Satzungen automatisch ablehnen",
 		DESC = "Lehnt Gildeneinladungen und Anfragen zum Unterschreiben von Gildensatzungen automatisch ab.",
 		INVITES = "Gildeneinladungen",
 		INVITES_DESC = "Gildeneinladungen ablehnen.",
