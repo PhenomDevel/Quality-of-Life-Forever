@@ -18,6 +18,55 @@ local L = ns.L
 
 local VARIABLE_PREFIX = "QOLFOREVER_"
 
+--------------------------------------------------------------------------------
+-- Wider labels
+--------------------------------------------------------------------------------
+-- Blizzard's list rows end the label at CENTER-85 and place the control at
+-- CENTER-80, which truncates longer module names. Rows created by this addon
+-- (initializer.qolForever) get LABEL_EXTRA more label width and shifted
+-- controls. Rows are pooled and reused by other settings pages, so a shifted
+-- row is moved back to Blizzard's position when it is initialized for
+-- something else. Positions match Blizzard_SettingControls.lua (Forever 1.60.1).
+-- Buttons are left alone: their anchor depends on per-row alignment.
+local LABEL_EXTRA = 120
+local TEXT_RIGHT_X = -85
+local CONTROL_ANCHORS = {
+	{ mixin = "SettingsCheckboxControlMixin", key = "Checkbox", x = -80, y = 0 },
+	{ mixin = "SettingsSliderControlMixin", key = "SliderWithSteppers", x = -80, y = 3 },
+	{ mixin = "SettingsDropdownControlMixin", key = "Control", x = -48, y = 3 },
+}
+
+local function Relayout(frame, initializer, anchor)
+	local ours = initializer and initializer.qolForever
+	if not ours and not frame.qolForeverShifted then
+		return
+	end
+	local shift = ours and LABEL_EXTRA or 0
+	frame.Text:SetPoint("RIGHT", frame, "CENTER", TEXT_RIGHT_X + shift, 0)
+	local control = frame[anchor.key]
+	if control then
+		control:ClearAllPoints()
+		control:SetPoint("LEFT", frame, "CENTER", anchor.x + shift, anchor.y)
+	end
+	frame.qolForeverShifted = ours or nil
+end
+
+-- Must run before the settings list creates its rows: templates copy the mixin
+-- functions into each frame at creation time.
+for _, anchor in ipairs(CONTROL_ANCHORS) do
+	local mixin = _G[anchor.mixin]
+	if mixin and mixin.Init then
+		hooksecurefunc(mixin, "Init", function(frame, initializer)
+			Relayout(frame, initializer, anchor)
+		end)
+	end
+end
+
+local function Mark(initializer)
+	initializer.qolForever = true
+	return initializer
+end
+
 local function RegisterSetting(category, variable, key, tbl, name, defaultValue, onChange)
 	local setting = Settings.RegisterAddOnSetting(
 		category,
@@ -90,11 +139,11 @@ local function CreateOptionControl(category, layout, module, option, parentIniti
 
 	local initializer
 	if option.type == "checkbox" then
-		initializer = Settings.CreateCheckbox(category, setting, option.tooltip)
+		initializer = Mark(Settings.CreateCheckbox(category, setting, option.tooltip))
 	elseif option.type == "slider" then
 		local sliderOptions = Settings.CreateSliderOptions(option.min, option.max, option.step or 1)
 		sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, option.format or DefaultSliderFormatter)
-		initializer = Settings.CreateSlider(category, setting, sliderOptions, option.tooltip)
+		initializer = Mark(Settings.CreateSlider(category, setting, sliderOptions, option.tooltip))
 	elseif option.type == "dropdown" then
 		local function GetOptions()
 			local container = Settings.CreateControlTextContainer()
@@ -103,7 +152,7 @@ local function CreateOptionControl(category, layout, module, option, parentIniti
 			end
 			return container:GetData()
 		end
-		initializer = Settings.CreateDropdown(category, setting, GetOptions, option.tooltip)
+		initializer = Mark(Settings.CreateDropdown(category, setting, GetOptions, option.tooltip))
 	else
 		error(("Module %q option %q has unknown type %q"):format(module.name, option.key, tostring(option.type)))
 	end
@@ -127,7 +176,7 @@ local function AddModule(category, layout, module)
 		end
 	)
 	module.settings.enabled = enabledSetting
-	local enabledInitializer = Settings.CreateCheckbox(category, enabledSetting, module.description)
+	local enabledInitializer = Mark(Settings.CreateCheckbox(category, enabledSetting, module.description))
 
 	for _, option in ipairs(module.options) do
 		CreateOptionControl(category, layout, module, option, enabledInitializer)
@@ -141,13 +190,13 @@ local function AddGeneralSettings(category, layout)
 		category, "printMessages", "printMessages", ns.db.global,
 		L.SETTING_PRINT_MESSAGES, true
 	)
-	Settings.CreateCheckbox(category, printSetting, L.SETTING_PRINT_MESSAGES_DESC)
+	Mark(Settings.CreateCheckbox(category, printSetting, L.SETTING_PRINT_MESSAGES_DESC))
 
 	local debugSetting = RegisterSetting(
 		category, "debug", "debug", ns.db.global,
 		L.SETTING_DEBUG, false
 	)
-	Settings.CreateCheckbox(category, debugSetting, L.SETTING_DEBUG_DESC)
+	Mark(Settings.CreateCheckbox(category, debugSetting, L.SETTING_DEBUG_DESC))
 	ns.debugSetting = debugSetting
 end
 
