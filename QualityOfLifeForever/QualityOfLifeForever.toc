@@ -35,6 +35,7 @@ Modules\Interface\SkipCinematics.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
+Modules\Character\ItemLevel.lua
 Modules\Character\ShowDurability.lua
 
 # Tooltip
@@ -67,6 +68,7 @@ Modules\Social\AutoDeclineGuildInvites.lua
 
 # Chat
 Modules\Chat\ChatClassColors.lua
+Modules\Chat\CopyableURLs.lua
 Modules\Chat\ShortChannelNames.lua
 
 # Map
