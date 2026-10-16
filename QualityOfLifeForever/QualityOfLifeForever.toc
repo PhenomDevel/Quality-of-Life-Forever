@@ -65,7 +65,6 @@ Modules\Social\AutoAcceptGroupInvites.lua
 Modules\Social\AutoAcceptSummonResurrect.lua
 Modules\Social\AutoDeclineDuels.lua
 Modules\Social\AutoDeclineGuildInvites.lua
-Modules\Social\PlayerNotes.lua
 
 # Chat
 Modules\Chat\ChatClassColors.lua
