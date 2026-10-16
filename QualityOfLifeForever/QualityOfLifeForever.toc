@@ -45,6 +45,7 @@ Modules\Loot\FastLoot.lua
 # Quests
 
 # Social
+Modules\Social\AutoAcceptSummonResurrect.lua
 Modules\Social\AutoDeclineDuels.lua
 
 # Chat
