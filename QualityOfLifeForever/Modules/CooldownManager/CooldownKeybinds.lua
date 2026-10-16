@@ -1,4 +1,4 @@
--- luacheck: read globals EssentialCooldownViewer UtilityCooldownViewer C_ActionBar C_AddOns CreateFrame GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
+-- luacheck: read globals C_ActionBar C_AddOns CreateFrame GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -6,16 +6,19 @@ local L = ns.NewLocale({
 		TITLE = "Keybinds",
 		NOTE = "Key of the action button on each icon",
 		DESC = "Shows the keybind of the action button that holds the spell on the icons of the cooldown manager.",
-		SECTION_SHOW = "Show on",
-		SECTION_DISPLAY = "Display",
 		ESSENTIAL = "Essential cooldowns",
-		ESSENTIAL_DESC = "The main bar of the cooldown manager.",
 		UTILITY = "Utility cooldowns",
-		UTILITY_DESC = "The smaller second bar of the cooldown manager.",
+		SHOW = "Show",
+		SHOW_ESSENTIAL_DESC = "Keybinds on the main bar of the cooldown manager.",
+		SHOW_UTILITY_DESC = "Keybinds on the smaller second bar of the cooldown manager.",
 		SIZE = "Font size",
 		SIZE_DESC = "Size of the keybind text in pixels.",
 		POSITION = "Position",
 		POSITION_DESC = "Where on the icon the keybind is shown.",
+		OFFSET_X = "Horizontal offset",
+		OFFSET_X_DESC = "Moves the keybind to the right (positive) or left (negative), in pixels.",
+		OFFSET_Y = "Vertical offset",
+		OFFSET_Y_DESC = "Moves the keybind up (positive) or down (negative), in pixels.",
 		TOPLEFT = "Top left",
 		TOP = "Top",
 		TOPRIGHT = "Top right",
@@ -30,16 +33,19 @@ local L = ns.NewLocale({
 		TITLE = "Tastenbelegung",
 		NOTE = "Taste der Aktionsleiste auf jedem Symbol",
 		DESC = "Zeigt auf den Symbolen des Cooldown-Managers die Tastenbelegung der Aktionstaste, auf der der Zauber liegt.",
-		SECTION_SHOW = "Anzeigen bei",
-		SECTION_DISPLAY = "Darstellung",
 		ESSENTIAL = "Wichtige Abklingzeiten",
-		ESSENTIAL_DESC = "Die Hauptleiste des Cooldown-Managers.",
 		UTILITY = "Nützliche Abklingzeiten",
-		UTILITY_DESC = "Die kleinere zweite Leiste des Cooldown-Managers.",
+		SHOW = "Anzeigen",
+		SHOW_ESSENTIAL_DESC = "Tasten auf der Hauptleiste des Cooldown-Managers.",
+		SHOW_UTILITY_DESC = "Tasten auf der kleineren zweiten Leiste des Cooldown-Managers.",
 		SIZE = "Schriftgröße",
 		SIZE_DESC = "Größe des Tastentexts in Pixeln.",
 		POSITION = "Position",
 		POSITION_DESC = "Wo auf dem Symbol die Taste angezeigt wird.",
+		OFFSET_X = "Horizontaler Versatz",
+		OFFSET_X_DESC = "Verschiebt die Taste nach rechts (positiv) oder links (negativ), in Pixeln.",
+		OFFSET_Y = "Vertikaler Versatz",
+		OFFSET_Y_DESC = "Verschiebt die Taste nach oben (positiv) oder unten (negativ), in Pixeln.",
 		TOPLEFT = "Oben links",
 		TOP = "Oben",
 		TOPRIGHT = "Oben rechts",
@@ -67,25 +73,39 @@ local function FormatPixels(value)
 	return ("%d px"):format(value)
 end
 
+-- Each viewer has its own settings, stored as <prefix>, <prefix>Size, …
+local VIEWERS = {
+	{ prefix = "essential", frame = "EssentialCooldownViewer", label = L.ESSENTIAL, showDesc = L.SHOW_ESSENTIAL_DESC, size = 12 },
+	{ prefix = "utility", frame = "UtilityCooldownViewer", label = L.UTILITY, showDesc = L.SHOW_UTILITY_DESC, size = 10 },
+}
+
+local defaults, options = {}, {}
+for _, viewer in ipairs(VIEWERS) do
+	local p = viewer.prefix
+	defaults[p] = true
+	defaults[p .. "Size"] = viewer.size
+	defaults[p .. "Position"] = "TOPRIGHT"
+	defaults[p .. "X"] = 0
+	defaults[p .. "Y"] = 0
+	for _, option in ipairs({
+		{ type = "header", label = viewer.label },
+		{ key = p, type = "checkbox", label = L.SHOW, tooltip = viewer.showDesc },
+		{ key = p .. "Size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 38, step = 2, format = FormatPixels },
+		{ key = p .. "Position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
+		{ key = p .. "X", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -30, max = 30, step = 1, format = FormatPixels },
+		{ key = p .. "Y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -30, max = 30, step = 1, format = FormatPixels },
+	}) do
+		options[#options + 1] = option
+	end
+end
+
 local module = ns:NewModule("CooldownKeybinds", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
 	category = "COOLDOWN_MANAGER",
-	defaults = {
-		essential = true,
-		utility = true,
-		size = 12,
-		position = "TOPRIGHT",
-	},
-	options = {
-		{ type = "header", label = L.SECTION_SHOW },
-		{ key = "essential", type = "checkbox", label = L.ESSENTIAL, tooltip = L.ESSENTIAL_DESC },
-		{ key = "utility", type = "checkbox", label = L.UTILITY, tooltip = L.UTILITY_DESC },
-		{ type = "header", label = L.SECTION_DISPLAY },
-		{ key = "size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 38, step = 2, format = FormatPixels },
-		{ key = "position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
-	},
+	defaults = defaults,
+	options = options,
 })
 
 local IsSecret = ns.Utils.IsSecret
@@ -168,7 +188,7 @@ end
 -- item frame -> font string (on an own frame above the cooldown swipe)
 local texts = {}
 
-local function UpdateItem(item, enabled)
+local function UpdateItem(item, enabled, p)
 	local text = texts[item]
 	local key = enabled and GetItemKey(item) or ""
 	if key == "" then
@@ -184,37 +204,30 @@ local function UpdateItem(item, enabled)
 		text = overlay:CreateFontString(nil, "OVERLAY")
 		texts[item] = text
 	end
+	local db = module.db
 	local font, _, flags = NumberFontNormal:GetFont()
-	text:SetFont(font, module.db.size, flags ~= "" and flags or "OUTLINE")
-	-- Small inset so the text doesn't touch the icon border.
-	local point = module.db.position
-	local x = point:find("LEFT") and 2 or point:find("RIGHT") and -2 or 0
-	local y = point:find("TOP") and -2 or point:find("BOTTOM") and 2 or 0
+	text:SetFont(font, db[p .. "Size"], flags ~= "" and flags or "OUTLINE")
+	local point = db[p .. "Position"]
 	text:ClearAllPoints()
-	text:SetPoint(point, item, point, x, y)
+	text:SetPoint(point, item, point, db[p .. "X"], db[p .. "Y"])
 	text:SetText(key)
 	text:Show()
 end
 
-local function GetViewers()
-	return {
-		{ frame = EssentialCooldownViewer, key = "essential" },
-		{ frame = UtilityCooldownViewer, key = "utility" },
-	}
-end
-
-function module:UpdateViewer(viewer, enabled)
-	if not viewer or not viewer.GetItemFrames then
+function module:UpdateViewer(viewer)
+	local frame = _G[viewer.frame]
+	if not frame or not frame.GetItemFrames then
 		return
 	end
-	for _, item in ipairs(viewer:GetItemFrames()) do
-		UpdateItem(item, enabled)
+	local enabled = self.enabled and self.db[viewer.prefix]
+	for _, item in ipairs(frame:GetItemFrames()) do
+		UpdateItem(item, enabled, viewer.prefix)
 	end
 end
 
 function module:UpdateAll()
-	for _, viewer in ipairs(GetViewers()) do
-		self:UpdateViewer(viewer.frame, self.enabled and self.db[viewer.key])
+	for _, viewer in ipairs(VIEWERS) do
+		self:UpdateViewer(viewer)
 	end
 end
 
@@ -224,11 +237,11 @@ function module:Invalidate()
 end
 
 function module:HookViewers()
-	for _, viewer in ipairs(GetViewers()) do
-		local frame, key = viewer.frame, viewer.key
+	for _, viewer in ipairs(VIEWERS) do
+		local frame = _G[viewer.frame]
 		if frame then
 			local function Update()
-				self:UpdateViewer(frame, self.db[key])
+				self:UpdateViewer(viewer)
 			end
 			self:SecureHook(frame, "RefreshLayout", Update)
 			self:SecureHook(frame, "RefreshData", Update)
@@ -241,6 +254,19 @@ function module:ADDON_LOADED(name)
 	if name == "Blizzard_CooldownViewer" then
 		self:UnregisterEvent("ADDON_LOADED")
 		self:HookViewers()
+	end
+end
+
+-- Size and position used to be shared by both viewers.
+function module:OnInitialize()
+	local db = self.db
+	if db.size ~= nil then
+		db.essentialSize, db.utilitySize = db.size, db.size
+		db.size = nil
+	end
+	if db.position ~= nil then
+		db.essentialPosition, db.utilityPosition = db.position, db.position
+		db.position = nil
 	end
 end
 
