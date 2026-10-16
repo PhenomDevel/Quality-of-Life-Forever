@@ -1,52 +1,60 @@
 # Quality of Life Forever
 
-Ein World-of-Warcraft-**Forever**-Addon, das viele kleine Komfortverbesserungen
-bündelt. Jede Verbesserung ist ein eigenes Modul und lässt sich einzeln ein-
-und ausschalten.
+## AI-assisted development
 
-## Module
+This addon is developed with the help of AI ([Claude](https://claude.ai) by
+Anthropic). Every part of the code is reviewed by a professional software
+developer before it is merged.
 
-| Modul                         | Kategorie | Standard | Beschreibung |
-|-------------------------------|-----------|----------|--------------|
-| Automatisch reparieren        | Händler   | an       | Repariert beim Händler alles, optional mit Gildengold |
-| Plunder automatisch verkaufen | Händler   | an       | Verkauft graue Gegenstände beim Händler |
-| Schnelles Plündern            | Beute     | aus      | Plündert bei Auto-Loot sofort alle Gegenstände |
-| Duelle automatisch ablehnen   | Soziales  | aus      | Lehnt Duellanfragen ab |
+## About
 
-Weitere Ideen: [`docs/IDEAS.md`](docs/IDEAS.md)
+A World of Warcraft **Forever** addon bundling many small quality-of-life
+improvements. Each improvement is a self-contained module that can be enabled
+or disabled individually.
 
-## Bedienung
+## Modules
 
-* **Optionen:** *Esc → Optionen → AddOns → Quality of Life Forever*, über das
-  Addon-Menü an der Minimap oder mit `/qol`.
-* **Slash-Befehle:**
+| Module             | Category | Default | Description |
+|--------------------|----------|---------|-------------|
+| Auto repair        | Merchant | on      | Repairs all items at a merchant, optionally using guild funds |
+| Auto sell junk     | Merchant | on      | Sells poor quality (grey) items at a merchant |
+| Fast loot          | Loot     | off     | Loots all slots instantly when auto loot is active |
+| Auto decline duels | Social   | off     | Declines duel requests |
 
-  | Befehl                    | Wirkung |
-  |---------------------------|---------|
-  | `/qol`                    | Optionen öffnen |
-  | `/qol list`               | Alle Module mit Status auflisten |
-  | `/qol enable <Modul>`     | Modul aktivieren (z. B. `/qol enable fastloot`) |
-  | `/qol disable <Modul>`    | Modul deaktivieren |
-  | `/qol toggle <Modul>`     | Modul umschalten |
-  | `/qol debug`              | Debug-Ausgaben umschalten |
-  | `/qol reset`              | Alle Einstellungen zurücksetzen |
+Roadmap: [`docs/IDEAS.md`](docs/IDEAS.md)
 
-Einstellungen werden accountweit in `QualityOfLifeForeverDB` gespeichert.
+## Usage
+
+* **Options:** *Esc → Options → AddOns → Quality of Life Forever*, the addon
+  compartment next to the minimap, or `/qol`.
+* **Slash commands** (`/qol` or `/qolforever`):
+
+  | Command                 | Effect |
+  |-------------------------|--------|
+  | `/qol`                  | Open options |
+  | `/qol list`             | List modules and their state |
+  | `/qol enable <module>`  | Enable a module (e.g. `/qol enable fastloot`) |
+  | `/qol disable <module>` | Disable a module |
+  | `/qol toggle <module>`  | Toggle a module |
+  | `/qol debug`            | Toggle debug output |
+  | `/qol reset`            | Reset all settings (with confirmation) |
+
+Settings are stored account-wide in `QualityOfLifeForeverDB`.
 
 ## Installation
 
-Ordner `QualityOfLifeForever` (nicht das ganze Repository!) kopieren nach:
+Copy the `QualityOfLifeForever` folder (not the whole repository) to
+`World of Warcraft/_classic_beta_/Interface/AddOns/` (Forever beta; launch
+client folder from 2026-11-04). The folder name must match the `.toc` name.
 
-* **Beta:** `World of Warcraft/_classic_beta_/Interface/AddOns/`
-* **Live (ab 4. November 2026):** Ordner des Forever-Clients unter `Interface/AddOns/`
-
-Für die Entwicklung bietet sich ein Symlink an:
+For development, link the folder into the client so `git pull` + `/reload` is
+enough:
 
 ```powershell
-# Windows (PowerShell als Administrator)
-New-Item -ItemType SymbolicLink `
-  -Path "C:\Program Files (x86)\World of Warcraft\_classic_beta_\Interface\AddOns\QualityOfLifeForever" `
-  -Target "C:\Pfad\zu\Quality-of-Life-Forever\QualityOfLifeForever"
+# Windows – directory junction, no admin rights required
+New-Item -ItemType Junction `
+  -Path "D:\Games\World of Warcraft\_classic_beta_\Interface\AddOns\QualityOfLifeForever" `
+  -Target "D:\Dev\Quality-of-Life-Forever\QualityOfLifeForever"
 ```
 
 ```bash
@@ -54,33 +62,30 @@ New-Item -ItemType SymbolicLink `
 ln -s "$PWD/QualityOfLifeForever" "/Applications/World of Warcraft/_classic_beta_/Interface/AddOns/QualityOfLifeForever"
 ```
 
-## Entwicklung
+New files or `.toc` changes may require a client restart instead of `/reload`.
+
+## Development
 
 ```
-QualityOfLifeForever/        ← der eigentliche Addon-Ordner
-  QualityOfLifeForever.toc   ← Ladereihenfolge, Interface-Version, SavedVariables
-  Locales/                   ← enUS (Basis) + deDE
-  Core/                      ← Framework: Datenbank, Modulverwaltung, Einstellungen, Slash-Befehle
-  Modules/<Kategorie>/       ← ein File pro Modul
-docs/                        ← Modul-API, Vorlage, Ideen
-tools/package.sh             ← baut ein installierbares Zip
+QualityOfLifeForever/        addon folder (the only thing that gets installed)
+  QualityOfLifeForever.toc   load order, interface version, SavedVariables
+  Locales/                   enUS (base) + deDE
+  Core/                      DB, module registry/lifecycle, settings panel, slash commands
+  Modules/<Category>/        one file per module
+docs/                        module API, template, roadmap
+tools/package.sh             builds an installable zip
 ```
 
-* Neues Modul anlegen: [`docs/MODULES.md`](docs/MODULES.md)
-* Lint mit [luacheck](https://github.com/lunarmodules/luacheck):
+* Module API and template: [`docs/MODULES.md`](docs/MODULES.md),
+  [`docs/ModuleTemplate.lua`](docs/ModuleTemplate.lua)
+* Lint: `luacheck .` (also runs in CI on every push). Functionality is
+  verified in-game; there are no automated tests.
+* Release: push a `v*` tag – the workflow lints, packages and attaches the zip
+  to a GitHub release. Locally: `tools/package.sh 0.1.0`.
+* All code is original. No code or data is taken from other addons.
 
-  ```bash
-  luacheck .
-  ```
+### Interface version
 
-  Läuft auch automatisch per GitHub Actions bei jedem Push. Die Funktion wird
-  im Spiel getestet.
-* Release: Tag pushen (`git tag v0.1.0 && git push --tags`) – die Action baut
-  das Zip und hängt es an ein GitHub-Release. Lokal: `tools/package.sh 0.1.0`.
-
-### Interface-Version
-
-Die `.toc` deklariert `## Interface: 16001` (Forever-Beta). Sollte sich die
-Nummer zum Launch ändern, im Spiel mit `/dump select(4, GetBuildInfo())`
-auslesen und in der `.toc` anpassen – sonst wird das Addon als „veraltet“
-markiert.
+The `.toc` declares `## Interface: 16001` (Forever beta). If the launch build
+uses a different value, read it via `/dump select(4, GetBuildInfo())` and
+update the `.toc`, otherwise the client flags the addon as out of date.
