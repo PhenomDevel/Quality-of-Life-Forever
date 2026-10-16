@@ -28,9 +28,9 @@ still needs in-game verification.
 | 4 | [x] Advanced graphics settings (`GraphicsTweaks`) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
 | 5 | [x] Class colors in chat (`ChatClassColors`) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
 | 6 | [x] Instant quest text (`InstantQuestText`) | Quests | CVar `instantQuestText` (read by `QuestFrameDetailPanel_OnShow`) | low |
-| 7 | [x] Decline guild invites/charters (`AutoDeclineGuildInvites`) | Social | events → `DeclineGuild` / `ClosePetition` | low |
+| 7 | [x] Auto-decline guild invites/charters (`AutoDeclineGuildInvites`) | Social | events → `DeclineGuild` / `ClosePetition` | low |
 | 8 | [x] Confirm bind on pickup when solo (`AutoConfirmBindOnPickup`) | Loot | `LOOT_BIND_CONFIRM` → `ConfirmLootSlot` | low |
-| 9 | [x] Accept summons/resurrections (`AutoAcceptSummonResurrect`) | Social | events, only out of combat/encounter | low |
+| 9 | [x] Auto-accept summons/resurrections (`AutoAcceptSummonResurrect`) | Social | events, only out of combat/encounter | low |
 | 10 | [x] Anchor tooltip to cursor (`TooltipAnchor`) | Tooltip | post-hook `GameTooltip_SetDefaultAnchor` | low |
 
 Graphics defaults for #4:
