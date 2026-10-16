@@ -13,7 +13,6 @@ local L = ns.NewLocale({
 		RESTORED = "Graphics settings restored.",
 		RANGE = "CVar %s · default %s · range %s–%s",
 		UNBOUNDED = "CVar %s · default %s · no engine limit (slider %s–%s)",
-		CAPPED = "Slider limited to %s; higher values cost a lot of performance for little gain.",
 		groundEffectDensity = "Ground clutter density",
 		groundEffectDensity_DESC = "How densely grass, small plants and rocks are placed on the ground.",
 		groundEffectDist = "Ground clutter distance",
@@ -45,7 +44,6 @@ local L = ns.NewLocale({
 		RESTORED = "Grafikeinstellungen wiederhergestellt.",
 		RANGE = "CVar %s · Standard %s · Bereich %s–%s",
 		UNBOUNDED = "CVar %s · Standard %s · keine Engine-Grenze (Regler %s–%s)",
-		CAPPED = "Regler auf %s begrenzt; höhere Werte kosten viel Leistung bei wenig Nutzen.",
 		groundEffectDensity = "Bodendetail-Dichte",
 		groundEffectDensity_DESC = "Wie dicht Gras, kleine Pflanzen und Steine auf dem Boden platziert werden.",
 		groundEffectDist = "Bodendetail-Sichtweite",
@@ -70,15 +68,16 @@ local L = ns.NewLocale({
 -- CVar name doubles as option key and locale key. `engineDefault`, `min` and
 -- `max` were measured with /qol cvarinfo on Forever 1.60.1 (70425); the engine
 -- silently rejects values outside min..max. `unbounded` CVars accept any value,
--- their slider range is our choice. `cap` limits the slider below the engine
--- max. `default` is the preset applied by Apply.
+-- their slider range is our choice. lodObjectFadeScale (engine max 5000) and
+-- terrainLodDist are limited to 1000 for performance. `default` is the preset
+-- applied by Apply.
 local CVARS = {
 	{ cvar = "groundEffectDensity", default = 256, engineDefault = 16, min = 16, max = 256, step = 8 },
 	{ cvar = "groundEffectDist", default = 500, engineDefault = 70, min = 40, max = 500, step = 10 },
 	{ cvar = "groundEffectFade", default = 370, engineDefault = 70, min = 0, max = 500, step = 10, unbounded = true },
-	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 5000, cap = 1000, step = 50 },
+	{ cvar = "lodObjectFadeScale", default = 200, engineDefault = 100, min = 50, max = 1000, step = 50 },
 	{ cvar = "lodObjectCullSize", default = 8, engineDefault = 15, min = 1, max = 100, step = 1 },
-	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 5000, cap = 1000, step = 50, unbounded = true },
+	{ cvar = "terrainLodDist", default = 1000, engineDefault = 400, min = 100, max = 1000, step = 50, unbounded = true },
 	{ cvar = "ResampleAlwaysSharpen", default = true, engineDefault = 0 },
 	{ cvar = "reflectionMode", default = 3, engineDefault = 3, min = 0, max = 4, step = 1 },
 	{ cvar = "weatherDensity", default = 3, engineDefault = 2, min = 0, max = 3, step = 1 },
@@ -86,15 +85,10 @@ local CVARS = {
 
 local function BuildTooltip(entry)
 	local limits
-	if entry.unbounded then
-		limits = L.UNBOUNDED:format(entry.cvar, entry.engineDefault, entry.min, entry.cap or entry.max)
-	elseif entry.min then
-		limits = L.RANGE:format(entry.cvar, entry.engineDefault, entry.min, entry.max)
+	if entry.min then
+		limits = (entry.unbounded and L.UNBOUNDED or L.RANGE):format(entry.cvar, entry.engineDefault, entry.min, entry.max)
 	else
 		limits = L.RANGE:format(entry.cvar, entry.engineDefault, 0, 1)
-	end
-	if entry.cap then
-		limits = limits .. "\n" .. L.CAPPED:format(entry.cap)
 	end
 	return L[entry.cvar .. "_DESC"] .. "\n\n" .. limits
 end
@@ -108,7 +102,7 @@ for _, entry in ipairs(CVARS) do
 		label = L[entry.cvar],
 		tooltip = BuildTooltip(entry),
 		min = entry.min,
-		max = entry.cap or entry.max,
+		max = entry.max,
 		step = entry.step,
 	}
 end
@@ -145,9 +139,9 @@ local module = ns:NewModule("GraphicsTweaks", {
 function module:Apply()
 	for _, entry in ipairs(CVARS) do
 		local value = self.db[entry.cvar]
-		-- Saved values from before a cap was added.
-		if entry.cap and value > entry.cap then
-			value = entry.cap
+		-- Saved values from before a max was lowered.
+		if entry.max and value > entry.max then
+			value = entry.max
 			self:SetOption(entry.cvar, value)
 		end
 		self:SetCVar(entry.cvar, value)
