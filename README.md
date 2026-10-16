@@ -90,15 +90,21 @@ QualityOfLifeForever/        addon folder (the only thing that gets installed)
   Core/                      DB, module registry/lifecycle, settings panel, slash commands
   Modules/<Category>/        one file per module
 docs/                        module API, template, roadmap
-tools/package.sh             builds an installable zip
+.pkgmeta                     packaging config (BigWigs packager)
 ```
 
 * Module API and template: [`docs/MODULES.md`](docs/MODULES.md),
   [`docs/ModuleTemplate.lua`](docs/ModuleTemplate.lua)
 * Lint: `luacheck .` (also runs in CI on every push). Functionality is
   verified in-game; there are no automated tests.
-* Release: push a `v*` tag – the workflow lints, packages and attaches the zip
-  to a GitHub release. Locally: `tools/package.sh 0.1.0`.
+* Release: update `CHANGELOG.md`, then push a `v*` tag (`v0.1.0`, or
+  `v0.1.0-beta1` / `-alpha1` for test releases). The workflow lints and runs the
+  [BigWigs packager](https://github.com/BigWigsMods/packager), which uploads to
+  CurseForge (`## X-Curse-Project-ID`, secret `CF_API_KEY`) and GitHub
+  releases. The CurseForge upload is skipped without ID or secret.
+  Local test build without upload:
+  `curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d`
+  (zip in `.release/`).
 * All code is original. No code or data is taken from other addons.
 
 ### Interface version
@@ -106,3 +112,7 @@ tools/package.sh             builds an installable zip
 The `.toc` declares `## Interface: 16001` (Forever beta). If the launch build
 uses a different value, read it via `/dump select(4, GetBuildInfo())` and
 update the `.toc`, otherwise the client flags the addon as out of date.
+
+## License
+
+GPL-3.0, see [`LICENSE`](LICENSE).

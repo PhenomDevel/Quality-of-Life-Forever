@@ -1,0 +1,15 @@
+# BigWigs packager config, see .github/workflows/release.yml.
+package-as: QualityOfLifeForever
+
+# The addon lives in a subfolder; move it to the zip root.
+move-folders:
+  QualityOfLifeForever/QualityOfLifeForever: QualityOfLifeForever
+
+ignore:
+  - README.md
+  - CLAUDE.md
+  - docs
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

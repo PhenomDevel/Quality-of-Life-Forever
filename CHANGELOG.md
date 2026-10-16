@@ -1,13 +1,45 @@
 # Changelog
 
+Uploaded as release notes by the packager (see `.pkgmeta`). Before tagging a
+release, rename "Unreleased" to the version.
+
 ## Unreleased
 
-### Added
-- Modular framework: every feature is a module that can be toggled individually.
-- Settings panel (Options → AddOns) with one page per category, addon compartment entry and `/qol` slash commands.
-- German and English localization.
-- Modules: Auto repair, Auto sell junk, Fast loot, Auto decline duels.
-- Modules: Auto loot, Hide name on player frame, Anchor tooltip to cursor, Max camera distance,
-  Advanced graphics settings, Confirm bind on pickup when solo, Instant quest text,
-  Auto-accept summons & resurrections, Auto-decline guild invites & charters, Class colors in chat.
-- Module helpers: module-local locales, CVar set/restore, button options.
+Initial release. Every feature is a module that can be toggled individually
+in Options → AddOns → Quality of Life Forever (or via `/qol`).
+
+### Interface
+- Skip cinematics and movies (optionally only already seen ones)
+
+### Character
+- Hide or replace your name on the player frame
+- Durability in percent on the character frame
+
+### Tooltip
+- Anchor tooltips to the cursor, tooltip scale and background opacity
+
+### Camera
+- Max camera distance (`cameraDistanceMaxZoomFactor` up to 4.0)
+
+### Graphics
+- Sliders for graphics CVars not available in the game options
+
+### Merchant
+- Auto repair (optionally with guild funds)
+- Auto sell junk
+
+### Loot
+- Auto loot, fast loot
+- Auto-confirm Bind on Pickup loot when not in a group
+
+### Quests
+- Instant quest text
+- Quest progress in chat
+
+### Social
+- Auto-accept group invites from friends and guild members
+- Auto-accept summons and resurrections out of combat
+- Auto-decline duels, guild invites and charters
+
+### Chat
+- Class colors for player names in chat
