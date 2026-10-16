@@ -1,15 +1,15 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter
+-- luacheck: read globals EnumerateServerChannels Constants NUM_CHAT_WINDOWS
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Short channel names",
-		NOTE = "[1. General - Elwynn Forest] → [1. G]",
+		NOTE = "[1. General - Elwynn Forest] → [1.G]",
 		DESC = "Shortens the channel tag of channel messages: number plus the initials of server channels (General → G, Trade → T, LookingForGroup → LFG). Custom channels keep their name, without the zone suffix.",
 	},
 	deDE = {
 		TITLE = "Kurze Kanalnamen",
-		NOTE = "[1. Allgemein - Wald von Elwynn] → [1. A]",
+		NOTE = "[1. Allgemein - Wald von Elwynn] → [1.A]",
 		DESC = "Kürzt die Kanalangabe von Kanalnachrichten: Nummer plus die Anfangsbuchstaben der Serverkanäle (Allgemein → A, Handel → H, SucheNachGruppe → SNG). Eigene Kanäle behalten ihren Namen, ohne Zonenzusatz.",
 	},
 })
@@ -21,11 +21,21 @@ local module = ns:NewModule("ShortChannelNames", {
 	category = "CHAT",
 })
 
-local EVENT = "CHAT_MSG_CHANNEL"
+local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
 
--- ChatFrameUtil replaced the global filter functions in newer clients.
-local AddFilter = ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
-local RemoveFilter = ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter or ChatFrame_RemoveMessageEventFilter
+-- Localized base names of the server channels (General, Trade, …).
+local serverChannels
+
+local function IsServerChannel(baseName)
+	if not serverChannels then
+		serverChannels = {}
+		for _, name in ipairs({ EnumerateServerChannels() }) do
+			serverChannels[name] = true
+		end
+	end
+	-- Without the API every channel counts as a server channel.
+	return next(serverChannels) == nil or serverChannels[baseName]
+end
 
 local function Shorten(baseName)
 	local initials = baseName:gsub("%U", "")
@@ -35,24 +45,43 @@ local function Shorten(baseName)
 	return initials
 end
 
--- Event args: text, playerName, languageName, channelName ("1. General - Elwynn
--- Forest"), playerName2, specialFlags, zoneChannelID (0 for custom channels),
--- channelIndex, channelBaseName, … The chat frame builds the tag from
--- channelName and expects the "<number>. " prefix, so only the name part changes.
--- Filters only run when all args are accessible (no secret values).
-local function Filter(_, _, text, playerName, languageName, _, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, ...)
-	if type(channelIndex) ~= "number" or type(channelBaseName) ~= "string" or channelBaseName == "" then
-		return false
+local function ShortTag(channelID, number, name)
+	local baseName = name:gsub(" %- .*$", "")
+	local short = IsServerChannel(baseName) and Shorten(baseName) or baseName
+	return ("|Hchannel:channel:%s|h[%s.%s]|h"):format(channelID, number, short)
+end
+
+-- The chat frame prefixes channel lines with
+-- "|Hchannel:channel:<id>|h[<number>. <name>]|h". The channel name in the
+-- event itself can't be changed: it is also used to match the line to the
+-- chat frames that show the channel.
+local function Transform(text)
+	if ns.Utils.IsSecret(text) or type(text) ~= "string" then
+		return text
 	end
-	local name = zoneChannelID ~= 0 and Shorten(channelBaseName) or channelBaseName
-	return false, text, playerName, languageName, ("%d. %s"):format(channelIndex, name), playerName2,
-		specialFlags, zoneChannelID, channelIndex, channelBaseName, ...
+	return (text:gsub("|Hchannel:channel:(%d+)|h%[(%d+)%. ([^%]]+)%]|h", ShortTag, 1))
+end
+
+local wrapped = {}
+
+-- Wrapping stays in place after disabling (it then passes text through), so a
+-- wrapper another addon put on top of ours is never removed.
+local function Wrap(frame)
+	if not frame or wrapped[frame] then
+		return
+	end
+	wrapped[frame] = true
+	local original = frame.AddMessage
+	frame.AddMessage = function(self, text, ...)
+		if module.enabled then
+			text = Transform(text)
+		end
+		return original(self, text, ...)
+	end
 end
 
 function module:OnEnable()
-	AddFilter(EVENT, Filter)
-end
-
-function module:OnDisable()
-	RemoveFilter(EVENT, Filter)
+	for i = 1, MAX_WINDOWS do
+		Wrap(_G["ChatFrame" .. i])
+	end
 end
