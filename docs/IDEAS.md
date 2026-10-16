@@ -8,7 +8,7 @@ the Midnight addon restrictions (secret values, protected functions).
 All modules are **written from scratch** – no code or data from other addons
 (see `CLAUDE.md`).
 
-`[x]` done · `[ ]` planned
+`[x]` done · `[ ]` planned · `[-]` dropped
 
 ## Done
 - [x] Auto repair (`AutoRepair`)
@@ -51,28 +51,28 @@ One hook or event, some logic or a small display.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
-| 11 | [ ] Custom name on player frame | Character | re-apply custom text after Blizzard name updates (hook); text entry via button + popup edit box (Settings API has no text field) | low: region name in Forever |
-| 12 | [ ] Tooltip font size | Tooltip | scale the tooltip font objects | low |
-| 13 | [ ] Tooltip transparency | Tooltip | set tooltip background alpha | low |
+| 11 | [x] Custom name on player frame (`CustomPlayerName`) | Character | re-apply custom text after Blizzard name updates (hook); text entry via button + popup edit box (Settings API has no text field) | low: region name in Forever |
+| 12 | [x] Tooltip font size (`TooltipAnchor`: scale) | Tooltip | scale the tooltip font objects | low |
+| 13 | [x] Tooltip transparency (`TooltipAnchor`) | Tooltip | set tooltip background alpha | low |
 | 14 | [ ] Vendor price in tooltip | Merchant | item tooltip post-call, sell price × stack | low |
-| 15 | [ ] Accept group invites from friends/guild | Social | check inviter against friends list/guild | low |
-| 16 | [ ] Skip cinematics | Interface | cancel on start, optionally only already seen ones | medium: some can't be cancelled |
-| 18 | [ ] Quest progress in chat | Quests | forward progress messages to chat | low |
-| 19 | [ ] Durability on character frame | Interface | percentage per equipment slot | low |
-| 20 | [ ] Zone level ranges | World map | level range from the map API | medium: only if the API returns data in Forever |
+| 15 | [x] Accept group invites from friends/guild (`AutoAcceptGroupInvites`) | Social | check inviter against friends list/guild | low |
+| 16 | [x] Skip cinematics (`SkipCinematics`) | Interface | cancel on start, optionally only already seen ones | medium: some can't be cancelled |
+| 18 | [x] Quest progress in chat (`QuestProgress`) | Quests | forward progress messages to chat | low |
+| 19 | [x] Durability on character frame (`ShowDurability`) | Interface | percentage per equipment slot | low |
+| 20 | [x] Zone level ranges (`ZoneLevels`) | World map | `C_Map.GetMapLevels` returns 0 in Forever → static table from mobalytics leveling routes | done |
 
 ## Tier 3 – medium
 Several hooks, own UI or noticeable Forever restrictions.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
-| 21 | [ ] Item level (equipment + bags) | Interface | character frame easy, bags more work | low |
-| 22 | [ ] Mail: collect all | Merchant | mailbox button, throttled processing, full bags | medium |
-| 23 | [ ] Shorten channel prefixes | Chat | replace channel names in messages | medium: chat restrictions in instances |
-| 24 | [ ] Copyable URLs | Chat | turn URLs into links, click opens a copy box | medium: chat restrictions in instances |
+| 21 | [x] Item level (equipment + bags) (`ItemLevel`) | Interface | character frame easy, bags more work | low |
+| 22 | [-] ~~Mail: collect all~~ | Merchant | dropped: Blizzard's mailbox already has "Open All" | – |
+| 23 | [x] Shorten channel prefixes (`ShortChannelNames`) | Chat | replace channel names in messages | medium: chat restrictions in instances |
+| 24 | [x] Copyable URLs (`CopyableURLs`) | Chat | turn URLs into links, click opens a copy box | medium: chat restrictions in instances |
 | 25 | [ ] Cooldown manager: keybinds (show, position, size, font) | Cooldown manager | map spells to action bar bindings, overlay text; position/size/font as options of one module | medium: verify cooldown manager structure in Forever |
 | 26 | [ ] Player notes | Social | store notes, show in tooltip, edit via context menu | medium: player names may be secret |
-| 27 | [ ] Spam filter (optional guild recruitment tab) | Chat | message filter with own keyword list | medium: chat restrictions, false positives |
+| 27 | [x] Spam filter, matches moved to a "Spam" tab (`SpamFilter`) | Chat | message filter with own keyword list | medium: chat restrictions, false positives |
 | 28 | [ ] Smaller/movable world map | World map | change and persist map size/position | medium |
 
 ## Tier 4 – complex or unclear

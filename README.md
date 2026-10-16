@@ -5,29 +5,136 @@ Every feature can be turned on or off individually.
 
 ## Features
 
-| Feature                    | Category  | Default | Description                                                 |
-|----------------------------|-----------|---------|-------------------------------------------------------------|
-| Hide player name           | Character | off     | Hides your name on the player frame                         |
-| Custom player name         | Character | off     | Shows a name of your choice on the player frame             |
-| Show durability            | Character | off     | Durability in percent on the character frame                |
-| Skip cinematics            | Interface | off     | Skips cinematics and movies (hold Shift to watch)           |
-| Tooltip tweaks             | Tooltip   | off     | Tooltip at the cursor, adjustable scale and background      |
-| Max camera distance        | Camera    | off     | Lets you zoom the camera out further                        |
-| Advanced graphics          | Graphics  | off     | Extra graphics settings not available in the game options   |
-| Auto repair                | Merchant  | on      | Repairs all items at a merchant, optionally with guild funds |
-| Auto sell junk             | Merchant  | on      | Sells grey items at a merchant                              |
-| Auto-confirm BoP loot      | Loot      | off     | Confirms the Bind on Pickup dialog when not in a group      |
-| Auto loot                  | Loot      | off     | Turns on the game's auto loot                               |
-| Fast loot                  | Loot      | off     | Loots everything instantly when auto loot is on             |
-| Instant quest text         | Quests    | off     | Shows quest text without fade-in                            |
-| Quest progress in chat     | Quests    | off     | Shows quest progress messages in the chat                   |
-| Auto-accept: group invites | Social    | off     | From friends and guild members                              |
-| Auto-accept: summons       | Social    | off     | Summons and resurrections, out of combat                    |
-| Auto-decline: duels        | Social    | off     | Declines duel requests                                      |
-| Auto-decline: guild        | Social    | off     | Declines guild invites and charter signature requests       |
-| Class colors in chat       | Chat      | off     | Colors player names in chat by class                        |
+Every module is off by default unless marked *(on by default)*. Turning a
+module off restores your previous game settings.
 
-Turning a feature off restores your previous game settings.
+### Interface
+
+#### Skip cinematics
+Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
+watch it.
+- In-game cinematics
+- Movies
+- Only seen movies – play each movie once, skip it afterwards
+
+### Character
+
+#### Custom player name
+Shows a name of your choice on your player frame (only visible to you).
+- Name – set via a button
+
+#### Hide player name
+Hides your name on the player frame.
+
+#### Item level
+Shows the item level on equipment, colored by quality.
+- Show on: character frame, bags (weapons and armor), inspect frame
+- Display: color by quality
+
+#### Show durability
+Durability of each equipped item in percent on the character frame.
+- Hide at 100%
+
+### Tooltip
+
+#### Tooltip tweaks
+- Position: Blizzard default, at the cursor, right or left of the cursor
+- Appearance: scale, background opacity
+
+### Camera
+
+#### Max camera distance
+Lets you zoom the camera out further.
+- Zoom factor (1.0–4.0)
+
+### Graphics
+
+#### Advanced graphics
+Graphics settings not available in the game options. Higher values cost
+performance. Adjust the sliders, then press *Apply*.
+- Ground clutter: density, distance, fade distance
+- View distance: object view distance, object cull size, terrain detail
+  distance
+- Effects: always sharpen, water reflections, weather density
+- Actions: Apply, Restore
+
+### Merchant
+
+#### Auto repair *(on by default)*
+Repairs all items at a merchant that can repair.
+- Use guild funds – falls back to your own gold
+
+#### Auto sell junk *(on by default)*
+Sells all grey items at a merchant.
+- Show summary – number of items and gold earned
+
+### Loot
+
+#### Auto-confirm BoP loot
+Confirms the Bind on Pickup loot dialog while you are not in a group.
+
+#### Auto loot
+Turns on the game's auto loot.
+
+#### Fast loot
+Loots everything instantly when auto loot is on.
+
+### Quests
+
+#### Instant quest text
+Shows quest text at once instead of fading it in.
+
+#### Quest progress in chat
+Copies quest progress messages (e.g. "Wolf slain: 3/10") into the chat.
+
+### Social
+
+#### Auto-accept: group invites
+Accepts group invites. Role checks and invites that would remove you from a
+queue are left to you.
+- Accept from: friends, guild members
+- Messages: notify in chat
+
+#### Auto-accept: summons
+Accepts summons and resurrections while out of combat and outside boss
+encounters.
+- Accept: summons, resurrections
+- Messages: notify in chat
+
+#### Auto-decline: duels
+Declines all duel requests.
+- Notify in chat
+
+#### Auto-decline: guild
+Declines guild invites and guild charters (never your own charter).
+- Decline: guild invites, guild charters
+- Messages: notify in chat
+
+### Chat
+
+#### Class colors in chat
+Colors player names in chat by class.
+
+#### Copyable URLs
+Turns web addresses in chat into links. Click one to get it in a box, ready to
+copy.
+
+#### Short channel names
+`[1. General - Elwynn Forest]` → `[1.G]`, `[2. Trade]` → `[2.T]`. Custom
+channels keep their name.
+
+#### Spam filter
+Channel, say and yell messages with one of your keywords are shown only in a
+separate "Spam" chat tab. Nothing is deleted.
+- Keywords – editable list, default `boost, goldselling, carry`
+- Spam tab – recreate the tab if it was closed
+
+### World map
+
+#### Zone level ranges
+Level ranges of the zones, colored by your level.
+- World map: on zone maps, on continent maps, in the zone name on hover
+- Minimap: range of your current zone
 
 ## Usage
 
