@@ -31,6 +31,7 @@ old Classic Era API.
 
 ## Conventions
 - Lua 5.1, tabs for indentation, English code comments, no external libraries (no Ace3).
+- All docs (`*.md`) in English; in-game strings in enUS + deDE.
 - Modules are self-contained in one file: strings via `ns.NewLocale({ enUS = …, deDE = … })`,
   WoW API declared inline (`-- luacheck: read globals …`). Core strings stay in `Locales/`.
 - One PR per module; a module PR only adds its file plus one line in its `.toc`

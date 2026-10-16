@@ -1,41 +1,39 @@
-# Module entwickeln
+# Writing modules
 
-Jede Komfortfunktion ist ein eigenständiges **Modul**. Module lassen sich im
-Einstellungsfenster (*Optionen → AddOns → Quality of Life Forever*) oder per
-`/qol enable|disable|toggle <Modul>` einzeln ein- und ausschalten.
+Every feature is a self-contained **module** that can be toggled individually
+in the settings panel (*Options → AddOns → Quality of Life Forever*) or via
+`/qol enable|disable|toggle <module>`.
 
-## Neues Modul
+## New module
 
-Ein Modul ist in sich geschlossen: Code, Texte (enUS + deDE) und
-luacheck-Globals stehen in **einer** Datei. Dadurch kollidieren parallele
-Modul-PRs nicht in gemeinsamen Dateien.
+A module is a single file containing code, strings (enUS + deDE) and its
+luacheck globals, so parallel module PRs don't collide in shared files.
 
-1. `docs/ModuleTemplate.lua` nach `QualityOfLifeForever/Modules/<Kategorie>/<Name>.lua` kopieren.
-2. In der `.toc` im Abschnitt der Kategorie eintragen (alphabetisch).
-3. Texte per `ns.NewLocale({ enUS = {...}, deDE = {...} })` in der Moduldatei
-   (Fallback: Client-Sprache → enUS → Schlüssel).
-4. Genutzte WoW-API in der ersten Zeile deklarieren:
+1. Copy `docs/ModuleTemplate.lua` to `QualityOfLifeForever/Modules/<Category>/<Name>.lua`.
+2. Add it to its category section in the `.toc` (alphabetical).
+3. Strings via `ns.NewLocale({ enUS = {...}, deDE = {...} })` in the module file
+   (lookup: client locale → enUS → key).
+4. Declare used WoW API in the first line:
    `-- luacheck: read globals SomeApi C_Something`
-5. `luacheck .` ausführen, im Spiel testen.
+5. Run `luacheck .`, test in-game.
 
 ## `ns:NewModule(name, info)`
 
-| Feld              | Typ     | Beschreibung |
-|-------------------|---------|--------------|
-| `title`           | string  | Name im Einstellungsfenster (lokalisiert) |
-| `description`     | string  | Tooltip der Aktivieren-Checkbox (lokalisiert) |
+| Field             | Type    | Description |
+|-------------------|---------|-------------|
+| `title`           | string  | Name in the settings panel (localized) |
+| `description`     | string  | Tooltip of the enable checkbox (localized) |
 | `category`        | string  | `EASYSETTINGS`, `INTERFACE`, `CHARACTER`, `TOOLTIP`, `CAMERA`, `GRAPHICS`, `MERCHANT`, `LOOT`, `QUESTS`, `SOCIAL`, `CHAT`, `MAP`, `GENERAL` |
-| `defaultEnabled`  | boolean | Standardzustand für neue Nutzer (Standard: `false`) |
-| `defaults`        | table   | Standardwerte der Moduloptionen, landen in `self.db` |
-| `options`         | table   | Liste von Optionsbeschreibungen fürs Einstellungsfenster (siehe unten) |
-| `combatProtected` | boolean | Ein-/Ausschalten wird bis nach dem Kampf verzögert (für geschützte Frames) |
-| `requiresReload`  | boolean | Nach dem Ausschalten wird ein `/reload` angeboten |
+| `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
+| `defaults`        | table   | Option defaults, merged into `self.db` |
+| `options`         | table   | Option descriptors for the settings panel (see below) |
+| `combatProtected` | boolean | Enable/disable is deferred until combat ends (protected frames) |
+| `requiresReload`  | boolean | Offer a `/reload` after disabling |
 
-Der Modulname ist gleichzeitig der Schlüssel in den SavedVariables – **nach
-einem Release nicht mehr umbenennen**, sonst gehen Nutzereinstellungen verloren
-(oder eine Migration in `Core/Database.lua` schreiben).
+The module name is the SavedVariables key – **don't rename a released module**
+without a migration in `Core/Database.lua`.
 
-### Optionen
+### Options
 
 ```lua
 { key = "showSummary", type = "checkbox", label = L.X, tooltip = L.X_DESC }
@@ -43,48 +41,47 @@ einem Release nicht mehr umbenennen**, sonst gehen Nutzereinstellungen verloren
 { key = "mode", type = "dropdown", label = L.X, tooltip = L.X_DESC,
   values = { { value = "a", label = L.A }, { value = "b", label = L.B } } }
 { type = "button", label = L.X, buttonText = L.APPLY, tooltip = L.X_DESC,
-  onClick = function(module) ... end }   -- kein key/default, nur bei aktivem Modul
+  onClick = function(module) ... end }   -- no key/default; only runs while enabled
 ```
 
-Jede Option braucht einen Eintrag in `defaults`. Optionen sind im
-Einstellungsfenster nur bedienbar, solange das Modul aktiv ist.
+Every option except buttons needs an entry in `defaults`. Options are only
+editable while the module is enabled.
 
-## Lebenszyklus
+## Lifecycle
 
-| Callback                        | Wann |
-|---------------------------------|------|
-| `OnInitialize()`                | einmal, nachdem die SavedVariables geladen sind (`ADDON_LOADED`) |
-| `OnEnable()`                    | beim Login (falls aktiv) und bei jedem Einschalten |
-| `OnDisable()`                   | bei jedem Ausschalten – alles rückgängig machen, was das Modul verändert hat |
-| `OnOptionChanged(key, value)`   | wenn sich eine Option ändert, während das Modul aktiv ist |
+| Callback                      | When |
+|-------------------------------|------|
+| `OnInitialize()`              | once, after SavedVariables are loaded (`ADDON_LOADED`) |
+| `OnEnable()`                  | on login (if enabled) and every time the module is switched on |
+| `OnDisable()`                 | every time the module is switched off – undo everything it changed; events are unregistered and CVars restored afterwards |
+| `OnOptionChanged(key, value)` | an option changed while the module is enabled |
 
-Fehler in Callbacks werden abgefangen und an den Fehlerhandler gemeldet, damit
-ein defektes Modul die anderen nicht mitreißt.
+Callback errors are caught and routed to the error handler, so a broken module
+doesn't take others down.
 
-## Hilfsfunktionen
+## Helpers
 
-| Methode                                   | Beschreibung |
-|-------------------------------------------|--------------|
-| `self:RegisterEvent(event[, handler])`    | Ohne Handler wird `self:<EVENT>(...)` aufgerufen. Beim Ausschalten werden alle Events automatisch abgemeldet. |
-| `self:UnregisterEvent(event)`             | Einzelnes Event abmelden |
-| `self:SecureHook([tabelle,] "Funktion", handler)` | `hooksecurefunc`, der nur bei aktivem Modul feuert |
-| `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript`, der nur bei aktivem Modul feuert |
-| `self:Print(...)`                         | Chatausgabe (respektiert die globale Option „Chatnachrichten anzeigen“) |
-| `self:Debug(...)`                         | Ausgabe nur im Debug-Modus (`/qol debug`) |
-| `self:GetOption(key)` / `self:SetOption(key, value)` | Optionen lesen/schreiben (hält das Einstellungsfenster synchron) |
-| `self:SetCVar(name, value)`               | CVar setzen; Originalwert wird im Modul-DB gesichert und beim Ausschalten automatisch wiederhergestellt. `false` bei unbekanntem CVar. |
-| `self:RestoreCVars()`                     | Gesicherte CVars sofort wiederherstellen |
-| `self.db`                                 | Gespeicherte Daten des Moduls (accountweit) |
-| `ns.Utils.FormatMoney(kupfer)`            | Goldbetrag mit Münzsymbolen |
-| `ns.Utils.IsSecret(wert)`                 | Prüft auf „Secret Values“ (siehe unten) |
+| Method                                    | Description |
+|-------------------------------------------|-------------|
+| `self:RegisterEvent(event[, handler])`    | Without a handler `self:<EVENT>(...)` is called. All events are unregistered on disable. |
+| `self:UnregisterEvent(event)`             | Unregister a single event |
+| `self:SecureHook([table,] "func", handler)` | `hooksecurefunc` that only fires while enabled |
+| `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript` that only fires while enabled |
+| `self:Print(...)`                         | Chat output (respects the global "Show chat messages" option) |
+| `self:Debug(...)`                         | Output only in debug mode (`/qol debug`) |
+| `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the settings panel in sync) |
+| `self:SetCVar(name, value)`               | Set a CVar; the original value is persisted in the module DB and restored on disable. Returns `false` for unknown CVars. |
+| `self:RestoreCVars()`                     | Restore saved CVars now |
+| `self.db`                                 | The module's saved data (account-wide) |
+| `ns.Utils.FormatMoney(copper)`            | Money string with coin icons |
+| `ns.Utils.IsSecret(value)`                | Checks for secret values (see below) |
 
-## Besonderheiten von WoW Forever
+## WoW Forever specifics
 
-* Forever nutzt die **moderne Retail-API** (Midnight-Basis, `C_*`-Namespaces),
-  nicht die alte Classic-Era-API. Classic-Code also nicht blind übernehmen.
-* Die **Addon-Einschränkungen aus Midnight** gelten auch in Forever: Bestimmte
-  Kampfdaten (z. B. Lebenspunkte anderer Einheiten) sind *Secret Values* – sie
-  dürfen angezeigt, aber nicht gelesen, verglichen oder verrechnet werden.
-  Vor Logik mit solchen Werten `ns.Utils.IsSecret(wert)` prüfen.
-* Geschützte Frames (Aktionsleisten, Einheitenrahmen, …) dürfen im Kampf nicht
-  verändert werden → `combatProtected = true` setzen.
+* Forever runs on the **modern mainline API** (Midnight base, `C_*` namespaces),
+  not the old Classic Era API.
+* The **Midnight addon restrictions** apply: some combat data (e.g. other
+  units' health) are *secret values* – they may be displayed but not read,
+  compared or used in arithmetic. Check with `ns.Utils.IsSecret(value)` first.
+* Protected frames (action bars, unit frames, …) can't be modified in combat →
+  set `combatProtected = true`.
