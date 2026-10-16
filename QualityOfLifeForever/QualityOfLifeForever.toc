@@ -52,6 +52,7 @@ Modules\Loot\FastLoot.lua
 Modules\Quests\InstantQuestText.lua
 
 # Social
+Modules\Social\AutoAcceptGroupInvites.lua
 Modules\Social\AutoAcceptSummonResurrect.lua
 Modules\Social\AutoDeclineDuels.lua
 Modules\Social\AutoDeclineGuildInvites.lua
