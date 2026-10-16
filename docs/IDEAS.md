@@ -40,3 +40,43 @@ benötigte API in Forever verfügbar und nicht durch die Addon-Einschränkungen
 - [ ] Spielerkoordinaten auf der Weltkarte
 - [ ] Minimap-Zoom per Mausrad
 - [ ] Minimap-Knöpfe aufräumen
+- [ ] Halbtransparenter Nebel des Krieges (unerforschte Gebiete abgedunkelt statt verborgen)
+- [ ] Stufenbereich jeder Zone auf der Karte anzeigen
+
+## Charakter
+- [ ] Umbenennen
+- [ ] Namen ein-/ausblenden
+
+## Cooldown-Manager
+- [ ] Tastenbelegungen anzeigen
+- [ ] Position der Tastenbelegungen
+- [ ] Größe der Tastenbelegungen
+- [ ] Schriftart der Tastenbelegungen
+
+## Tooltip
+- [ ] An der Maus verankern
+- [ ] Schriftgröße ändern
+- [ ] Transparenz ändern
+
+## Kamera
+- [ ] Maximale Zoomdistanz einstellen (4.0)
+
+## Grafik
+- [ ] Versteckte Grafikeinstellungen setzen (Werte als Vorgabe):
+  ```
+  /console groundEffectDensity 256
+  /console groundEffectFade 370
+  /console groundEffectDist 500
+  /console lodObjectFadeScale 200
+  /console lodObjectCullSize 8
+  /console terrainLodDist 1000
+  /console ResampleAlwaysSharpen 1
+  /console reflectionMode 3
+  /console weatherdensity 3
+  ```
+
+## EasySettings
+Einfacher Zugriff auf bestimmte Einstellungen, ohne sie in den WoW-Optionen
+suchen zu müssen:
+- [ ] Automatisches Plündern
+- [ ] Automatisch reparieren (Schalter für das bestehende Modul `AutoRepair`)
