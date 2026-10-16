@@ -12,6 +12,7 @@ local Utils = ns.Utils
 ns.categories = {
 	{ id = "GAME_SETTINGS", name = L.CATEGORY_GAME_SETTINGS },
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
+	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
 	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
 	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
 	{ id = "CAMERA", name = L.CATEGORY_CAMERA },

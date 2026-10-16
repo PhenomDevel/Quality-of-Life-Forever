@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Cooldown manager keybinds",
+		TITLE = "Keybinds",
 		NOTE = "Key of the action button on each icon",
 		DESC = "Shows the keybind of the action button that holds the spell on the icons of the cooldown manager.",
 		SECTION_SHOW = "Show on",
@@ -13,17 +13,21 @@ local L = ns.NewLocale({
 		UTILITY = "Utility cooldowns",
 		UTILITY_DESC = "The smaller second bar of the cooldown manager.",
 		SIZE = "Font size",
-		SIZE_DESC = "Size of the keybind text.",
+		SIZE_DESC = "Size of the keybind text in pixels.",
 		POSITION = "Position",
-		POSITION_DESC = "Corner of the icon the keybind is shown in.",
+		POSITION_DESC = "Where on the icon the keybind is shown.",
 		TOPLEFT = "Top left",
+		TOP = "Top",
 		TOPRIGHT = "Top right",
-		BOTTOMLEFT = "Bottom left",
-		BOTTOMRIGHT = "Bottom right",
+		LEFT = "Left",
 		CENTER = "Center",
+		RIGHT = "Right",
+		BOTTOMLEFT = "Bottom left",
+		BOTTOM = "Bottom",
+		BOTTOMRIGHT = "Bottom right",
 	},
 	deDE = {
-		TITLE = "Cooldown-Manager-Tastenbelegung",
+		TITLE = "Tastenbelegung",
 		NOTE = "Taste der Aktionsleiste auf jedem Symbol",
 		DESC = "Zeigt auf den Symbolen des Cooldown-Managers die Tastenbelegung der Aktionstaste, auf der der Zauber liegt.",
 		SECTION_SHOW = "Anzeigen bei",
@@ -33,22 +37,41 @@ local L = ns.NewLocale({
 		UTILITY = "Nützliche Abklingzeiten",
 		UTILITY_DESC = "Die kleinere zweite Leiste des Cooldown-Managers.",
 		SIZE = "Schriftgröße",
-		SIZE_DESC = "Größe des Tastentexts.",
+		SIZE_DESC = "Größe des Tastentexts in Pixeln.",
 		POSITION = "Position",
-		POSITION_DESC = "Ecke des Symbols, in der die Taste angezeigt wird.",
+		POSITION_DESC = "Wo auf dem Symbol die Taste angezeigt wird.",
 		TOPLEFT = "Oben links",
+		TOP = "Oben",
 		TOPRIGHT = "Oben rechts",
-		BOTTOMLEFT = "Unten links",
-		BOTTOMRIGHT = "Unten rechts",
+		LEFT = "Links",
 		CENTER = "Mitte",
+		RIGHT = "Rechts",
+		BOTTOMLEFT = "Unten links",
+		BOTTOM = "Unten",
+		BOTTOMRIGHT = "Unten rechts",
 	},
 })
+
+local POSITIONS = {
+	"TOPLEFT", "TOP", "TOPRIGHT",
+	"LEFT", "CENTER", "RIGHT",
+	"BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT",
+}
+
+local positionValues = {}
+for _, point in ipairs(POSITIONS) do
+	positionValues[#positionValues + 1] = { value = point, label = L[point] }
+end
+
+local function FormatPixels(value)
+	return ("%d px"):format(value)
+end
 
 local module = ns:NewModule("CooldownKeybinds", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "INTERFACE",
+	category = "COOLDOWN_MANAGER",
 	defaults = {
 		essential = true,
 		utility = true,
@@ -60,20 +83,8 @@ local module = ns:NewModule("CooldownKeybinds", {
 		{ key = "essential", type = "checkbox", label = L.ESSENTIAL, tooltip = L.ESSENTIAL_DESC },
 		{ key = "utility", type = "checkbox", label = L.UTILITY, tooltip = L.UTILITY_DESC },
 		{ type = "header", label = L.SECTION_DISPLAY },
-		{ key = "size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 24, step = 1 },
-		{
-			key = "position",
-			type = "dropdown",
-			label = L.POSITION,
-			tooltip = L.POSITION_DESC,
-			values = {
-				{ value = "TOPLEFT", label = L.TOPLEFT },
-				{ value = "TOPRIGHT", label = L.TOPRIGHT },
-				{ value = "BOTTOMLEFT", label = L.BOTTOMLEFT },
-				{ value = "BOTTOMRIGHT", label = L.BOTTOMRIGHT },
-				{ value = "CENTER", label = L.CENTER },
-			},
-		},
+		{ key = "size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 38, step = 2, format = FormatPixels },
+		{ key = "position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
 	},
 })
 
@@ -175,8 +186,12 @@ local function UpdateItem(item, enabled)
 	end
 	local font, _, flags = NumberFontNormal:GetFont()
 	text:SetFont(font, module.db.size, flags ~= "" and flags or "OUTLINE")
+	-- Small inset so the text doesn't touch the icon border.
+	local point = module.db.position
+	local x = point:find("LEFT") and 2 or point:find("RIGHT") and -2 or 0
+	local y = point:find("TOP") and -2 or point:find("BOTTOM") and 2 or 0
 	text:ClearAllPoints()
-	text:SetPoint(module.db.position, item, module.db.position, 0, 0)
+	text:SetPoint(point, item, point, x, y)
 	text:SetText(key)
 	text:Show()
 end

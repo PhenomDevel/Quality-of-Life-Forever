@@ -30,8 +30,10 @@ Core\SlashCommands.lua
 # Game settings (shortcuts to Blizzard options/CVars)
 
 # Interface
-Modules\Interface\CooldownKeybinds.lua
 Modules\Interface\SkipCinematics.lua
+
+# Cooldown manager
+Modules\CooldownManager\CooldownKeybinds.lua
 
 # Character
 Modules\Character\CustomPlayerName.lua
