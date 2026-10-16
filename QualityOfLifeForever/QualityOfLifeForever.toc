@@ -32,6 +32,7 @@ Modules\EasySettings\AutoLoot.lua
 Modules\Character\HidePlayerName.lua
 
 # Tooltip
+Modules\Tooltip\TooltipAnchor.lua
 
 # Camera
 
