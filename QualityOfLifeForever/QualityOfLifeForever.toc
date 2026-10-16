@@ -35,6 +35,7 @@ Modules\Character\HidePlayerName.lua
 Modules\Tooltip\TooltipAnchor.lua
 
 # Camera
+Modules\Camera\CameraZoom.lua
 
 # Graphics
 
