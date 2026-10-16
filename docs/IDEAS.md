@@ -8,7 +8,7 @@ the Midnight addon restrictions (secret values, protected functions).
 All modules are **written from scratch** – no code or data from other addons
 (see `CLAUDE.md`).
 
-`[x]` done · `[~]` PR open · `[ ]` planned
+`[x]` done · `[ ]` planned
 
 ## Done
 - [x] Auto repair (`AutoRepair`)
@@ -17,20 +17,21 @@ All modules are **written from scratch** – no code or data from other addons
 - [x] Auto decline duels (`AutoDeclineDuels`)
 
 ## Tier 1 – very easy
-Single CVar or event, hardly any UI.
+Single CVar or event, hardly any UI. All merged; the risk column lists what
+still needs in-game verification.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
 | 1 | [x] Auto loot (`AutoLoot`) | Loot | CVar `autoLootDefault` | low |
-| 2 | [~] Hide name on player frame (#7) | Character | alpha on the player frame name | low: region name in Forever |
-| 3 | [~] Max camera distance, default 4.0 (#9) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
-| 4 | [~] Advanced graphics settings (#10) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
-| 5 | [~] Class colors in chat (#15) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
-| 6 | [~] Instant quest text (#12) | Quests | CVar `questFadingDisable` | medium: CVar may not exist → tier 2 hook |
-| 7 | [~] Decline guild invites/charters (#14) | Social | events → `DeclineGuild` / `ClosePetition` | low |
-| 8 | [~] Confirm bind on pickup when solo (#11) | Loot | `LOOT_BIND_CONFIRM` → `ConfirmLootSlot` | low |
-| 9 | [~] Accept summons/resurrections (#13) | Social | events, only out of combat/encounter | low |
-| 10 | [~] Anchor tooltip to cursor (#8) | Tooltip | post-hook `GameTooltip_SetDefaultAnchor` | low |
+| 2 | [x] Hide name on player frame (`HidePlayerName`) | Character | alpha on the player frame name | low: region name in Forever |
+| 3 | [x] Max camera distance, default 4.0 (`CameraZoom`) | Camera | CVar `cameraDistanceMaxZoomFactor` | medium: client may cap below 4.0 |
+| 4 | [x] Advanced graphics settings (`GraphicsTweaks`) | Graphics | per-CVar sliders + Apply/Restore buttons | low: ranges estimated, values may be clamped |
+| 5 | [x] Class colors in chat (`ChatClassColors`) | Chat | CVar `chatClassColorOverride` | low: value semantics unverified |
+| 6 | [x] Instant quest text (`InstantQuestText`) | Quests | CVar `questFadingDisable` | medium: CVar may not exist → tier 2 hook |
+| 7 | [x] Decline guild invites/charters (`AutoDeclineGuildInvites`) | Social | events → `DeclineGuild` / `ClosePetition` | low |
+| 8 | [x] Confirm bind on pickup when solo (`AutoConfirmBindOnPickup`) | Loot | `LOOT_BIND_CONFIRM` → `ConfirmLootSlot` | low |
+| 9 | [x] Accept summons/resurrections (`AutoAcceptSummonResurrect`) | Social | events, only out of combat/encounter | low |
+| 10 | [x] Anchor tooltip to cursor (`TooltipAnchor`) | Tooltip | post-hook `GameTooltip_SetDefaultAnchor` | low |
 
 Graphics defaults for #4:
 ```
