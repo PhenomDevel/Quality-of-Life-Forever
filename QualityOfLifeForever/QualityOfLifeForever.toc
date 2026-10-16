@@ -38,6 +38,7 @@ Modules\Tooltip\TooltipAnchor.lua
 Modules\Camera\CameraZoom.lua
 
 # Graphics
+Modules\Graphics\GraphicsTweaks.lua
 
 # Merchant
 Modules\Merchant\AutoRepair.lua
