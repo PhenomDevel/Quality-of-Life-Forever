@@ -69,6 +69,7 @@ Modules\Social\AutoDeclineGuildInvites.lua
 # Chat
 Modules\Chat\ChatClassColors.lua
 Modules\Chat\CopyableURLs.lua
+Modules\Chat\ShortChannelNames.lua
 Modules\Chat\SpamFilter.lua
 
 # Map
