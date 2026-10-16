@@ -68,5 +68,8 @@ Modules\Social\AutoDeclineGuildInvites.lua
 # Chat
 Modules\Chat\ChatClassColors.lua
 
+# Map
+Modules\Map\ZoneLevels.lua
+
 # Bootstrap (must be last)
 Core\Bootstrap.lua
