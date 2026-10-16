@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.3.0 (2026-10-16)
+
+### Character
+- New: item level on the character frame, on weapons and armor in your bags
+  and in the inspect frame, colored by quality
+
+### Chat
+- New: short channel names, e.g. `[1. General - Elwynn Forest]` → `[1.G]`
+- New: copyable URLs – web addresses in chat become links; click one to copy it
+- New: spam filter – messages with your keywords go to a separate "Spam" tab
+  (default keywords: boost, goldselling, carry)
+
+### Settings
+- Modules are sorted alphabetically on every page and in `/qol list`
+- Options of larger modules are grouped under small headings
+
 ## v0.2.0 (2026-10-16)
 
 ### World map
