@@ -28,6 +28,7 @@ Core\SlashCommands.lua
 # EasySettings
 
 # Character
+Modules\Character\HidePlayerName.lua
 
 # Tooltip
 
