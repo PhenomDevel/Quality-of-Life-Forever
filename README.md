@@ -95,9 +95,8 @@ docs/                        module API, template, roadmap
 * Release: update `CHANGELOG.md`, then push a `v*` tag (`v0.1.0`, or
   `v0.1.0-beta1` / `-alpha1` for test releases). The workflow lints and runs the
   [BigWigs packager](https://github.com/BigWigsMods/packager), which uploads to
-  CurseForge (`## X-Curse-Project-ID`, secret `CF_API_KEY`), Wago
-  (`## X-Wago-ID`, secret `WAGO_API_TOKEN`) and GitHub releases. Uploads
-  without an ID or secret are skipped.
+  CurseForge (`## X-Curse-Project-ID`, secret `CF_API_KEY`) and GitHub
+  releases. The CurseForge upload is skipped without ID or secret.
   Local test build without upload:
   `curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d`
   (zip in `.release/`).

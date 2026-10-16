@@ -1,7 +1,7 @@
 name: Release
 
 # Push a tag like v0.1.0 (v0.1.0-beta1 / -alpha1 for test releases) to package
-# the addon and upload it to CurseForge, Wago and GitHub releases.
+# the addon and upload it to CurseForge and GitHub releases.
 on:
   push:
     tags:
@@ -32,5 +32,4 @@ jobs:
         uses: BigWigsMods/packager@v2
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
-          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
