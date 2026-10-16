@@ -13,6 +13,7 @@ local function PrintHelp()
 	ns:Print(L.SLASH_HELP_TOGGLE)
 	ns:Print(L.SLASH_HELP_DEBUG)
 	ns:Print(L.SLASH_HELP_RESET)
+	ns:Print(L.SLASH_HELP_CVARINFO)
 end
 
 local function ChangeModule(argument, getNewState)
@@ -66,6 +67,65 @@ commands.debug = function()
 		ns.db.global.debug = enabled
 	end
 	ns:Print(enabled and L.DEBUG_ON or L.DEBUG_OFF)
+end
+
+-- Developer helper: engine help text, default and effective range of CVars.
+-- The range is measured by writing extreme values and reading back what the
+-- engine keeps; the original value is restored right after. Results are also
+-- stored in QualityOfLifeForeverDB.global.cvarInfo for copying.
+local PROBE_LOW, PROBE_HIGH = "-1000000", "1000000"
+
+local function FindConsoleHelp(name)
+	local lower = name:lower()
+	for _, info in ipairs(ConsoleGetAllCommands()) do
+		if info.command:lower() == lower then
+			return info.help
+		end
+	end
+	return nil
+end
+
+local function ProbeLimit(name, probe, original)
+	if not C_CVar.SetCVar(name, probe) then
+		return "rejected"
+	end
+	local value = C_CVar.GetCVar(name)
+	C_CVar.SetCVar(name, original)
+	return value == probe and "none" or value
+end
+
+local function InspectCVar(name)
+	local value, default, _, _, isLocked, isSecure, isReadOnly = C_CVar.GetCVarInfo(name)
+	if value == nil then
+		return { name = name, missing = true }
+	end
+	local info = { name = name, value = value, default = default, help = FindConsoleHelp(name) }
+	if tonumber(value) and not (isLocked or isSecure or isReadOnly) and not InCombatLockdown() then
+		info.min = ProbeLimit(name, PROBE_LOW, value)
+		info.max = ProbeLimit(name, PROBE_HIGH, value)
+	end
+	return info
+end
+
+commands.cvarinfo = function(argument)
+	if not argument then
+		ns:Print(L.SLASH_HELP_CVARINFO)
+		return
+	end
+	local build, buildNumber = GetBuildInfo()
+	local results = { build = ("%s.%s"):format(build, buildNumber) }
+	for name in argument:gmatch("%S+") do
+		local info = InspectCVar(name)
+		results[#results + 1] = info
+		if info.missing then
+			ns:Print(L.CVARINFO_MISSING:format(name))
+		else
+			ns:Print(L.CVARINFO_LINE:format(name, info.value, info.default,
+				tostring(info.min or "-"), tostring(info.max or "-"), info.help or ""))
+		end
+	end
+	ns.db.global.cvarInfo = results
+	ns:Print(L.CVARINFO_SAVED)
 end
 
 commands.reset = function()
