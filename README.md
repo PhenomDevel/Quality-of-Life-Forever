@@ -131,6 +131,13 @@ separate "Spam" chat tab. Nothing is deleted.
 
 ### World map
 
+#### Movable world map
+Scales the windowed world map (map and quest log) and lets you move it by
+dragging its title bar. The fullscreen map stays unchanged.
+- Scale (default 80%)
+- Movable – position is saved
+- Reset position
+
 #### Zone level ranges
 Level ranges of the zones, colored by your level.
 - World map: on zone maps, on continent maps, in the zone name on hover
