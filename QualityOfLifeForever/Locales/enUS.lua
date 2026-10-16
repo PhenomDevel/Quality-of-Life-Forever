@@ -31,7 +31,6 @@ L.CATEGORY_GRAPHICS = "Graphics"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"
-L.SETTING_MODULE_ENABLED = "Enabled"
 L.SETTINGS_MODULE_OPTIONS = "Options"
 L.SETTING_PRINT_MESSAGES = "Show chat messages"
 L.SETTING_PRINT_MESSAGES_DESC = "Show feedback from modules in the chat frame (e.g. repair costs, sold junk)."
