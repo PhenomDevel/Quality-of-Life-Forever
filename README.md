@@ -3,27 +3,17 @@
 Many small quality-of-life improvements for World of Warcraft **Forever**.
 Every feature can be turned on or off individually.
 
+## Missing a feature?
+
+New quality-of-life features can be requested at any time:
+[open an issue on GitHub](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues/new)
+and describe what you would like the addon to do.
+
 ## Features
 
 Every module is off by default unless marked *(on by default)*. Turning a
-module off restores your previous game settings.
-
-### Interface
-
-#### Skip cinematics
-Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
-watch it.
-- In-game cinematics
-- Movies
-- Only seen movies – play each movie once, skip it afterwards
-
-### Cooldown Manager
-
-#### Keybinds
-Shows the keybind of the matching action button on the icons of the cooldown
-manager.
-- Separately for essential and utility cooldowns: show, font size (8–38 px),
-  position (corners, edges, center), horizontal/vertical offset (±30 px)
+module off restores your previous game settings. Categories and modules are
+listed in the same order as in the options.
 
 ### Character
 
@@ -39,86 +29,27 @@ Shows the item level on equipment, colored by quality.
 - Show on: character frame, bags (weapons and armor), inspect frame
 - Display: color by quality
 
+#### Repair costs
+Shows what repairing all equipped items costs at the top of the character
+frame. Hidden when nothing needs repairing.
+
 #### Show durability
 Durability of each equipped item in percent on the character frame.
 - Hide at 100%
 
-### Tooltip
-
-#### Tooltip tweaks
-- Position: Blizzard default, at the cursor, right or left of the cursor
-- Appearance: scale, background opacity
-
-### Camera
-
-#### Max camera distance
-Lets you zoom the camera out further.
-- Zoom factor (1.0–4.0)
-
-### Graphics
-
-#### Advanced graphics
-Graphics settings not available in the game options. Higher values cost
-performance. Adjust the sliders, then press *Apply*.
-- Ground clutter: density, distance, fade distance
-- View distance: object view distance, object cull size, terrain detail
-  distance
-- Effects: always sharpen, water reflections, weather density
-- Actions: Apply, Restore
-
-### Merchant
-
-#### Auto repair *(on by default)*
-Repairs all items at a merchant that can repair.
-- Use guild funds – falls back to your own gold
-
-#### Auto sell junk *(on by default)*
-Sells all grey items at a merchant.
-- Show summary – number of items and gold earned
-
-### Loot
-
-#### Auto-confirm BoP loot
-Confirms the Bind on Pickup loot dialog while you are not in a group.
-
-#### Auto loot
-Turns on the game's auto loot.
-
-#### Fast loot
-Loots everything instantly when auto loot is on.
-
-### Quests
-
-#### Instant quest text
-Shows quest text at once instead of fading it in.
-
-#### Quest progress in chat
-Copies quest progress messages (e.g. "Wolf slain: 3/10") into the chat.
-
-### Social
-
-#### Auto-accept: group invites
-Accepts group invites. Role checks and invites that would remove you from a
-queue are left to you.
-- Accept from: friends, guild members
-- Messages: notify in chat
-
-#### Auto-accept: summons
-Accepts summons and resurrections while out of combat and outside boss
-encounters.
-- Accept: summons, resurrections
-- Messages: notify in chat
-
-#### Auto-decline: duels
-Declines all duel requests.
-- Notify in chat
-
-#### Auto-decline: guild
-Declines guild invites and guild charters (never your own charter).
-- Decline: guild invites, guild charters
-- Messages: notify in chat
-
 ### Chat
+
+#### Chat comfort
+Small improvements for the chat windows.
+- History: number of lines per chat window (128–4096, default 1024)
+- Display: Shift + mouse wheel jumps to the first or newest message, hide the
+  menu, channel and voice buttons
+
+#### Chat highlight
+Colors your name and your keywords in other players' messages and plays a
+sound.
+- Mentions: your name, keywords (editable list), sound on mention
+- Whispers: loud whisper sound – also when sound effects are muted
 
 #### Class colors in chat
 Colors player names in chat by class.
@@ -137,14 +68,130 @@ separate "Spam" chat tab. Nothing is deleted.
 - Keywords – editable list, default `boost, goldselling, carry`
 - Spam tab – recreate the tab if it was closed
 
+### Cooldown Manager
+
+#### Keybinds
+Shows the keybind of the matching action button on the icons of the cooldown
+manager.
+- Separately for essential and utility cooldowns: show, font size (8–38 px),
+  position (corners, edges, center), horizontal/vertical offset (±30 px)
+
+### Graphics & camera
+
+#### Advanced graphics
+Graphics settings not available in the game options. Higher values cost
+performance. Adjust the sliders, then press *Apply*.
+- Ground clutter: density, distance, fade distance
+- View distance: object view distance, object cull size, terrain detail
+  distance
+- Effects: always sharpen, water reflections, weather density
+- Actions: Apply, Restore
+
+#### Max camera distance
+Lets you zoom the camera out further.
+- Zoom factor (1.0–4.0)
+
+### Interface
+
+#### Declutter interface
+Hides on-screen messages and frames you don't need.
+- Messages: red error messages, zone names, event
+  banners such as "Level up"
+- In combat: hide the objective tracker
+
+#### Skip cinematics
+Skips in-game cinematics and pre-rendered movies. Hold Shift when one starts to
+watch it.
+- In-game cinematics
+- Movies
+- Only seen movies – play each movie once, skip it afterwards
+
+### Loot
+
+#### Auto-confirm BoP loot
+Confirms the Bind on Pickup loot dialog while you are not in a group.
+
+#### Auto loot
+Turns on the game's auto loot.
+
+#### Fast loot
+Loots everything instantly when auto loot is on.
+
+### Merchant & trainer
+
+#### Auto-repair *(on by default)*
+Repairs all items at a merchant that can repair.
+- Use guild funds – falls back to your own gold
+
+#### Auto-sell junk *(on by default)*
+Sells all grey items at a merchant.
+- Show summary – number of items and gold earned
+
+#### Train all
+Adds a *Train all* button to the trainer window that learns every available
+skill at once. Professions are left out. Hover the button to see the total
+cost; with too little gold it learns in list order until the money runs out.
+
+### Quests
+
+#### Auto quests
+Accepts offered quests and turns in completed ones. Stops when you have to
+choose a reward or a quest costs money. Hold Shift while talking to the NPC to
+do it yourself.
+- Actions: accept quests, turn in quests
+- Filter: skip low-level (gray) quests
+
+#### Instant quest text
+Shows quest text at once instead of fading it in.
+
+#### Quest progress in chat
+Copies quest progress messages (e.g. "Wolf slain: 3/10") into the chat.
+
+#### Skip gossip
+Selects the only dialog option of an NPC without quests (flight master,
+innkeeper, …). Hold Shift while talking to the NPC to see the dialog.
+
+### Social
+
+#### Auto-accept group invites
+Accepts group invites. Role checks and invites that would remove you from a
+queue are left to you.
+- Accept from: friends, guild members
+- Messages: notify in chat
+
+#### Auto-accept summons
+Accepts summons and resurrections while out of combat and outside boss
+encounters.
+- Accept: summons, resurrections
+- Messages: notify in chat
+
+#### Auto-decline duels
+Declines all duel requests.
+- Notify in chat
+
+#### Auto-decline guild invites
+Declines guild invites and guild charters (never your own charter).
+- Decline: guild invites, guild charters
+- Messages: notify in chat
+
+### Tooltip
+
+#### Tooltip extras
+Adds more information to unit, item and spell tooltips.
+- Units: guild rank, target, class colored names
+- Items & spells: item and spell IDs
+
+#### Tooltip tweaks
+- Position: Blizzard default, at the cursor, right or left of the cursor
+- Appearance: scale, background opacity
+
 ### World map
 
 #### Movable world map
 Scales the windowed world map (map and quest log) and lets you move it by
 dragging its title bar. The fullscreen map stays unchanged.
-- Scale (default 80%)
-- Movable – position is saved
-- Reset position
+- Size: scale (default 80%)
+- Position: movable – position is saved, reset position
 
 #### Zone level ranges
 Level ranges of the zones, colored by your level.
