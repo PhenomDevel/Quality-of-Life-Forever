@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Train all",
+		TITLE = "Add train all button",
 		NOTE = "Button at trainers to learn everything",
 		DESC = "Adds a \"Train all\" button to the trainer window that learns every available skill at once. Professions are left out. Hover the button to see the total cost.",
 		BUTTON = "Train all",
@@ -12,7 +12,7 @@ local L = ns.NewLocale({
 		NOT_ENOUGH = "Not enough money for everything; learns in list order until it runs out.",
 	},
 	deDE = {
-		TITLE = "Alles lernen",
+		TITLE = "Knopf „Alles lernen“ hinzufügen",
 		NOTE = "Knopf beim Lehrer, um alles zu lernen",
 		DESC = "Ergänzt das Lehrerfenster um einen Knopf „Alles lernen“, der alle verfügbaren Fähigkeiten auf einmal lernt. Berufe sind ausgenommen. Mit der Maus über dem Knopf siehst du die Gesamtkosten.",
 		BUTTON = "Alles lernen",
