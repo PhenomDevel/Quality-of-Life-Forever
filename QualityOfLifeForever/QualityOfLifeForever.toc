@@ -31,6 +31,7 @@ Core\SlashCommands.lua
 
 # Interface
 Modules\Interface\SkipCinematics.lua
+Modules\Interface\UIDeclutter.lua
 
 # Cooldown manager
 Modules\CooldownManager\CooldownKeybinds.lua
