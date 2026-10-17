@@ -29,6 +29,7 @@ Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
+Modules\Interface\CombatHideTracker.lua
 Modules\Interface\SkipCinematics.lua
 Modules\Interface\UIDeclutter.lua
 
