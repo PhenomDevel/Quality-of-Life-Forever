@@ -77,6 +77,7 @@ Modules\Chat\ChatClassColors.lua
 Modules\Chat\ChatComfort.lua
 Modules\Chat\ChatHighlight.lua
 Modules\Chat\CopyableURLs.lua
+Modules\Chat\GuildRecruitTab.lua
 Modules\Chat\ShortChannelNames.lua
 Modules\Chat\SpamFilter.lua
 
