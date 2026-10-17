@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.0 (2026-10-17)
 
 ### Camera
 - Max camera distance has its own category
@@ -31,6 +31,8 @@
   available skill at once (professions excluded)
 - New: trainer reminder – on level-up, a chat message lists the new skills at
   your class trainer and their cost
+- Train all button: new option to use it at pet trainers too (spends your
+  pet's training points)
 
 ### Quests
 - New: auto quests – accept and turn in quests without clicking; stops at
