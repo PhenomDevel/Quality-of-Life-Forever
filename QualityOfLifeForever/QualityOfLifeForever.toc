@@ -46,6 +46,7 @@ Modules\Character\XPInfo.lua
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
+Modules\Tooltip\TooltipIDs.lua
 
 # Graphics & Camera
 Modules\Graphics\CameraZoom.lua
