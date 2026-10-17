@@ -4,41 +4,29 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Tooltip extras",
-		SECTION_UNITS = "Units",
-		SECTION_ITEMS = "Items & spells",
-		NOTE = "Guild rank, target, class color, IDs",
-		DESC = "Adds more information to unit, item and spell tooltips.",
+		NOTE = "Guild rank, target, class color",
+		DESC = "Adds more information to unit tooltips.",
 		GUILD_RANK = "Guild rank",
 		GUILD_RANK_DESC = "Adds the guild rank to the guild line of players.",
 		TARGET = "Unit's target",
 		TARGET_DESC = "Shows whom the unit is targeting.",
 		CLASS_COLOR = "Class colored names",
 		CLASS_COLOR_DESC = "Colors the name of players in their class color.",
-		IDS = "Item and spell IDs",
-		IDS_DESC = "Shows the ID of items and spells (for guides and databases).",
 		TARGET_LINE = "Target: %s",
 		TARGET_YOU = ">> You <<",
-		ITEM_ID = "Item ID: %d",
-		SPELL_ID = "Spell ID: %d",
 	},
 	deDE = {
 		TITLE = "Tooltip-Extras",
-		SECTION_UNITS = "Einheiten",
-		SECTION_ITEMS = "Gegenstände & Zauber",
-		NOTE = "Gildenrang, Ziel, Klassenfarbe, IDs",
-		DESC = "Ergänzt Tooltips von Einheiten, Gegenständen und Zaubern um weitere Informationen.",
+		NOTE = "Gildenrang, Ziel, Klassenfarbe",
+		DESC = "Ergänzt Tooltips von Einheiten um weitere Informationen.",
 		GUILD_RANK = "Gildenrang",
 		GUILD_RANK_DESC = "Ergänzt bei Spielern den Gildenrang in der Gildenzeile.",
 		TARGET = "Ziel der Einheit",
 		TARGET_DESC = "Zeigt, wen die Einheit im Ziel hat.",
 		CLASS_COLOR = "Namen in Klassenfarbe",
 		CLASS_COLOR_DESC = "Färbt den Namen von Spielern in ihrer Klassenfarbe.",
-		IDS = "Gegenstands- und Zauber-IDs",
-		IDS_DESC = "Zeigt die ID von Gegenständen und Zaubern (für Guides und Datenbanken).",
 		TARGET_LINE = "Ziel: %s",
 		TARGET_YOU = ">> Du <<",
-		ITEM_ID = "Gegenstands-ID: %d",
-		SPELL_ID = "Zauber-ID: %d",
 	},
 })
 
@@ -51,15 +39,11 @@ local module = ns:NewModule("TooltipExtras", {
 		guildRank = true,
 		target = true,
 		classColor = true,
-		ids = false,
 	},
 	options = {
-		{ type = "header", label = L.SECTION_UNITS },
 		{ key = "guildRank", type = "checkbox", label = L.GUILD_RANK, tooltip = L.GUILD_RANK_DESC },
 		{ key = "target", type = "checkbox", label = L.TARGET, tooltip = L.TARGET_DESC },
 		{ key = "classColor", type = "checkbox", label = L.CLASS_COLOR, tooltip = L.CLASS_COLOR_DESC },
-		{ type = "header", label = L.SECTION_ITEMS },
-		{ key = "ids", type = "checkbox", label = L.IDS, tooltip = L.IDS_DESC },
 	},
 })
 
@@ -150,17 +134,7 @@ local function OnUnit(tooltip)
 	end
 end
 
-local function AddID(format)
-	return function(tooltip, data)
-		if module.enabled and module.db.ids and data and Usable(data.id) then
-			tooltip:AddLine(format:format(data.id), 0.6, 0.6, 0.6)
-		end
-	end
-end
-
 function module:OnInitialize()
 	-- Post-calls can't be removed: they check module.enabled.
 	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, OnUnit)
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddID(L.ITEM_ID))
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, AddID(L.SPELL_ID))
 end
