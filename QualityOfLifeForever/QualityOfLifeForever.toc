@@ -42,6 +42,7 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
+Modules\Character\PetHappiness.lua
 
 # Statistics
 Modules\Statistics\StatisticsSearch.lua
