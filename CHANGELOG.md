@@ -20,7 +20,7 @@
 - New: declutter interface – hide red error messages, zone names and event
   banners, hide the objective tracker in combat
 
-### Merchant & trainer
+### Merchant & Trainer
 - New: add train all button – a button in the trainer window that learns every
   available skill at once (professions excluded)
 
@@ -40,7 +40,7 @@
 
 ### Settings
 - Categories merged and renamed: *Camera* and *Graphics* are now *Graphics &
-  Camera*, *Merchant* is now *Merchant & trainer*; categories are sorted
+  Camera*, *Merchant* is now *Merchant & Trainer*; categories are sorted
   alphabetically
 - Module titles unified ("Auto-accept …", "Auto-decline …", "Auto-sell junk",
   …); your settings are kept

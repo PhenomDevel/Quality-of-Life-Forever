@@ -46,11 +46,11 @@ Modules\Character\StatisticsSearch.lua
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
 
-# Graphics & camera
+# Graphics & Camera
 Modules\Graphics\CameraZoom.lua
 Modules\Graphics\GraphicsTweaks.lua
 
-# Merchant & trainer
+# Merchant & Trainer
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
 Modules\Merchant\TrainAll.lua
