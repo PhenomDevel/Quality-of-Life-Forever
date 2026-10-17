@@ -131,9 +131,10 @@ local function UpdateInspectButton(button)
 end
 
 -- Bag item buttons pass through this global on every bag update; other item
--- buttons (loot, merchant, …) don't have a bag ID and are ignored.
+-- buttons (loot, merchant, …) don't have a bag ID and are ignored. The bag
+-- bar's slot buttons have a bag ID too but are bags themselves (isBag).
 function module:OnSetItemButtonQuality(button)
-	if type(button.GetBagID) == "function" and button:GetBagID() then
+	if not button.isBag and type(button.GetBagID) == "function" and button:GetBagID() then
 		UpdateBagButton(button)
 	end
 end
