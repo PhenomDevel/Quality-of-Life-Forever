@@ -2,33 +2,29 @@
 
 ## Unreleased
 
-### Character
-- New: repair costs – what repairing all equipped items costs, at the top of
-  the character frame
-- New: statistics search – a search box on the statistics page of the
-  character window
-- New: XP info – XP per hour, time to level and gains to level in the XP bar
-  tooltip
+### Camera
+- Max camera distance has its own category
 
 ### Chat
 - New: chat comfort – longer chat history (up to 4096 lines), Shift + mouse
-  wheel jumps to the first/newest message, hide chat buttons
+  wheel jumps to the first/newest message
 - New: chat highlight – your name and keywords are colored in other players'
   messages, with a sound; optional loud whisper sound
 - New: guild recruitment tab – guild ads go to their own "Guilds" chat tab
+- New: hide chat buttons – hides the menu, channel and voice buttons
 
 ### Cooldown Manager
 - New: keybinds – the key of the action button on each cooldown manager
   icon; size, position and offset adjustable per bar
 
-### Graphics & Camera
-- New: quest item sparkle – quest items and objects sparkle again (keeps the
-  outline mode off, also after graphics presets)
-- Max camera distance is listed first
-
 ### Interface
 - New: declutter interface – hide red error messages, zone names and event
-  banners, hide the objective tracker in combat
+  banners
+- New: hide objective tracker in combat
+- New: repair costs – what repairing all equipped items costs, at the bottom
+  of the character frame
+- Item level and durability moved here from Character
+- Item level: no longer shown on the bag bar
 
 ### Merchant & Trainer
 - New: add train all button – a button in the trainer window that learns every
@@ -41,22 +37,36 @@
   reward choices and quests that cost money; skips gray quests; Shift pauses
 - New: skip gossip – selects the only dialog option of NPCs without quests;
   Shift pauses
+- New: quest item sparkle – quest items and objects sparkle again (keeps the
+  outline mode off, also after graphics presets)
+- Quest progress in chat: marked with the addon prefix; new option to share
+  it with your party
+
+### Statistics
+- New: statistics search – a search box on the statistics page of the
+  character window
 
 ### Tooltip
 - New: tooltip extras – guild rank, target and class colored names on unit
-  tooltips; item and spell IDs
+  tooltips
+- New: IDs in tooltips – item and spell IDs
 
 ### World map
 - New: movable world map – scale the windowed map and drag it by its title
   bar; the position is saved
 
+### XP Bar
+- New: experience bar – XP text always visible; XP per hour and time to level
+  in the text and/or the tooltip, with gains to level in the tooltip
+
 ### Settings
-- Categories merged and renamed: *Camera* and *Graphics* are now *Graphics &
-  Camera*, *Merchant* is now *Merchant & Trainer*; categories are sorted
+- New categories: Camera, Statistics, XP Bar; *Graphics & Camera* is now
+  *Graphics*, *Merchant* is now *Merchant & Trainer*; categories are sorted
   alphabetically
 - Module titles unified ("Auto-accept …", "Auto-decline …", "Auto-sell junk",
-  …); your settings are kept
-- More modules group their options under headings
+  …) and option labels clarified; your settings are kept
+- Options of a module are only shown while it is enabled; modules are
+  separated by a line; larger modules group their options under headings
 
 ## v0.3.0 (2026-10-16)
 
