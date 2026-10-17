@@ -1,4 +1,4 @@
--- luacheck: read globals C_GossipInfo IsShiftKeyDown QuestGetAutoAccept AcknowledgeAutoAcceptQuest AcceptQuest IsQuestCompletable CompleteQuest GetNumQuestChoices GetQuestReward GetQuestMoneyToGet GetNumActiveQuests GetActiveTitle SelectActiveQuest GetNumAvailableQuests GetAvailableQuestInfo SelectAvailableQuest
+-- luacheck: read globals C_GossipInfo IsShiftKeyDown QuestGetAutoAccept AcknowledgeAutoAcceptQuest AcceptQuest IsQuestCompletable CompleteQuest GetNumQuestChoices GetQuestReward GetQuestMoneyToGet GetNumActiveQuests GetActiveTitle SelectActiveQuest GetNumAvailableQuests GetAvailableQuestInfo SelectAvailableQuest GetQuestID C_QuestLog UnitLevel UnitQuestTrivialLevelRange
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -47,6 +47,25 @@ local function Paused()
 	return IsShiftKeyDown()
 end
 
+-- Gray quests. The flag from the NPC list isn't reliable in Forever, so the
+-- quest ID and the level are checked as well.
+local function IsTrivial(questID, questLevel, flag)
+	if flag then
+		return true
+	end
+	if questID and C_QuestLog.IsQuestTrivial(questID) then
+		return true
+	end
+	if questLevel and questLevel > 0 then
+		return UnitLevel("player") - questLevel > UnitQuestTrivialLevelRange("player")
+	end
+	return false
+end
+
+function module:Skip(questID, questLevel, flag)
+	return self.db.skipTrivial and IsTrivial(questID, questLevel, flag)
+end
+
 -- Gossip NPCs: turn in the first completed quest, else pick the first
 -- acceptable one. Incomplete active quests are never selected, so this can't
 -- loop.
@@ -64,7 +83,7 @@ function module:GOSSIP_SHOW()
 	end
 	if self.db.accept then
 		for _, quest in ipairs(C_GossipInfo.GetAvailableQuests()) do
-			if not (self.db.skipTrivial and quest.isTrivial) then
+			if not self:Skip(quest.questID, quest.questLevel, quest.isTrivial) then
 				C_GossipInfo.SelectAvailableQuest(quest.questID)
 				return
 			end
@@ -88,8 +107,8 @@ function module:QUEST_GREETING()
 	end
 	if self.db.accept then
 		for i = 1, GetNumAvailableQuests() do
-			local isTrivial = GetAvailableQuestInfo(i)
-			if not (self.db.skipTrivial and isTrivial) then
+			local isTrivial, _, _, _, questID = GetAvailableQuestInfo(i)
+			if not self:Skip(questID, nil, isTrivial) then
 				SelectAvailableQuest(i)
 				return
 			end
@@ -103,7 +122,8 @@ function module:QUEST_DETAIL()
 	end
 	if QuestGetAutoAccept() then
 		AcknowledgeAutoAcceptQuest()
-	else
+	elseif not self:Skip(GetQuestID()) then
+		-- NPCs with a single quest open the quest window directly.
 		AcceptQuest()
 	end
 end
