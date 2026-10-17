@@ -56,10 +56,8 @@
   bar; the position is saved
 
 ### XP Bar
-- New: XP bar text – current / needed XP always on the bar, optionally with
-  XP per hour and time to level
-- New: XP info – XP per hour, time to level and gains to level in the XP bar
-  tooltip
+- New: experience bar – XP text always visible; XP per hour and time to level
+  in the text and/or the tooltip, with gains to level in the tooltip
 
 ### Settings
 - New categories: Camera, Statistics, XP Bar; *Graphics & Camera* is now
