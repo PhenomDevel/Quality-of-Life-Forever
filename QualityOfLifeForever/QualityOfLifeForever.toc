@@ -50,6 +50,7 @@ Modules\Tooltip\TooltipExtras.lua
 # Graphics & Camera
 Modules\Graphics\CameraZoom.lua
 Modules\Graphics\GraphicsTweaks.lua
+Modules\Graphics\QuestItemSparkle.lua
 
 # Merchant & Trainer
 Modules\Merchant\AutoRepair.lua
