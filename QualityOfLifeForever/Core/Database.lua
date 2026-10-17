@@ -9,6 +9,8 @@ local DB_VERSION = 1
 local GLOBAL_DEFAULTS = {
 	printMessages = true,
 	debug = false,
+	minimapButton = true,
+	minimapAngle = 225,
 }
 
 -- migrations[n] upgrades a database from version n - 1 to version n.
@@ -30,7 +32,7 @@ end
 	Layout of QualityOfLifeForeverDB (account wide):
 	{
 		version = 1,
-		global = { printMessages = true, debug = false },
+		global = { printMessages = true, debug = false, minimapButton = true, minimapAngle = 225 },
 		modules = {
 			AutoRepair = { enabled = true, useGuildFunds = true },
 			...
