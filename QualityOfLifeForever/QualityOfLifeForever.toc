@@ -49,8 +49,10 @@ Modules\Statistics\StatisticsSearch.lua
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
 
-# Graphics & Camera
-Modules\Graphics\CameraZoom.lua
+# Camera
+Modules\Camera\CameraZoom.lua
+
+# Graphics
 Modules\Graphics\GraphicsTweaks.lua
 
 # Merchant & Trainer

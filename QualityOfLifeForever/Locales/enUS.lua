@@ -26,7 +26,8 @@ L.CATEGORY_MAP = "World map"
 L.CATEGORY_CHARACTER = "Character"
 L.CATEGORY_STATISTICS = "Statistics"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_GRAPHICS = "Graphics & Camera"
+L.CATEGORY_CAMERA = "Camera"
+L.CATEGORY_GRAPHICS = "Graphics"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"

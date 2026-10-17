@@ -16,6 +16,7 @@ ns.categories = {
 	{ id = "STATISTICS", name = L.CATEGORY_STATISTICS },
 	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
 	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
+	{ id = "CAMERA", name = L.CATEGORY_CAMERA },
 	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },
 	{ id = "LOOT", name = L.CATEGORY_LOOT },
 	{ id = "QUESTS", name = L.CATEGORY_QUESTS },
