@@ -4,6 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Movable world map",
+		SECTION_SIZE = "Size",
+		SECTION_POSITION = "Position",
 		NOTE = "Scale and position of the windowed map",
 		DESC = "Scales the windowed world map (map and quest log) and lets you move it by dragging its title bar. The position is saved. The fullscreen map stays unchanged.",
 		SCALE = "Scale",
@@ -16,6 +18,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Verschiebbare Weltkarte",
+		SECTION_SIZE = "Größe",
+		SECTION_POSITION = "Position",
 		NOTE = "Größe und Position der Fensterkarte",
 		DESC = "Skaliert die Weltkarte im Fenstermodus (Karte und Questlog) und lässt sie sich an der Titelleiste verschieben. Die Position wird gespeichert. Die Vollbildkarte bleibt unverändert.",
 		SCALE = "Skalierung",
@@ -42,7 +46,9 @@ local module = ns:NewModule("WorldMapWindow", {
 		movable = true,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_SIZE },
 		{ key = "scale", type = "slider", label = L.SCALE, tooltip = L.SCALE_DESC, min = 0.5, max = 1, step = 0.05, format = FormatPercent },
+		{ type = "header", label = L.SECTION_POSITION },
 		{ key = "movable", type = "checkbox", label = L.MOVABLE, tooltip = L.MOVABLE_DESC },
 		{
 			type = "button",
