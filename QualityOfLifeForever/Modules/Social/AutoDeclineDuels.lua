@@ -3,14 +3,14 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto-decline: duels",
+		TITLE = "Auto-decline duels",
 		DESC = "Automatically decline all duel requests.",
 		NOTIFY = "Notify in chat",
 		NOTIFY_DESC = "Print a message when a duel request was declined.",
 		DECLINED = "Declined duel request from %s.",
 	},
 	deDE = {
-		TITLE = "Auto-Ablehnung: Duelle",
+		TITLE = "Duelle automatisch ablehnen",
 		DESC = "Lehnt alle Duellanfragen automatisch ab.",
 		NOTIFY = "Im Chat benachrichtigen",
 		NOTIFY_DESC = "Gibt eine Nachricht aus, wenn eine Duellanfrage abgelehnt wurde.",

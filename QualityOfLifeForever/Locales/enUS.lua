@@ -15,20 +15,17 @@ L.ADDON_LOADED = "Version %s loaded. Type |cffffd100/qol|r for options."
 L.UNKNOWN_VERSION = "dev"
 
 -- Categories
-L.CATEGORY_GENERAL = "General"
 L.CATEGORY_INTERFACE = "Interface"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
-L.CATEGORY_MERCHANT = "Merchant"
+L.CATEGORY_MERCHANT = "Merchant & trainer"
 L.CATEGORY_LOOT = "Loot"
 L.CATEGORY_SOCIAL = "Social"
 L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "World map"
-L.CATEGORY_GAME_SETTINGS = "Game settings"
 L.CATEGORY_CHARACTER = "Character"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_CAMERA = "Camera"
-L.CATEGORY_GRAPHICS = "Graphics"
+L.CATEGORY_GRAPHICS = "Graphics & camera"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"

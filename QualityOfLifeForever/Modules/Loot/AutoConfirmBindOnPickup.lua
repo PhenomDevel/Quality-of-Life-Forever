@@ -7,7 +7,7 @@ local L = ns.NewLocale({
 		DESC = "Automatically confirms the \"Bind on Pickup\" loot dialog while you are not in a group.",
 	},
 	deDE = {
-		TITLE = "Auto-Bestätigung: BoP",
+		TITLE = "BoP automatisch bestätigen",
 		DESC = "Bestätigt die Abfrage „Beim Aufheben gebunden“ beim Plündern automatisch, solange du in keiner Gruppe bist.",
 	},
 })

@@ -5,7 +5,7 @@ local Utils = ns.Utils
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto repair",
+		TITLE = "Auto-repair",
 		DESC = "Automatically repair all items when visiting a merchant that can repair.",
 		USE_GUILD = "Use guild funds",
 		USE_GUILD_DESC = "Try to pay with guild bank funds first and fall back to your own gold.",

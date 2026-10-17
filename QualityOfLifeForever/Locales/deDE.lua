@@ -10,20 +10,17 @@ local L = ns.L
 L.ADDON_LOADED = "Version %s geladen. Gib |cffffd100/qol|r für die Optionen ein."
 
 -- Categories
-L.CATEGORY_GENERAL = "Allgemein"
 L.CATEGORY_INTERFACE = "Oberfläche"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
-L.CATEGORY_MERCHANT = "Händler"
+L.CATEGORY_MERCHANT = "Händler & Lehrer"
 L.CATEGORY_LOOT = "Beute"
 L.CATEGORY_SOCIAL = "Soziales"
 L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "Weltkarte"
-L.CATEGORY_GAME_SETTINGS = "Spieleinstellungen"
 L.CATEGORY_CHARACTER = "Charakter"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_CAMERA = "Kamera"
-L.CATEGORY_GRAPHICS = "Grafik"
+L.CATEGORY_GRAPHICS = "Grafik & Kamera"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "Allgemein"

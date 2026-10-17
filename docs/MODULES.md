@@ -24,7 +24,7 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 | `title`           | string  | Name in the settings panel (localized) |
 | `description`     | string  | Tooltip of the enable checkbox (localized) |
 | `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
-| `category`        | string  | `GAME_SETTINGS`, `INTERFACE`, `COOLDOWN_MANAGER`, `CHARACTER`, `TOOLTIP`, `CAMERA`, `GRAPHICS`, `MERCHANT`, `LOOT`, `QUESTS`, `SOCIAL`, `CHAT`, `MAP`, `GENERAL` |
+| `category`        | string  | `INTERFACE` (default), `COOLDOWN_MANAGER`, `CHARACTER`, `TOOLTIP`, `GRAPHICS`, `MERCHANT`, `LOOT`, `QUESTS`, `SOCIAL`, `CHAT`, `MAP` |
 | `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
 | `defaults`        | table   | Option defaults, merged into `self.db` |
 | `options`         | table   | Option descriptors for the settings panel (see below) |

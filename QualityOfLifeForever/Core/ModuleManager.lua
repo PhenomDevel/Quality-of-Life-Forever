@@ -10,12 +10,10 @@ local Utils = ns.Utils
 -- panel are sorted by localized name. Empty categories are not shown.
 
 ns.categories = {
-	{ id = "GAME_SETTINGS", name = L.CATEGORY_GAME_SETTINGS },
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
 	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
 	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
 	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
-	{ id = "CAMERA", name = L.CATEGORY_CAMERA },
 	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
 	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },
 	{ id = "LOOT", name = L.CATEGORY_LOOT },
@@ -23,7 +21,6 @@ ns.categories = {
 	{ id = "SOCIAL", name = L.CATEGORY_SOCIAL },
 	{ id = "CHAT", name = L.CATEGORY_CHAT },
 	{ id = "MAP", name = L.CATEGORY_MAP },
-	{ id = "GENERAL", name = L.CATEGORY_GENERAL },
 }
 
 table.sort(ns.categories, function(a, b)
@@ -206,7 +203,7 @@ ns.moduleOrder = {}
 		title           = string, shown in the settings panel (localized)
 		description     = string, tooltip of the enable checkbox (localized)
 		note            = optional short gray line shown below the title (localized)
-		category        = one of the ids in ns.categories (default "GENERAL")
+		category        = one of the ids in ns.categories (default "INTERFACE")
 		defaultEnabled  = boolean (default false)
 		defaults        = table of option defaults, stored in module.db
 		options         = list of option descriptors for the settings panel
@@ -231,7 +228,7 @@ function ns:NewModule(name, info)
 	assert(not ns.modules[name], ("Module %q is already registered"):format(name))
 	info = info or {}
 
-	local category = info.category or "GENERAL"
+	local category = info.category or "INTERFACE"
 	assert(categoryById[category], ("Module %q has unknown category %q"):format(name, tostring(category)))
 
 	local module = setmetatable({
