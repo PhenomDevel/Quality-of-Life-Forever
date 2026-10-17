@@ -14,17 +14,20 @@ until you turn them on.
 
 | Category | Features |
 |----------|----------|
-| **Character** | Custom or hidden player name · item level on gear · durability in % · repair costs · search on the statistics page · XP per hour and time to level |
-| **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · spam filter tab · guild ads in their own tab |
+| **Camera** | Larger max camera distance |
+| **Character** | Custom or hidden player name |
+| **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · hide chat buttons · spam filter tab · guild ads in their own tab |
 | **Cooldown Manager** | Keybinds on the cooldown icons |
-| **Graphics & Camera** | Larger max camera distance · extra graphics settings · sparkle on quest items |
-| **Interface** | Hide error messages, zone text and banners · skip cinematics |
+| **Graphics** | Extra graphics settings |
+| **Interface** | Item level on gear · durability in % · repair costs · hide error messages, zone text and banners · hide the quest tracker in combat · skip cinematics |
 | **Loot** | Auto loot · fast loot · confirm BoP loot when solo |
 | **Merchant & Trainer** | Auto repair\* · sell junk\* · "Train all" button · new skills at your trainer on level-up |
-| **Quests** | Auto accept/turn in · skip single-option gossip · instant quest text · progress in chat |
+| **Quests** | Auto accept/turn in · skip single-option gossip · instant quest text · progress in chat, optionally shared with your party · sparkle on quest items |
 | **Social** | Auto-accept invites and summons · auto-decline duels and guild invites |
-| **Tooltip** | Position and scale · guild rank, target, class color, item/spell IDs |
+| **Statistics** | Search on the statistics page |
+| **Tooltip** | Position and scale · guild rank, target, class color · item/spell IDs |
 | **World map** | Movable, scalable map · zone level ranges |
+| **XP Bar** | XP text always visible · XP per hour and time to level |
 
 \* on by default
 
