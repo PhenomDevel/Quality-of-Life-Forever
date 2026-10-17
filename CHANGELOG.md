@@ -21,7 +21,7 @@
   banners, hide the objective tracker in combat
 
 ### Merchant & trainer
-- New: train all – a button in the trainer window that learns every
+- New: add train all button – a button in the trainer window that learns every
   available skill at once (professions excluded)
 
 ### Quests

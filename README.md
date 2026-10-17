@@ -119,6 +119,11 @@ Loots everything instantly when auto loot is on.
 
 ### Merchant & trainer
 
+#### Add train all button
+Adds a *Train all* button to the trainer window that learns every available
+skill at once. Professions are left out. Hover the button to see the total
+cost; with too little gold it learns in list order until the money runs out.
+
 #### Auto-repair *(on by default)*
 Repairs all items at a merchant that can repair.
 - Use guild funds – falls back to your own gold
@@ -126,11 +131,6 @@ Repairs all items at a merchant that can repair.
 #### Auto-sell junk *(on by default)*
 Sells all grey items at a merchant.
 - Show summary – number of items and gold earned
-
-#### Train all
-Adds a *Train all* button to the trainer window that learns every available
-skill at once. Professions are left out. Hover the button to see the total
-cost; with too little gold it learns in list order until the money runs out.
 
 ### Quests
 
