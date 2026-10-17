@@ -76,7 +76,11 @@ manager.
 - Separately for essential and utility cooldowns: show, font size (8–38 px),
   position (corners, edges, center), horizontal/vertical offset (±30 px)
 
-### Graphics & camera
+### Graphics & Camera
+
+#### Max camera distance
+Lets you zoom the camera out further.
+- Zoom factor (1.0–4.0)
 
 #### Advanced graphics
 Graphics settings not available in the game options. Higher values cost
@@ -86,10 +90,6 @@ performance. Adjust the sliders, then press *Apply*.
   distance
 - Effects: always sharpen, water reflections, weather density
 - Actions: Apply, Restore
-
-#### Max camera distance
-Lets you zoom the camera out further.
-- Zoom factor (1.0–4.0)
 
 ### Interface
 

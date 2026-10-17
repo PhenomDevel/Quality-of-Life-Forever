@@ -204,6 +204,8 @@ ns.moduleOrder = {}
 		description     = string, tooltip of the enable checkbox (localized)
 		note            = optional short gray line shown below the title (localized)
 		category        = one of the ids in ns.categories (default "INTERFACE")
+		order           = number, position within the category; lower comes first,
+		                  equal values are sorted by title (default 0)
 		defaultEnabled  = boolean (default false)
 		defaults        = table of option defaults, stored in module.db
 		options         = list of option descriptors for the settings panel
@@ -237,6 +239,7 @@ function ns:NewModule(name, info)
 		description = info.description or "",
 		note = info.note,
 		category = category,
+		order = info.order or 0,
 		defaultEnabled = info.defaultEnabled == true,
 		defaults = info.defaults or {},
 		options = info.options or {},
@@ -276,7 +279,15 @@ local function CompareTitles(a, b)
 	return a.title:lower() < b.title:lower()
 end
 
--- Modules sorted by their localized title, for display.
+local function CompareOrder(a, b)
+	if a.order ~= b.order then
+		return a.order < b.order
+	end
+	return CompareTitles(a, b)
+end
+
+-- Modules sorted for display: within a category by `order`, then by
+-- localized title; across all categories by title only.
 function ns:GetSortedModules(category)
 	local modules = {}
 	for _, module in ipairs(ns.moduleOrder) do
@@ -284,7 +295,7 @@ function ns:GetSortedModules(category)
 			modules[#modules + 1] = module
 		end
 	end
-	table.sort(modules, CompareTitles)
+	table.sort(modules, category and CompareOrder or CompareTitles)
 	return modules
 end
 
