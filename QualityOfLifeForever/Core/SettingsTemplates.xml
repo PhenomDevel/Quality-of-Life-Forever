@@ -17,4 +17,20 @@
 			</Layer>
 		</Layers>
 	</Frame>
+	<!-- Thin line between two modules on a category page. -->
+	<Frame name="QualityOfLifeForeverSettingsDividerTemplate" mixin="QualityOfLifeForeverSettingsDividerMixin" virtual="true">
+		<Size y="13"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="Line">
+					<Size y="1"/>
+					<Anchors>
+						<Anchor point="LEFT" x="37"/>
+						<Anchor point="RIGHT" x="-20"/>
+					</Anchors>
+					<Color r="1" g="1" b="1" a="0.12"/>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
 </Ui>

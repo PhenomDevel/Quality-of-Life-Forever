@@ -15,6 +15,7 @@ globals = {
 	"QualityOfLifeForever",
 	"QualityOfLifeForeverDB",
 	"QualityOfLifeForeverSettingsNoteMixin",
+	"QualityOfLifeForeverSettingsDividerMixin",
 	"QualityOfLifeForever_OnAddonCompartmentClick",
 	"QualityOfLifeForever_OnAddonCompartmentEnter",
 	"QualityOfLifeForever_OnAddonCompartmentLeave",

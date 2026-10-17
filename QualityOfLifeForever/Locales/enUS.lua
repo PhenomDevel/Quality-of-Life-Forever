@@ -30,6 +30,7 @@ L.CATEGORY_GRAPHICS = "Graphics & Camera"
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"
 L.SETTINGS_MODULE_OPTIONS = "Options"
+L.SETTINGS_ENABLE_FOR_OPTIONS = "More options appear when enabled."
 L.SETTING_PRINT_MESSAGES = "Show chat messages"
 L.SETTING_PRINT_MESSAGES_DESC = "Show feedback from modules in the chat frame (e.g. repair costs, sold junk)."
 L.SETTING_DEBUG = "Debug mode"
