@@ -29,6 +29,7 @@ Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
+Modules\Interface\CombatHideTracker.lua
 Modules\Interface\ItemLevel.lua
 Modules\Interface\RepairCosts.lua
 Modules\Interface\ShowDurability.lua
@@ -85,6 +86,7 @@ Modules\Chat\ChatComfort.lua
 Modules\Chat\ChatHighlight.lua
 Modules\Chat\CopyableURLs.lua
 Modules\Chat\GuildRecruitTab.lua
+Modules\Chat\HideChatButtons.lua
 Modules\Chat\ShortChannelNames.lua
 Modules\Chat\SpamFilter.lua
 
