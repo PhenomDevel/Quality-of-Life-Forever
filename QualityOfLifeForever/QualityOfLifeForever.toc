@@ -41,6 +41,7 @@ Modules\Character\ItemLevel.lua
 Modules\Character\RepairCosts.lua
 Modules\Character\ShowDurability.lua
 Modules\Character\StatisticsSearch.lua
+Modules\Character\XPInfo.lua
 
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
