@@ -11,10 +11,12 @@ local L = ns.L
 		  ├─ Loot
 		  └─ ...
 
-	Every module gets an enable checkbox. Its options are nested below it and are
-	only editable while the module is enabled. Group headers inside a module
-	indent the options after them by one more level. The settings are bound
-	directly to the saved variables, so no extra save step is needed.
+	Every module gets an enable checkbox, modules are separated by a thin line.
+	Its options are nested below it and only shown while the module is enabled
+	(Blizzard re-evaluates the shown predicates whenever a setting changes); a
+	disabled module with options shows a hint instead. Group headers inside a
+	module indent the options after them by one more level. The settings are
+	bound directly to the saved variables, so no extra save step is needed.
 ]]
 
 local VARIABLE_PREFIX = "QOLFOREVER_"
@@ -24,6 +26,7 @@ local VARIABLE_PREFIX = "QOLFOREVER_"
 -- here instead of into the label.
 local NOTE_TEMPLATE = "QualityOfLifeForeverSettingsNoteTemplate"
 local SUBHEADER_TEMPLATE = "QualityOfLifeForeverSettingsSubheaderTemplate"
+local DIVIDER_TEMPLATE = "QualityOfLifeForeverSettingsDividerTemplate"
 local INDENT_SIZE = 15 -- Blizzard_SettingControls.lua indentSize
 
 QualityOfLifeForeverSettingsNoteMixin = {}
@@ -37,21 +40,45 @@ function QualityOfLifeForeverSettingsNoteMixin:Init(initializer)
 	self.Text:SetText(data.text)
 end
 
--- level: 0, 1 or 2 indent steps (true = 1).
+QualityOfLifeForeverSettingsDividerMixin = {}
+
+function QualityOfLifeForeverSettingsDividerMixin:Init()
+end
+
+-- level: 0, 1 or 2 indent steps (true = 1). Returns the initializer, if any.
 local function AddText(layout, template, text, level)
 	if text then
 		if level == true then
 			level = 1
 		end
-		layout:AddInitializer(Settings.CreateElementInitializer(template, {
+		local initializer = Settings.CreateElementInitializer(template, {
 			text = text,
 			indent = (level or 0) * INDENT_SIZE,
-		}))
+		})
+		layout:AddInitializer(initializer)
+		return initializer
 	end
 end
 
 local function AddNote(layout, text, indented)
-	AddText(layout, NOTE_TEMPLATE, text, indented and 1 or 0)
+	return AddText(layout, NOTE_TEMPLATE, text, indented and 1 or 0)
+end
+
+local function ShowWhileEnabled(initializer, module)
+	if initializer then
+		initializer:AddShownPredicate(function()
+			return module.db.enabled
+		end)
+	end
+end
+
+local function HasControls(module)
+	for _, option in ipairs(module.options) do
+		if option.type ~= "header" then
+			return true
+		end
+	end
+	return false
 end
 
 local function RegisterSetting(category, variable, key, tbl, name, defaultValue, onChange)
@@ -155,8 +182,12 @@ local function CreateOptionControl(category, layout, module, option, parentIniti
 	return initializer
 end
 
-local function AddModule(category, layout, module)
+local function AddModule(category, layout, module, isFirst)
 	module.settings = {}
+
+	if not isFirst then
+		layout:AddInitializer(Settings.CreateElementInitializer(DIVIDER_TEMPLATE, {}))
+	end
 
 	local enabledSetting = RegisterSetting(
 		category,
@@ -173,18 +204,25 @@ local function AddModule(category, layout, module)
 
 	local enabledInitializer = Settings.CreateCheckbox(category, enabledSetting, module.description)
 	AddNote(layout, module.note, false)
+	if HasControls(module) then
+		local hint = AddNote(layout, L.SETTINGS_ENABLE_FOR_OPTIONS, false)
+		hint:AddShownPredicate(function()
+			return not module.db.enabled
+		end)
+	end
 
 	local grouped = false
 	for _, option in ipairs(module.options) do
 		if option.type == "header" then
-			AddText(layout, SUBHEADER_TEMPLATE, option.label, true)
+			ShowWhileEnabled(AddText(layout, SUBHEADER_TEMPLATE, option.label, true), module)
 			grouped = true
 		else
 			local initializer = CreateOptionControl(category, layout, module, option, enabledInitializer)
+			ShowWhileEnabled(initializer, module)
 			if grouped then
 				IndentTwice(initializer)
 			end
-			AddText(layout, NOTE_TEMPLATE, option.note, grouped and 2 or 1)
+			ShowWhileEnabled(AddText(layout, NOTE_TEMPLATE, option.note, grouped and 2 or 1), module)
 		end
 	end
 end
@@ -219,8 +257,8 @@ function ns:BuildSettings()
 		local modules = ns:GetSortedModules(categoryInfo.id)
 		if #modules > 0 then
 			local subcategory, layout = Settings.RegisterVerticalLayoutSubcategory(root, categoryInfo.name)
-			for _, module in ipairs(modules) do
-				AddModule(subcategory, layout, module)
+			for index, module in ipairs(modules) do
+				AddModule(subcategory, layout, module, index == 1)
 			end
 		end
 	end
