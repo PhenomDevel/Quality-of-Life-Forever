@@ -25,6 +25,7 @@ Core\ModuleManager.lua
 Core\Settings.lua
 Core\SettingsTemplates.xml
 Core\SlashCommands.lua
+Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
@@ -40,7 +41,6 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
-Modules\Character\XPInfo.lua
 
 # Statistics
 Modules\Statistics\StatisticsSearch.lua
@@ -91,6 +91,10 @@ Modules\Chat\SpamFilter.lua
 # Map
 Modules\Map\WorldMapWindow.lua
 Modules\Map\ZoneLevels.lua
+
+# XP Bar
+Modules\XPBar\XPBarText.lua
+Modules\XPBar\XPInfo.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua

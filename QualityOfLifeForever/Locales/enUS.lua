@@ -28,6 +28,7 @@ L.CATEGORY_STATISTICS = "Statistics"
 L.CATEGORY_TOOLTIP = "Tooltip"
 L.CATEGORY_CAMERA = "Camera"
 L.CATEGORY_GRAPHICS = "Graphics"
+L.CATEGORY_XP_BAR = "XP Bar"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"
