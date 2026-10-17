@@ -14,13 +14,13 @@ until you turn them on.
 
 | Category | Features |
 |----------|----------|
-| **Character** | Custom or hidden player name · item level on gear · durability in % · repair costs · search on the statistics page |
-| **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · spam filter tab |
+| **Character** | Custom or hidden player name · item level on gear · durability in % · repair costs · search on the statistics page · XP per hour and time to level |
+| **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · spam filter tab · guild ads in their own tab |
 | **Cooldown Manager** | Keybinds on the cooldown icons |
-| **Graphics & Camera** | Larger max camera distance · extra graphics settings |
+| **Graphics & Camera** | Larger max camera distance · extra graphics settings · sparkle on quest items |
 | **Interface** | Hide error messages, zone text and banners · skip cinematics |
 | **Loot** | Auto loot · fast loot · confirm BoP loot when solo |
-| **Merchant & Trainer** | Auto repair\* · sell junk\* · "Train all" button |
+| **Merchant & Trainer** | Auto repair\* · sell junk\* · "Train all" button · new skills at your trainer on level-up |
 | **Quests** | Auto accept/turn in · skip single-option gossip · instant quest text · progress in chat |
 | **Social** | Auto-accept invites and summons · auto-decline duels and guild invites |
 | **Tooltip** | Position and scale · guild rank, target, class color, item/spell IDs |

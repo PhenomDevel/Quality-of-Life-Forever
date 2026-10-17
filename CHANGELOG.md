@@ -5,16 +5,26 @@
 ### Character
 - New: repair costs – what repairing all equipped items costs, at the top of
   the character frame
+- New: statistics search – a search box on the statistics page of the
+  character window
+- New: XP info – XP per hour, time to level and gains to level in the XP bar
+  tooltip
 
 ### Chat
 - New: chat comfort – longer chat history (up to 4096 lines), Shift + mouse
   wheel jumps to the first/newest message, hide chat buttons
 - New: chat highlight – your name and keywords are colored in other players'
   messages, with a sound; optional loud whisper sound
+- New: guild recruitment tab – guild ads go to their own "Guilds" chat tab
 
 ### Cooldown Manager
 - New: keybinds – the key of the action button on each cooldown manager
   icon; size, position and offset adjustable per bar
+
+### Graphics & Camera
+- New: quest item sparkle – quest items and objects sparkle again (keeps the
+  outline mode off, also after graphics presets)
+- Max camera distance is listed first
 
 ### Interface
 - New: declutter interface – hide red error messages, zone names and event
@@ -23,6 +33,8 @@
 ### Merchant & Trainer
 - New: add train all button – a button in the trainer window that learns every
   available skill at once (professions excluded)
+- New: trainer reminder – on level-up, a chat message lists the new skills at
+  your class trainer and their cost
 
 ### Quests
 - New: auto quests – accept and turn in quests without clicking; stops at
