@@ -5,14 +5,14 @@ local Utils = ns.Utils
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto sell junk",
+		TITLE = "Auto-sell junk",
 		DESC = "Automatically sell all poor quality (grey) items when visiting a merchant.",
 		SUMMARY = "Show summary",
 		SUMMARY_DESC = "Print the number of sold items and the earned gold.",
 		SOLD = "Sold %d junk item(s) for %s.",
 	},
 	deDE = {
-		TITLE = "Auto-Verkauf: Plunder",
+		TITLE = "Plunder automatisch verkaufen",
 		DESC = "Verkauft beim Besuch eines Händlers automatisch alle Gegenstände schlechter Qualität (grau).",
 		SUMMARY = "Zusammenfassung anzeigen",
 		SUMMARY_DESC = "Gibt die Anzahl der verkauften Gegenstände und das erhaltene Gold aus.",

@@ -27,8 +27,6 @@ Core\SettingsTemplates.xml
 Core\SlashCommands.lua
 
 # Modules: one section per category, alphabetical within a section
-# Game settings (shortcuts to Blizzard options/CVars)
-
 # Interface
 Modules\Interface\SkipCinematics.lua
 
@@ -46,13 +44,11 @@ Modules\Character\ShowDurability.lua
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
 
-# Camera
-Modules\Camera\CameraZoom.lua
-
-# Graphics
+# Graphics & camera
+Modules\Graphics\CameraZoom.lua
 Modules\Graphics\GraphicsTweaks.lua
 
-# Merchant
+# Merchant & trainer
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
 Modules\Merchant\TrainAll.lua
