@@ -4,10 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Chat comfort",
-		NOTE = "Arrow keys, longer history, fewer buttons",
+		NOTE = "Longer history, quick scrolling, fewer buttons",
 		DESC = "Small improvements for the chat windows.",
-		ARROW_KEYS = "Arrow keys without Alt",
-		ARROW_KEYS_DESC = "Move the cursor in the chat input with the arrow keys; Up/Down browse the sent messages. Without this, Alt has to be held.",
 		HISTORY = "Chat history",
 		HISTORY_DESC = "Number of lines each chat window keeps. Changing it clears the chat windows once.",
 		SCROLL = "Shift + mouse wheel",
@@ -17,10 +15,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Chat-Komfort",
-		NOTE = "Pfeiltasten, längerer Verlauf, weniger Knöpfe",
+		NOTE = "Längerer Verlauf, schnelles Scrollen, weniger Knöpfe",
 		DESC = "Kleine Verbesserungen für die Chatfenster.",
-		ARROW_KEYS = "Pfeiltasten ohne Alt",
-		ARROW_KEYS_DESC = "Cursor in der Chateingabe mit den Pfeiltasten bewegen; Hoch/Runter blättert durch gesendete Nachrichten. Ohne diese Option muss Alt gehalten werden.",
 		HISTORY = "Chatverlauf",
 		HISTORY_DESC = "Anzahl der Zeilen, die jedes Chatfenster behält. Eine Änderung leert die Chatfenster einmalig.",
 		SCROLL = "Shift + Mausrad",
@@ -38,13 +34,11 @@ local module = ns:NewModule("ChatComfort", {
 	note = L.NOTE,
 	category = "CHAT",
 	defaults = {
-		arrowKeys = true,
 		history = 1024,
 		scroll = true,
 		hideButtons = false,
 	},
 	options = {
-		{ key = "arrowKeys", type = "checkbox", label = L.ARROW_KEYS, tooltip = L.ARROW_KEYS_DESC },
 		{ key = "history", type = "slider", label = L.HISTORY, tooltip = L.HISTORY_DESC, min = DEFAULT_HISTORY, max = 4096, step = 128 },
 		{ key = "scroll", type = "checkbox", label = L.SCROLL, tooltip = L.SCROLL_DESC },
 		{ key = "hideButtons", type = "checkbox", label = L.HIDE_BUTTONS, tooltip = L.HIDE_BUTTONS_DESC },
@@ -65,18 +59,7 @@ end
 
 -- Values before the module changed them, restored on disable. hiddenButtons
 -- only holds buttons we hid, so ones Blizzard hides (voice) stay hidden.
-local originalArrowMode, originalLines, hiddenButtons = {}, {}, {}
-
-function module:ApplyArrowKeys()
-	EachChatFrame(function(_, editBox)
-		if editBox then
-			if originalArrowMode[editBox] == nil then
-				originalArrowMode[editBox] = editBox:GetAltArrowKeyMode()
-			end
-			editBox:SetAltArrowKeyMode(not self.db.arrowKeys and originalArrowMode[editBox])
-		end
-	end)
-end
+local originalLines, hiddenButtons = {}, {}
 
 -- SetMaxLines clears the frame, so only call it when the value changes.
 function module:ApplyHistory()
@@ -123,7 +106,6 @@ function module:ApplyButtons()
 end
 
 function module:OnEnable()
-	self:ApplyArrowKeys()
 	self:ApplyHistory()
 	self:ApplyButtons()
 	EachChatFrame(function(frame)
@@ -140,23 +122,17 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	for editBox, mode in pairs(originalArrowMode) do
-		editBox:SetAltArrowKeyMode(mode)
-	end
 	for frame, lines in pairs(originalLines) do
 		if frame:GetMaxLines() ~= lines then
 			frame:SetMaxLines(lines)
 		end
 	end
-	wipe(originalArrowMode)
 	wipe(originalLines)
 	RestoreButtons()
 end
 
 function module:OnOptionChanged(key)
-	if key == "arrowKeys" then
-		self:ApplyArrowKeys()
-	elseif key == "history" then
+	if key == "history" then
 		self:ApplyHistory()
 	elseif key == "hideButtons" then
 		self:ApplyButtons()
