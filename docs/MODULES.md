@@ -1,7 +1,8 @@
 # Writing modules
 
 Every feature is a self-contained **module** that can be toggled individually
-in the settings panel (*Options → AddOns → Quality of Life Forever*) or via
+in the options window (`/qol`, the minimap or *Options → AddOns → Quality of
+Life Forever → Open options*) or via
 `/qol enable|disable|toggle <module>`.
 
 ## New module
@@ -21,14 +22,14 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 
 | Field             | Type    | Description |
 |-------------------|---------|-------------|
-| `title`           | string  | Name in the settings panel (localized) |
-| `description`     | string  | Tooltip of the enable checkbox (localized) |
+| `title`           | string  | Name in the options window (localized) |
+| `description`     | string  | Tooltip of the module title (localized) |
 | `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
 | `category`        | string  | `INTERFACE` (default), `CAMERA`, `CHARACTER`, `CHAT`, `COOLDOWN_MANAGER`, `GRAPHICS`, `LOOT`, `MAP`, `MERCHANT`, `QUESTS`, `SOCIAL`, `STATISTICS`, `TOOLTIP`, `XP_BAR` |
 | `order`           | number  | Position within the category; lower comes first, ties sorted by title (default 0) |
 | `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
 | `defaults`        | table   | Option defaults, merged into `self.db` |
-| `options`         | table   | Option descriptors for the settings panel (see below) |
+| `options`         | table   | Option descriptors for the options window (see below) |
 | `combatProtected` | boolean | Enable/disable is deferred until combat ends (protected frames) |
 | `requiresReload`  | boolean | Offer a `/reload` after disabling |
 
@@ -72,7 +73,7 @@ doesn't take others down.
 | `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript` that only fires while enabled |
 | `self:Print(...)`                         | Chat output (respects the global "Show chat messages" option) |
 | `self:Debug(...)`                         | Output only in debug mode (`/qol debug`) |
-| `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the settings panel in sync) |
+| `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the options window in sync) |
 | `self:SetCVar(name, value)`               | Set a CVar; the original value is persisted in the module DB and restored on disable. Returns `false` for unknown CVars. |
 | `self:RestoreCVars()`                     | Restore saved CVars now |
 | `self.db`                                 | The module's saved data (account-wide) |
