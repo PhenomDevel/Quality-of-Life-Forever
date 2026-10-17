@@ -109,11 +109,11 @@ addons (ideas only, never their code).
 | 40 | [ ] Sort the quest tracker by level/zone | Quests | re-add quest watches in sorted order | medium: tracker order in Forever |
 | 41 | [ ] Energy/mana tick bar | Interface | detect ticks via `UNIT_POWER_FREQUENT` | medium: power may be secret in combat |
 | 42 | [ ] Movable loot roll frames | Loot | move `GroupLootContainer`, save position | low |
-| 43 | [ ] Guild recruitment tab (`GuildRecruitTab`) | Chat | keyword filter like the spam filter, own "Guilds" tab | low |
+| 43 | [x] Guild recruitment tab (`GuildRecruitTab`) | Chat | keyword filter like the spam filter, own "Guilds" tab | low |
 | 44 | [ ] Coordinates on world map and minimap | World map | `C_Map.GetPlayerMapPosition`, cursor position on the map canvas | low |
 | 45 | [ ] `/way x y` waypoint | World map | `C_Map.SetUserWaypoint` + `C_SuperTrack` | low |
-| 46 | [ ] XP per hour and time to level (`XPInfo`) | Character | `PLAYER_XP_UPDATE` deltas, XP bar tooltip; no OnUpdate | low |
-| 47 | [ ] Trainer reminder on level-up (`TrainerReminder`) | Merchant & Trainer | record level-locked class trainer skills per character, announce on `PLAYER_LEVEL_UP`; only complete lists | low |
+| 46 | [x] XP per hour and time to level (`XPInfo`) | Character | `PLAYER_XP_UPDATE` deltas, XP bar tooltip; no OnUpdate | low |
+| 47 | [x] Trainer reminder on level-up (`TrainerReminder`) | Merchant & Trainer | record level-locked class trainer skills per character, announce on `PLAYER_LEVEL_UP`; only complete lists | low |
 | 48 | [ ] Rare alert | Interface | `VIGNETTE_MINIMAP_UPDATED` + `C_VignetteInfo` | medium: vignette data in Forever |
 | 49 | [-] ~~Quest level in quest log and tracker~~ | Quests | dropped: built into Forever | – |
-| 50 | [ ] Quest item sparkle (`QuestItemSparkle`) | Graphics & Camera | the game's sparkle only shows with outline mode off: keep `graphicsOutlineMode` at 0, re-apply after presets | low: no unit outlines on mouseover |
+| 50 | [x] Quest item sparkle (`QuestItemSparkle`) | Graphics & Camera | the game's sparkle only shows with outline mode off: keep `graphicsOutlineMode` at 0, re-apply after presets | low: no unit outlines on mouseover |
