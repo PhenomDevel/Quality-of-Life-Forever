@@ -4,6 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Auto quests",
+		SECTION_ACTIONS = "Actions",
+		SECTION_FILTER = "Filter",
 		NOTE = "Accept and turn in quests; hold Shift to pause",
 		DESC = "Accepts offered quests and turns in completed ones without clicking. Stops when you have to choose a reward or a quest costs money. Hold Shift while talking to the NPC to do it yourself.",
 		ACCEPT = "Accept quests",
@@ -15,6 +17,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Automatische Quests",
+		SECTION_ACTIONS = "Aktionen",
+		SECTION_FILTER = "Filter",
 		NOTE = "Quests annehmen und abgeben; Shift pausiert",
 		DESC = "Nimmt angebotene Quests an und gibt abgeschlossene ab, ohne zu klicken. Hält an, wenn eine Belohnung gewählt werden muss oder eine Quest Gold kostet. Shift beim Ansprechen halten, um es selbst zu machen.",
 		ACCEPT = "Quests annehmen",
@@ -37,8 +41,10 @@ local module = ns:NewModule("AutoQuest", {
 		skipTrivial = true,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_ACTIONS },
 		{ key = "accept", type = "checkbox", label = L.ACCEPT, tooltip = L.ACCEPT_DESC },
 		{ key = "turnIn", type = "checkbox", label = L.TURN_IN, tooltip = L.TURN_IN_DESC },
+		{ type = "header", label = L.SECTION_FILTER },
 		{ key = "skipTrivial", type = "checkbox", label = L.SKIP_TRIVIAL, tooltip = L.SKIP_TRIVIAL_DESC },
 	},
 })

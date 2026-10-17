@@ -4,6 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Tooltip extras",
+		SECTION_UNITS = "Units",
+		SECTION_ITEMS = "Items & spells",
 		NOTE = "Guild rank, target, class color, IDs",
 		DESC = "Adds more information to unit, item and spell tooltips.",
 		GUILD_RANK = "Guild rank",
@@ -21,6 +23,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Tooltip-Extras",
+		SECTION_UNITS = "Einheiten",
+		SECTION_ITEMS = "Gegenstände & Zauber",
 		NOTE = "Gildenrang, Ziel, Klassenfarbe, IDs",
 		DESC = "Ergänzt Tooltips von Einheiten, Gegenständen und Zaubern um weitere Informationen.",
 		GUILD_RANK = "Gildenrang",
@@ -50,9 +54,11 @@ local module = ns:NewModule("TooltipExtras", {
 		ids = false,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_UNITS },
 		{ key = "guildRank", type = "checkbox", label = L.GUILD_RANK, tooltip = L.GUILD_RANK_DESC },
 		{ key = "target", type = "checkbox", label = L.TARGET, tooltip = L.TARGET_DESC },
 		{ key = "classColor", type = "checkbox", label = L.CLASS_COLOR, tooltip = L.CLASS_COLOR_DESC },
+		{ type = "header", label = L.SECTION_ITEMS },
 		{ key = "ids", type = "checkbox", label = L.IDS, tooltip = L.IDS_DESC },
 	},
 })

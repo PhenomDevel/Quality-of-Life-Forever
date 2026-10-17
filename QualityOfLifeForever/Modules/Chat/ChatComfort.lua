@@ -4,6 +4,8 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Chat comfort",
+		SECTION_HISTORY = "History",
+		SECTION_DISPLAY = "Display",
 		NOTE = "Longer history, quick scrolling, fewer buttons",
 		DESC = "Small improvements for the chat windows.",
 		HISTORY = "Chat history",
@@ -15,6 +17,8 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Chat-Komfort",
+		SECTION_HISTORY = "Verlauf",
+		SECTION_DISPLAY = "Darstellung",
 		NOTE = "Längerer Verlauf, schnelles Scrollen, weniger Knöpfe",
 		DESC = "Kleine Verbesserungen für die Chatfenster.",
 		HISTORY = "Chatverlauf",
@@ -39,8 +43,10 @@ local module = ns:NewModule("ChatComfort", {
 		hideButtons = false,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_HISTORY },
 		{ key = "history", type = "slider", label = L.HISTORY, tooltip = L.HISTORY_DESC, min = DEFAULT_HISTORY, max = 4096, step = 128 },
 		{ key = "scroll", type = "checkbox", label = L.SCROLL, tooltip = L.SCROLL_DESC },
+		{ type = "header", label = L.SECTION_DISPLAY },
 		{ key = "hideButtons", type = "checkbox", label = L.HIDE_BUTTONS, tooltip = L.HIDE_BUTTONS_DESC },
 	},
 })
