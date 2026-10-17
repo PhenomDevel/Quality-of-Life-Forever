@@ -1,4 +1,4 @@
--- luacheck: read globals CreateColorFromHexString CreateFont STANDARD_TEXT_FONT MenuUtil PlaySound SOUNDKIT
+-- luacheck: read globals CreateColorFromHexString CreateFont STANDARD_TEXT_FONT MenuUtil PlaySound SOUNDKIT strtrim
 local _, ns = ...
 
 --[[
@@ -303,4 +303,122 @@ function Widgets.CreateButton(parent)
 	end)
 	SetButtonHovered(button, false)
 	return button
+end
+
+-- Text input -------------------------------------------------------------------
+-- input:SetBinding(getValue, setValue, placeholder, maxLetters). The value is
+-- committed on Enter and when the field loses focus; Esc restores it.
+-- Multi-line inputs wrap and scroll; line breaks are not kept.
+
+local INPUT_INSET = 8
+
+local function SetInputFocused(input, focused)
+	local color = focused and { ACCENT[1], ACCENT[2], ACCENT[3], 0.6 } or colors.border
+	for _, edge in ipairs(input.Edges) do
+		edge:SetColorTexture(unpack(color))
+	end
+end
+
+local function UpdatePlaceholder(input)
+	local editBox = input.EditBox
+	input.Placeholder:SetShown(editBox:GetText() == "" and not editBox:HasFocus())
+end
+
+local function Commit(input)
+	local editBox = input.EditBox
+	local text = strtrim((editBox:GetText():gsub("[\r\n]+", " ")))
+	if text ~= editBox:GetText() then
+		editBox:SetText(text)
+	end
+	if input.setValue and text ~= (input.getValue() or "") then
+		input.setValue(text)
+	end
+end
+
+local function ResetInput(input)
+	input.EditBox:SetText(input.getValue and input.getValue() or "")
+	UpdatePlaceholder(input)
+end
+
+function Widgets.CreateInput(parent, multiline)
+	local input = CreateFrame("Frame", nil, parent)
+	input:SetHeight(22)
+	Widgets.Fill(input, colors.control)
+	input.Edges = Widgets.Border(input)
+
+	local editBox = CreateFrame("EditBox", nil, input)
+	editBox:SetAutoFocus(false)
+	editBox:SetFontObject(fonts.body)
+	editBox:SetMultiLine(multiline)
+	input.EditBox = editBox
+
+	if multiline then
+		-- The edit box grows with its text inside a scroll frame.
+		local scroll = CreateFrame("ScrollFrame", nil, input)
+		scroll:SetPoint("TOPLEFT", INPUT_INSET, -6)
+		scroll:SetPoint("BOTTOMRIGHT", -INPUT_INSET, 6)
+		scroll:SetScrollChild(editBox)
+		scroll:EnableMouseWheel(true)
+		scroll:SetScript("OnMouseWheel", function(self, delta)
+			local range = self:GetVerticalScrollRange()
+			self:SetVerticalScroll(math.max(0, math.min(range, self:GetVerticalScroll() - delta * 14)))
+		end)
+		scroll:SetScript("OnSizeChanged", function(_, width)
+			editBox:SetWidth(width)
+		end)
+		editBox:SetScript("OnCursorChanged", function(_, _, y, _, height)
+			local offset, visible = scroll:GetVerticalScroll(), scroll:GetHeight()
+			y = -y
+			if y < offset then
+				scroll:SetVerticalScroll(y)
+			elseif y + height > offset + visible then
+				scroll:SetVerticalScroll(y + height - visible)
+			end
+		end)
+		-- Clicks on the padding focus the text as well.
+		input:EnableMouse(true)
+		input:SetScript("OnMouseDown", function()
+			editBox:SetFocus()
+		end)
+		input.Scroll = scroll
+	else
+		editBox:SetAllPoints()
+		editBox:SetTextInsets(INPUT_INSET, INPUT_INSET, 0, 0)
+	end
+
+	input.Placeholder = Widgets.Text(input, fonts.dim)
+	input.Placeholder:SetPoint("TOPLEFT", INPUT_INSET, multiline and -6 or -5)
+
+	editBox:SetScript("OnEditFocusGained", function()
+		SetInputFocused(input, true)
+		UpdatePlaceholder(input)
+	end)
+	editBox:SetScript("OnEditFocusLost", function(self)
+		self:HighlightText(0, 0)
+		SetInputFocused(input, false)
+		Commit(input)
+		UpdatePlaceholder(input)
+	end)
+	editBox:SetScript("OnEnterPressed", editBox.ClearFocus)
+	editBox:SetScript("OnEscapePressed", function(self)
+		ResetInput(input)
+		self:ClearFocus()
+	end)
+	editBox:SetScript("OnTextChanged", function()
+		UpdatePlaceholder(input)
+	end)
+
+	input.SetBinding = function(self, getValue, setValue, placeholder, maxLetters)
+		self.getValue, self.setValue = getValue, setValue
+		self.Placeholder:SetText(placeholder or "")
+		self.EditBox:SetMaxLetters(maxLetters or 0)
+		ResetInput(self)
+	end
+	-- Leaves the text alone while the user is typing in it.
+	input.Update = function(self)
+		if not self.EditBox:HasFocus() then
+			ResetInput(self)
+		end
+	end
+	return input
 end

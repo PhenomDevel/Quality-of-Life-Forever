@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter StaticPopup_Show UnitName Ambiguate PlaySound SOUNDKIT ACCEPT CANCEL strtrim
+-- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter UnitName Ambiguate PlaySound SOUNDKIT strtrim
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -10,14 +10,13 @@ local L = ns.NewLocale({
 		NAME = "Highlight your name",
 		NAME_DESC = "Highlights messages that contain your character name.",
 		KEYWORDS = "Keywords",
-		KEYWORDS_DESC = "Edit the comma-separated keyword list (case-insensitive).",
-		EDIT = "Edit",
+		KEYWORDS_DESC = "Separated by commas, case-insensitive. Saved with Enter.",
+		KEYWORDS_HINT = "Words, separated by commas",
 		SOUND = "Sound on mention",
 		SOUND_DESC = "Plays a sound when a message mentions your name or a keyword.",
 		SECTION_WHISPERS = "Whispers",
 		WHISPER_SOUND = "Loud whisper sound",
 		WHISPER_SOUND_DESC = "Plays an extra sound on the master channel for incoming whispers, also when sound effects are muted.",
-		DIALOG = "Keywords, separated by commas:",
 	},
 	deDE = {
 		TITLE = "Chat-Hervorhebung",
@@ -27,18 +26,16 @@ local L = ns.NewLocale({
 		NAME = "Deinen Namen hervorheben",
 		NAME_DESC = "Hebt Nachrichten hervor, die deinen Charakternamen enthalten.",
 		KEYWORDS = "Stichwörter",
-		KEYWORDS_DESC = "Bearbeitet die kommagetrennte Stichwortliste (ohne Groß-/Kleinschreibung).",
-		EDIT = "Bearbeiten",
+		KEYWORDS_DESC = "Durch Kommas getrennt, ohne Groß-/Kleinschreibung. Wird mit Enter gespeichert.",
+		KEYWORDS_HINT = "Wörter, durch Kommas getrennt",
 		SOUND = "Ton bei Erwähnung",
 		SOUND_DESC = "Spielt einen Ton, wenn eine Nachricht deinen Namen oder ein Stichwort enthält.",
 		SECTION_WHISPERS = "Flüstern",
 		WHISPER_SOUND = "Lauter Flüsterton",
 		WHISPER_SOUND_DESC = "Spielt bei eingehendem Flüstern einen zusätzlichen Ton über den Master-Kanal, auch wenn Soundeffekte stumm sind.",
-		DIALOG = "Stichwörter, durch Kommas getrennt:",
 	},
 })
 
-local DIALOG = "QUALITYOFLIFEFOREVER_HIGHLIGHT_KEYWORDS"
 local COLOR = "ffff8000"
 local EVENTS = {
 	"CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL",
@@ -63,13 +60,13 @@ local module = ns:NewModule("ChatHighlight", {
 		{ type = "header", label = L.SECTION_MENTIONS },
 		{ key = "name", type = "checkbox", label = L.NAME, tooltip = L.NAME_DESC },
 		{
-			type = "button",
+			key = "keywords",
+			type = "text",
+			multiline = true,
 			label = L.KEYWORDS,
-			buttonText = L.EDIT,
 			tooltip = L.KEYWORDS_DESC,
-			onClick = function()
-				StaticPopup_Show(DIALOG)
-			end,
+			placeholder = L.KEYWORDS_HINT,
+			maxLetters = 1000,
 		},
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
 		{ type = "header", label = L.SECTION_WHISPERS },
@@ -154,32 +151,6 @@ function module:CHAT_MSG_WHISPER()
 	end
 end
 module.CHAT_MSG_BN_WHISPER = module.CHAT_MSG_WHISPER
-
-function module:OnInitialize()
-	StaticPopupDialogs[DIALOG] = {
-		text = L.DIALOG,
-		button1 = ACCEPT,
-		button2 = CANCEL,
-		hasEditBox = 1,
-		editBoxWidth = 350,
-		maxLetters = 1000,
-		OnShow = function(dialog)
-			local editBox = dialog:GetEditBox()
-			editBox:SetText(self.db.keywords)
-			editBox:HighlightText()
-		end,
-		OnAccept = function(dialog)
-			self.db.keywords = dialog:GetEditBox():GetText()
-			self:UpdateWords()
-		end,
-		EditBoxOnEnterPressed = function(editBox)
-			editBox:GetParent():GetButton1():Click()
-		end,
-		timeout = 0,
-		whileDead = 1,
-		hideOnEscape = 1,
-	}
-end
 
 function module:OnEnable()
 	self:UpdateWords()

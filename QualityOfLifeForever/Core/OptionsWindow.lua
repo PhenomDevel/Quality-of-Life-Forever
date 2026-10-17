@@ -32,6 +32,8 @@ local COLUMN_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2
 local ROW_WIDTH = COLUMN_WIDTH - 2 * CARD_PADDING
 local ROW_HEIGHT = 30
 local SLIDER_EXTRA = 22
+local INPUT_WIDTH = 160
+local TEXTAREA_HEIGHT = 64
 local SCROLL_STEP = 48
 
 local GENERAL = "GENERAL"
@@ -175,6 +177,49 @@ rowTypes.button = {
 	setup = function(row, spec)
 		row.Control:SetLabel(spec.buttonText or spec.label)
 		return SetupRow(row, spec, row.Control:GetWidth(), ROW_HEIGHT)
+	end,
+}
+
+-- Single-line text ("text" option).
+rowTypes.text = {
+	create = function(parent)
+		local row = CreateRowBase(parent)
+		row.Control = Widgets.CreateInput(row, false)
+		row.Control:SetWidth(INPUT_WIDTH)
+		row.Control:SetPoint("RIGHT", row, "TOPRIGHT", 0, -ROW_HEIGHT / 2)
+		Widgets.ForwardHover(row.Control.EditBox, row)
+		row.Update = function(self)
+			self.Control:Update()
+		end
+		return row
+	end,
+	setup = function(row, spec)
+		row.Control:SetBinding(spec.get, spec.set, spec.placeholder, spec.maxLetters)
+		return SetupRow(row, spec, INPUT_WIDTH, ROW_HEIGHT)
+	end,
+}
+
+-- Multi-line text below the label ("text" option with multiline = true).
+rowTypes.textarea = {
+	create = function(parent)
+		local row = CreateRowBase(parent)
+		row.Control = Widgets.CreateInput(row, true)
+		row.Control:SetHeight(TEXTAREA_HEIGHT)
+		Widgets.ForwardHover(row.Control.EditBox, row)
+		row.Update = function(self)
+			self.Control:Update()
+		end
+		return row
+	end,
+	setup = function(row, spec)
+		row.Control:SetBinding(spec.get, spec.set, spec.placeholder, spec.maxLetters)
+		local height = SetupRow(row, spec, 0, ROW_HEIGHT + TEXTAREA_HEIGHT + 6)
+		-- The note sits between label and text field.
+		local top = height - TEXTAREA_HEIGHT - 4
+		row.Control:ClearAllPoints()
+		row.Control:SetPoint("TOPLEFT", 0, -top)
+		row.Control:SetPoint("TOPRIGHT", 0, -top)
+		return height
 	end,
 }
 
@@ -336,7 +381,7 @@ end
 
 local function OptionRow(module, option)
 	local spec = {
-		type = option.type,
+		type = option.type == "text" and option.multiline and "textarea" or option.type,
 		label = option.label,
 		tooltip = option.tooltip,
 		note = option.note,
@@ -361,6 +406,7 @@ local function OptionRow(module, option)
 	end
 	spec.min, spec.max, spec.step, spec.format = option.min, option.max, option.step, option.format
 	spec.values = option.values
+	spec.placeholder, spec.maxLetters = option.placeholder, option.maxLetters
 	return spec
 end
 

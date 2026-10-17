@@ -43,6 +43,8 @@ without a migration in `Core/Database.lua`.
 { key = "amount", type = "slider", label = L.X, tooltip = L.X_DESC, min = 1, max = 10, step = 1 }
 { key = "mode", type = "dropdown", label = L.X, tooltip = L.X_DESC,
   values = { { value = "a", label = L.A }, { value = "b", label = L.B } } }
+{ key = "keywords", type = "text", label = L.X, tooltip = L.X_DESC,
+  multiline = true, placeholder = L.X_HINT, maxLetters = 1000 }   -- saved on Enter / focus loss
 { type = "header", label = L.X }   -- section title inside the module's options
 { type = "button", label = L.X, buttonText = L.APPLY, tooltip = L.X_DESC,
   onClick = function(module) ... end }   -- no key/default; only runs while enabled

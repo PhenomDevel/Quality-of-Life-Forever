@@ -209,6 +209,7 @@ ns.moduleOrder = {}
 		options         = list of option descriptors for the options window
 		                  { key, type = "checkbox" | "slider" | "dropdown", label, tooltip,
 		                    min, max, step, format (slider), values (dropdown) }
+		                  { key, type = "text", label, tooltip, multiline, placeholder, maxLetters }
 		                  { type = "button", label, buttonText, tooltip, onClick(module) }
 		                  { type = "header", label } (section title, no value)
 		                  Every option may have a `note` (gray line below it).
