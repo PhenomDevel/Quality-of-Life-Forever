@@ -22,7 +22,7 @@ local module = ns:NewModule("ShowDurability", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "INTERFACE",
 	defaults = {
 		hideFull = true,
 	},

@@ -28,6 +28,9 @@ Core\SlashCommands.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
+Modules\Interface\ItemLevel.lua
+Modules\Interface\RepairCosts.lua
+Modules\Interface\ShowDurability.lua
 Modules\Interface\SkipCinematics.lua
 Modules\Interface\UIDeclutter.lua
 
@@ -37,11 +40,10 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
-Modules\Character\ItemLevel.lua
-Modules\Character\RepairCosts.lua
-Modules\Character\ShowDurability.lua
-Modules\Character\StatisticsSearch.lua
 Modules\Character\XPInfo.lua
+
+# Statistics
+Modules\Statistics\StatisticsSearch.lua
 
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
@@ -50,7 +52,6 @@ Modules\Tooltip\TooltipExtras.lua
 # Graphics & Camera
 Modules\Graphics\CameraZoom.lua
 Modules\Graphics\GraphicsTweaks.lua
-Modules\Graphics\QuestItemSparkle.lua
 
 # Merchant & Trainer
 Modules\Merchant\AutoRepair.lua
@@ -67,6 +68,7 @@ Modules\Loot\FastLoot.lua
 Modules\Quests\AutoQuest.lua
 Modules\Quests\GossipSkip.lua
 Modules\Quests\InstantQuestText.lua
+Modules\Quests\QuestItemSparkle.lua
 Modules\Quests\QuestProgress.lua
 
 # Social

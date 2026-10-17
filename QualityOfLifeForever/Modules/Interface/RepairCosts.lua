@@ -5,12 +5,12 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Repair costs",
 		NOTE = "Shown on the character frame",
-		DESC = "Shows what repairing all equipped items costs at the top of the character frame. Hidden when nothing needs repairing.",
+		DESC = "Shows what repairing all equipped items costs at the bottom of the character frame. Hidden when nothing needs repairing.",
 	},
 	deDE = {
 		TITLE = "Reparaturkosten",
 		NOTE = "Im Charakterfenster angezeigt",
-		DESC = "Zeigt oben im Charakterfenster, was die Reparatur aller angelegten Gegenstände kostet. Ausgeblendet, wenn nichts repariert werden muss.",
+		DESC = "Zeigt unten im Charakterfenster, was die Reparatur aller angelegten Gegenstände kostet. Ausgeblendet, wenn nichts repariert werden muss.",
 	},
 })
 
@@ -18,7 +18,7 @@ local module = ns:NewModule("RepairCosts", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "INTERFACE",
 })
 
 local IsSecret = ns.Utils.IsSecret
@@ -59,7 +59,7 @@ function module:OnEnable()
 		holder:SetAllPoints(anchor)
 		holder:SetFrameLevel(anchor:GetFrameLevel() + 10)
 		text = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-		text:SetPoint("TOP", holder, "TOP", 0, -6)
+		text:SetPoint("BOTTOM", holder, "BOTTOM", 0, 6)
 	end
 	self:HookScript(PaperDollFrame, "OnShow", self.Update)
 	for _, event in ipairs({ "UPDATE_INVENTORY_DURABILITY", "PLAYER_EQUIPMENT_CHANGED", "MERCHANT_CLOSED" }) do

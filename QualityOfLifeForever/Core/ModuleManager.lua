@@ -13,6 +13,7 @@ ns.categories = {
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
 	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
 	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
+	{ id = "STATISTICS", name = L.CATEGORY_STATISTICS },
 	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
 	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
 	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },

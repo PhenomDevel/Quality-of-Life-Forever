@@ -18,7 +18,7 @@ local module = ns:NewModule("QuestItemSparkle", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "GRAPHICS",
+	category = "QUESTS",
 })
 
 -- Graphics setting keys equal their CVar names (Blizzard settings: Graphics.lua).

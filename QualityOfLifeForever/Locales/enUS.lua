@@ -24,6 +24,7 @@ L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "World map"
 L.CATEGORY_CHARACTER = "Character"
+L.CATEGORY_STATISTICS = "Statistics"
 L.CATEGORY_TOOLTIP = "Tooltip"
 L.CATEGORY_GRAPHICS = "Graphics & Camera"
 
