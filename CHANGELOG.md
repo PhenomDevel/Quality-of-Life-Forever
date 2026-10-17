@@ -2,13 +2,49 @@
 
 ## Unreleased
 
+### Character
+- New: repair costs – what repairing all equipped items costs, at the top of
+  the character frame
+
+### Chat
+- New: chat comfort – longer chat history (up to 4096 lines), Shift + mouse
+  wheel jumps to the first/newest message, hide chat buttons
+- New: chat highlight – your name and keywords are colored in other players'
+  messages, with a sound; optional loud whisper sound
+
 ### Cooldown Manager
 - New: keybinds – the key of the action button on each cooldown manager
   icon; size, position and offset adjustable per bar
 
+### Interface
+- New: declutter interface – hide red error messages, zone names and event
+  banners, hide the objective tracker in combat
+
+### Merchant & trainer
+- New: train all – a button in the trainer window that learns every
+  available skill at once (professions excluded)
+
+### Quests
+- New: auto quests – accept and turn in quests without clicking; stops at
+  reward choices and quests that cost money; skips gray quests; Shift pauses
+- New: skip gossip – selects the only dialog option of NPCs without quests;
+  Shift pauses
+
+### Tooltip
+- New: tooltip extras – guild rank, target and class colored names on unit
+  tooltips; item and spell IDs
+
 ### World map
 - New: movable world map – scale the windowed map and drag it by its title
   bar; the position is saved
+
+### Settings
+- Categories merged and renamed: *Camera* and *Graphics* are now *Graphics &
+  camera*, *Merchant* is now *Merchant & trainer*; categories are sorted
+  alphabetically
+- Module titles unified ("Auto-accept …", "Auto-decline …", "Auto-sell junk",
+  …); your settings are kept
+- More modules group their options under headings
 
 ## v0.3.0 (2026-10-16)
 

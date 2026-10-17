@@ -89,10 +89,12 @@ Agreed after closing tiers 1–4. Ordered by effort.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
-| 31 | [ ] Chat comfort | Chat | arrow keys in the edit box without Alt (`SetAltArrowKeyMode`), longer chat history (`SetMaxLines`), hide chat buttons, Shift + mouse wheel jumps to top/bottom | low: `SetMaxLines` clears the frame once |
+| 31 | [x] Chat comfort (`ChatComfort`) | Chat | longer chat history (`SetMaxLines`), hide chat buttons, Shift + mouse wheel jumps to top/bottom | low: `SetMaxLines` clears the frame once |
 | 32 | [-] ~~Nameplate settings~~ | Interface | dropped | – |
 | 33 | [x] Skip single gossip option (`GossipSkip`) | Quests | `GOSSIP_SHOW` → select the only option when there are no quests; Shift pauses | low |
-| 34 | [ ] Auto accept / turn in quests | Quests | `QUEST_DETAIL`/`QUEST_PROGRESS`/`QUEST_COMPLETE`, gossip and greeting quest lists; stops at reward choices; Shift pauses | medium: quests with item/money costs |
-| 35 | [ ] Tooltip extras | Tooltip | unit post-call: guild rank, target of target, class colored name; item/spell post-call: IDs | medium: unit names/lines may be secret |
-| 36 | [ ] Train all | Merchant | button in the trainer frame that buys every available service (`GetNumTrainerServices`/`BuyTrainerService`), total cost in its tooltip | low: trainer frame is load-on-demand |
-| 37 | [ ] Repair costs on the character frame | Character | sum of `C_TooltipInfo.GetInventoryItem` repair costs of equipped items, shown on the character frame | low |
+| 34 | [x] Auto accept / turn in quests (`AutoQuest`) | Quests | `QUEST_DETAIL`/`QUEST_PROGRESS`/`QUEST_COMPLETE`, gossip and greeting quest lists; stops at reward choices; Shift pauses | medium: quests with item/money costs |
+| 35 | [x] Tooltip extras (`TooltipExtras`) | Tooltip | unit post-call: guild rank, target of target, class colored name; item/spell post-call: IDs | medium: unit names/lines may be secret |
+| 36 | [x] Train all (`TrainAll`) | Merchant | button in the trainer frame that buys every available service (`GetNumTrainerServices`/`BuyTrainerService`), total cost in its tooltip | low: trainer frame is load-on-demand |
+| 37 | [x] Repair costs on the character frame (`RepairCosts`) | Character | sum of `C_TooltipInfo.GetInventoryItem` repair costs of equipped items, shown on the character frame | low |
+| 38 | [x] Declutter interface (`UIDeclutter`) | Interface | hide red errors (`UI_ERROR_MESSAGE`), zone text, event banners; objective tracker invisible in combat | low |
+| 39 | [x] Chat highlight (`ChatHighlight`) | Chat | message filter colors your name/keywords, sound once per line; optional whisper sound | low: links are left uncolored |
