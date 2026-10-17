@@ -7,14 +7,14 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Auto-sell junk",
 		DESC = "Automatically sell all poor quality (grey) items when visiting a merchant.",
-		SUMMARY = "Show summary",
+		SUMMARY = "Summary in chat",
 		SUMMARY_DESC = "Print the number of sold items and the earned gold.",
 		SOLD = "Sold %d junk item(s) for %s.",
 	},
 	deDE = {
 		TITLE = "Plunder automatisch verkaufen",
 		DESC = "Verkauft beim Besuch eines Händlers automatisch alle Gegenstände schlechter Qualität (grau).",
-		SUMMARY = "Zusammenfassung anzeigen",
+		SUMMARY = "Zusammenfassung im Chat",
 		SUMMARY_DESC = "Gibt die Anzahl der verkauften Gegenstände und das erhaltene Gold aus.",
 		SOLD = "%d Plundergegenstände für %s verkauft.",
 	},
