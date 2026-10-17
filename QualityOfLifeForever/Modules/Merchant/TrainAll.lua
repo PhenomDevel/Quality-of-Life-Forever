@@ -1,4 +1,4 @@
--- luacheck: read globals ClassTrainerFrame ClassTrainerTrainButton C_AddOns CreateFrame GameTooltip GetMoney GetNumTrainerServices GetTrainerServiceInfo GetTrainerServiceCost BuyTrainerService RED_FONT_COLOR HIGHLIGHT_FONT_COLOR
+-- luacheck: read globals C_Trainer C_PetInfo Enum ClassTrainerFrame ClassTrainerTrainButton C_AddOns CreateFrame GameTooltip GetMoney GetNumTrainerServices GetTrainerServiceInfo GetTrainerServiceCost BuyTrainerService RED_FONT_COLOR HIGHLIGHT_FONT_COLOR
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -10,6 +10,10 @@ local L = ns.NewLocale({
 		COUNT = "%d skills",
 		TOTAL = "Total: %s",
 		NOT_ENOUGH = "Not enough money for everything; learns in list order until it runs out.",
+		TOTAL_POINTS = "Total: %d training points",
+		NOT_ENOUGH_POINTS = "Not enough training points for everything; learns in list order until they run out.",
+		PET_TRAINER = "Also at pet trainers",
+		PET_TRAINER_DESC = "Shows the button at pet trainers too. It spends your pet's training points instead of gold.",
 	},
 	deDE = {
 		TITLE = "Knopf „Alles lernen“ hinzufügen",
@@ -19,6 +23,10 @@ local L = ns.NewLocale({
 		COUNT = "%d Fähigkeiten",
 		TOTAL = "Gesamt: %s",
 		NOT_ENOUGH = "Nicht genug Gold für alles; lernt in Listenreihenfolge, bis es nicht mehr reicht.",
+		TOTAL_POINTS = "Gesamt: %d Trainingspunkte",
+		NOT_ENOUGH_POINTS = "Nicht genug Trainingspunkte für alles; lernt in Listenreihenfolge, bis sie nicht mehr reichen.",
+		PET_TRAINER = "Auch bei Begleiterlehrern",
+		PET_TRAINER_DESC = "Zeigt den Knopf auch bei Begleiterlehrern. Er verbraucht dort die Trainingspunkte deines Begleiters statt Gold.",
 	},
 })
 
@@ -27,10 +35,32 @@ local module = ns:NewModule("TrainAll", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "MERCHANT",
+	defaults = {
+		petTrainer = false,
+	},
+	options = {
+		{ key = "petTrainer", type = "checkbox", label = L.PET_TRAINER, tooltip = L.PET_TRAINER_DESC },
+	},
 })
 
 local FormatMoney = ns.Utils.FormatMoney
 local button
+
+-- Pet trainers (Forever) charge the pet's training points instead of gold;
+-- GetTrainerServiceCost then returns points.
+local function IsPetTrainer()
+	local trainerType = C_Trainer and C_Trainer.GetTrainerType and C_Trainer.GetTrainerType()
+	return Enum.TrainerType ~= nil and trainerType == Enum.TrainerType.Pet
+end
+
+-- Gold, or the pet's free training points at a pet trainer.
+local function GetBudget()
+	if IsPetTrainer() then
+		local total, used = C_PetInfo.GetPetTrainingPoints()
+		return math.max((total or 0) - (used or 0), 0)
+	end
+	return GetMoney()
+end
 
 -- Indexes and total cost of all learnable services (professions excluded:
 -- they need a free profession slot and Blizzard asks for confirmation).
@@ -53,7 +83,7 @@ local function UpdateButton()
 	if not button then
 		return
 	end
-	button:SetShown(module.enabled)
+	button:SetShown(module.enabled and (module.db.petTrainer or not IsPetTrainer()))
 	button:SetEnabled(#GetAvailable() > 0)
 end
 
@@ -61,13 +91,13 @@ end
 -- list updates.
 local function TrainAll()
 	local indexes = GetAvailable()
-	local money = GetMoney()
+	local budget = GetBudget()
 	for n = #indexes, 1, -1 do
 		local index = indexes[n]
 		local cost = GetTrainerServiceCost(index) or 0
-		if cost <= money then
+		if cost <= budget then
 			BuyTrainerService(index)
-			money = money - cost
+			budget = budget - cost
 		end
 	end
 end
@@ -77,9 +107,11 @@ local function ShowTooltip(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 	GameTooltip:SetText(L.BUTTON)
 	GameTooltip:AddLine(L.COUNT:format(#indexes), HIGHLIGHT_FONT_COLOR:GetRGB())
-	GameTooltip:AddLine(L.TOTAL:format(FormatMoney(total)), HIGHLIGHT_FONT_COLOR:GetRGB())
-	if total > GetMoney() then
-		GameTooltip:AddLine(L.NOT_ENOUGH, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b, true)
+	local isPet = IsPetTrainer()
+	local totalText = isPet and L.TOTAL_POINTS:format(total) or L.TOTAL:format(FormatMoney(total))
+	GameTooltip:AddLine(totalText, HIGHLIGHT_FONT_COLOR:GetRGB())
+	if total > GetBudget() then
+		GameTooltip:AddLine(isPet and L.NOT_ENOUGH_POINTS or L.NOT_ENOUGH, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b, true)
 	end
 	GameTooltip:Show()
 end
@@ -124,4 +156,8 @@ function module:OnDisable()
 	if button then
 		button:Hide()
 	end
+end
+
+function module:OnOptionChanged()
+	UpdateButton()
 end
