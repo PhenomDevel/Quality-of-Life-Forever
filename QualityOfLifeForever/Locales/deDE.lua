@@ -19,8 +19,10 @@ L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "Weltkarte"
 L.CATEGORY_CHARACTER = "Charakter"
+L.CATEGORY_STATISTICS = "Statistiken"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_GRAPHICS = "Grafik & Kamera"
+L.CATEGORY_CAMERA = "Kamera"
+L.CATEGORY_GRAPHICS = "Grafik"
 L.CATEGORY_XP_BAR = "EP-Leiste"
 
 -- Settings panel

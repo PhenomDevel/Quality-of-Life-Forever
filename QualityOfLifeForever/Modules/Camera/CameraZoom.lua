@@ -18,8 +18,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("CameraZoom", {
 	title = L.TITLE,
 	description = L.DESC,
-	category = "GRAPHICS",
-	order = -1,
+	category = "CAMERA",
 	defaults = {
 		factor = 4.0,
 	},
