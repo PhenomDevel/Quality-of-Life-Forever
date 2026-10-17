@@ -117,7 +117,7 @@ Turns on the game's auto loot.
 #### Fast loot
 Loots everything instantly when auto loot is on.
 
-### Merchant & trainer
+### Merchant & Trainer
 
 #### Add train all button
 Adds a *Train all* button to the trainer window that learns every available
