@@ -10,15 +10,17 @@ local colors, fonts = Widgets.colors, Widgets.fonts
 
 	┌ header: logo, title, search, close ──────────────────────────────┐
 	│ sidebar: General +      │ page title + subtitle                  │
-	│ one entry per category  │ one card per module (scrollable)       │
+	│ one entry per category  │ module cards in two columns (scrolls)  │
 	└─────────────────────────┴────────────────────────────────────────┘
 
+	Cards fill two columns, each card going to the currently shorter one, so
+	a card never moves when its own height changes (only the cards after it).
 	Pages are rebuilt from pooled frames whenever the layout changes (page,
 	search, a module turned on/off). Value changes from elsewhere (slash
 	commands, SetOption) only refresh the visible controls.
 ]]
 
-local WIDTH, HEIGHT = 880, 600
+local WIDTH, HEIGHT = 1040, 640
 local HEADER_HEIGHT = 56
 local SIDEBAR_WIDTH = 210
 local PADDING = 16
@@ -26,7 +28,8 @@ local SCROLLBAR_WIDTH = 10
 local CONTENT_WIDTH = WIDTH - SIDEBAR_WIDTH - 2 * PADDING - SCROLLBAR_WIDTH
 local CARD_PADDING = 14
 local CARD_GAP = 10
-local ROW_WIDTH = CONTENT_WIDTH - 2 * CARD_PADDING
+local COLUMN_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2
+local ROW_WIDTH = COLUMN_WIDTH - 2 * CARD_PADDING
 local ROW_HEIGHT = 30
 local SLIDER_EXTRA = 22
 local SCROLL_STEP = 48
@@ -259,11 +262,11 @@ local function AddRow(card, spec, y)
 	return height
 end
 
--- Builds a card at offset `top` of the content frame; returns its height.
-local function AddCard(spec, top)
+-- Builds a card at (left, top) of the content frame; returns its height.
+local function AddCard(spec, left, top)
 	local card = Widgets.Acquire(cardPool, content)
-	card:SetWidth(CONTENT_WIDTH)
-	card:SetPoint("TOPLEFT", 0, -top)
+	card:SetWidth(COLUMN_WIDTH)
+	card:SetPoint("TOPLEFT", left, -top)
 
 	local y
 	if spec.title then
@@ -782,11 +785,13 @@ Render = function()
 	pageTitle:SetText(title)
 	pageSubtitle:SetText(subtitle)
 
-	local y = 0
+	local columns = { 0, 0 }
 	for _, card in ipairs(cards) do
-		y = y + AddCard(card, y) + CARD_GAP
+		local column = columns[2] < columns[1] and 2 or 1
+		local left = (column - 1) * (COLUMN_WIDTH + CARD_GAP)
+		columns[column] = columns[column] + AddCard(card, left, columns[column]) + CARD_GAP
 	end
-	content:SetHeight(math.max(1, y - CARD_GAP))
+	content:SetHeight(math.max(1, math.max(columns[1], columns[2]) - CARD_GAP))
 	scroll:UpdateScrollChildRect()
 	SetScroll(offset)
 	UpdateSidebar()

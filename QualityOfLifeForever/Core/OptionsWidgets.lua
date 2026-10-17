@@ -238,7 +238,7 @@ end
 
 function Widgets.CreateDropdown(parent)
 	local dropdown = CreateFrame("Button", nil, parent)
-	dropdown:SetSize(180, 22)
+	dropdown:SetSize(150, 22)
 	dropdown.Background = Widgets.Fill(dropdown, colors.control)
 	Widgets.Border(dropdown)
 	dropdown.Text = Widgets.Text(dropdown, fonts.body)
