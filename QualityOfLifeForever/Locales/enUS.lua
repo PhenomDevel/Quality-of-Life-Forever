@@ -25,7 +25,7 @@ L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "World map"
 L.CATEGORY_CHARACTER = "Character"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_GRAPHICS = "Graphics & camera"
+L.CATEGORY_GRAPHICS = "Graphics & Camera"
 
 -- Settings panel
 L.SETTINGS_GENERAL_HEADER = "General"

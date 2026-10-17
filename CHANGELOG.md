@@ -40,7 +40,7 @@
 
 ### Settings
 - Categories merged and renamed: *Camera* and *Graphics* are now *Graphics &
-  camera*, *Merchant* is now *Merchant & trainer*; categories are sorted
+  Camera*, *Merchant* is now *Merchant & trainer*; categories are sorted
   alphabetically
 - Module titles unified ("Auto-accept …", "Auto-decline …", "Auto-sell junk",
   …); your settings are kept

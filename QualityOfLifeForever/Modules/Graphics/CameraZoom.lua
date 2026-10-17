@@ -19,6 +19,7 @@ local module = ns:NewModule("CameraZoom", {
 	title = L.TITLE,
 	description = L.DESC,
 	category = "GRAPHICS",
+	order = -1,
 	defaults = {
 		factor = 4.0,
 	},
