@@ -1,4 +1,4 @@
--- luacheck: read globals GameTooltip GameTooltip_SetDefaultAnchor UIParent UnitXP UnitXPMax GetTime SecondsToTime BreakUpLargeNumbers IsPlayerAtEffectiveMaxLevel MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR
+-- luacheck: read globals C_Timer StatusTrackingBarManager XP_STATUS_BAR_TEXT GameTooltip GameTooltip_SetDefaultAnchor UIParent UnitXP UnitXPMax GetTime SecondsToTime BreakUpLargeNumbers IsPlayerAtEffectiveMaxLevel MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -15,6 +15,13 @@ local L = ns.NewLocale({
 		RESET_DESC = "Starts counting XP per hour from now.",
 		RESET_BUTTON = "Reset",
 		RESET_DONE = "XP session reset.",
+		SECTION_BAR = "Experience bar",
+		SECTION_SESSION = "Session",
+		ALWAYS_TEXT = "Always show XP text",
+		ALWAYS_TEXT_DESC = "Shows current / needed XP on the experience bar permanently instead of only on mouseover.",
+		RATE_TEXT = "XP per hour and time to level in the text",
+		RATE_TEXT_DESC = "Appends XP per hour and the time to the next level to the text on the experience bar. Updated whenever you gain XP.",
+		BAR_SUFFIX = " (%s/h, %s)",
 	},
 	deDE = {
 		TITLE = "EP-Infos",
@@ -29,6 +36,13 @@ local L = ns.NewLocale({
 		RESET_DESC = "Zählt die EP pro Stunde ab jetzt neu.",
 		RESET_BUTTON = "Zurücksetzen",
 		RESET_DONE = "EP-Sitzung zurückgesetzt.",
+		SECTION_BAR = "Erfahrungsleiste",
+		SECTION_SESSION = "Sitzung",
+		ALWAYS_TEXT = "EP-Text immer anzeigen",
+		ALWAYS_TEXT_DESC = "Zeigt aktuelle / benötigte EP dauerhaft auf der Erfahrungsleiste statt nur beim Überfahren mit der Maus.",
+		RATE_TEXT = "EP pro Stunde und Zeit bis Level-up im Text",
+		RATE_TEXT_DESC = "Hängt EP pro Stunde und die Zeit bis zur nächsten Stufe an den Text der Erfahrungsleiste an. Wird bei jedem EP-Gewinn aktualisiert.",
+		BAR_SUFFIX = " (%s/h, %s)",
 	},
 })
 
@@ -37,7 +51,15 @@ local module = ns:NewModule("XPInfo", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHARACTER",
+	defaults = {
+		alwaysText = false,
+		rateText = false,
+	},
 	options = {
+		{ type = "header", label = L.SECTION_BAR },
+		{ key = "alwaysText", type = "checkbox", label = L.ALWAYS_TEXT, tooltip = L.ALWAYS_TEXT_DESC },
+		{ key = "rateText", type = "checkbox", label = L.RATE_TEXT, tooltip = L.RATE_TEXT_DESC },
+		{ type = "header", label = L.SECTION_SESSION },
 		{
 			type = "button",
 			label = L.RESET,
@@ -56,6 +78,7 @@ local IsSecret = ns.Utils.IsSecret
 local MIN_SESSION_SECONDS = 60
 
 local sessionStart, sessionXP, lastXP, lastMaxXP, lastGain
+local expBars = {}
 
 local function ReadXP()
 	local xp, maxXP = UnitXP("player"), UnitXPMax("player")
@@ -94,6 +117,18 @@ function module:OnXPUpdate(unit)
 		lastGain = gain
 	end
 	lastXP, lastMaxXP = xp, maxXP
+	if self.db.rateText then
+		self:RefreshBarText()
+	end
+end
+
+-- XP per hour, or nil while the session is too short to tell.
+local function GetPerHour()
+	local elapsed = GetTime() - sessionStart
+	if sessionXP <= 0 or elapsed < MIN_SESSION_SECONDS then
+		return nil
+	end
+	return sessionXP / elapsed * 3600
 end
 
 local function AddLine(text)
@@ -115,11 +150,10 @@ function module:AddTooltipLines()
 	end
 	GameTooltip:AddLine(L.HEADER, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
 
-	local elapsed = GetTime() - sessionStart
-	if sessionXP <= 0 or elapsed < MIN_SESSION_SECONDS then
+	local perHour = GetPerHour()
+	if not perHour then
 		AddLine(L.NO_DATA)
 	else
-		local perHour = sessionXP / elapsed * 3600
 		AddLine(L.SESSION:format(BreakUpLargeNumbers(sessionXP), BreakUpLargeNumbers(math.floor(perHour))))
 		AddLine(L.TIME_TO_LEVEL:format(SecondsToTime((maxXP - xp) / perHour * 3600, true)))
 	end
@@ -129,13 +163,65 @@ function module:AddTooltipLines()
 	GameTooltip:Show()
 end
 
+-- Runs after Blizzard wrote "current / max" into the bar text.
+function module:AppendRate(bar)
+	if not self.db.rateText then
+		return
+	end
+	local perHour = GetPerHour()
+	local xp, maxXP = ReadXP()
+	local text = bar.OverlayFrame and bar.OverlayFrame.Text
+	local current = text and text:GetText()
+	if not perHour or not xp or not current or IsSecret(current) then
+		return
+	end
+	local timeToLevel = SecondsToTime((maxXP - xp) / perHour * 3600, true)
+	text:SetText(current .. L.BAR_SUFFIX:format(BreakUpLargeNumbers(math.floor(perHour)), timeToLevel))
+end
+
+-- Lets Blizzard rewrite the base text, which re-runs AppendRate via the hook.
+function module:RefreshBarText()
+	for _, bar in ipairs(expBars) do
+		-- Unset until the bar's first update (e.g. at max level).
+		if bar.currXP and bar.maxBar then
+			bar:UpdateCurrentText()
+		end
+	end
+end
+
+local function RefreshTextVisibility()
+	if StatusTrackingBarManager then
+		StatusTrackingBarManager:UpdateBarTextVisibility()
+	end
+end
+
+function module:ApplyAlwaysText()
+	if self.db.alwaysText then
+		self:SetCVar("xpBarText", 1)
+	else
+		self:RestoreCVars()
+	end
+	RefreshTextVisibility()
+end
+
 function module:HookBars()
+	wipe(expBars)
 	for _, container in ipairs({ MainStatusTrackingBarContainer, SecondaryStatusTrackingBarContainer }) do
 		for _, bar in pairs(container and container.bars or {}) do
 			if bar.isExpBar then
+				expBars[#expBars + 1] = bar
 				self:HookScript(bar, "OnEnter", self.AddTooltipLines)
+				self:SecureHook(bar, "UpdateCurrentText", self.AppendRate)
 			end
 		end
+	end
+end
+
+function module:OnOptionChanged(key)
+	if key == "alwaysText" then
+		self:ApplyAlwaysText()
+	elseif key == "rateText" then
+		self:RefreshBarText()
 	end
 end
 
@@ -144,4 +230,12 @@ function module:OnEnable()
 	self:ResetSession()
 	self:HookBars()
 	self:RegisterEvent("PLAYER_XP_UPDATE", self.OnXPUpdate)
+	self:ApplyAlwaysText()
+	self:RefreshBarText()
+end
+
+function module:OnDisable()
+	-- The CVar is restored after OnDisable returns; the hook is already off.
+	C_Timer.After(0, RefreshTextVisibility)
+	self:RefreshBarText()
 end
