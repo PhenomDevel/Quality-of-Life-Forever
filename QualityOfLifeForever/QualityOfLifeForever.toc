@@ -42,8 +42,6 @@ Modules\Character\ItemLevel.lua
 Modules\Character\RepairCosts.lua
 Modules\Character\ShowDurability.lua
 Modules\Character\StatisticsSearch.lua
-Modules\Character\XPBarText.lua
-Modules\Character\XPInfo.lua
 
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
@@ -89,6 +87,10 @@ Modules\Chat\SpamFilter.lua
 # Map
 Modules\Map\WorldMapWindow.lua
 Modules\Map\ZoneLevels.lua
+
+# XP Bar
+Modules\XPBar\XPBarText.lua
+Modules\XPBar\XPInfo.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua

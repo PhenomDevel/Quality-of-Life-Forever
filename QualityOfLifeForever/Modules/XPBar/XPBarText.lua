@@ -7,7 +7,7 @@ local L = ns.NewLocale({
 		NOTE = "Current / needed XP always on the bar",
 		DESC = "Shows current / needed XP on the experience bar permanently instead of only on mouseover. Optionally adds XP per hour and the time to the next level. Disabling restores your previous setting.",
 		RATE = "Add XP per hour and time",
-		RATE_DESC = "Appends XP per hour and the time to the next level to the text, e.g. \"(12,345/h, 1 Hr 5 Min)\". Updated whenever you gain XP; shown after the first minute with XP.",
+		RATE_DESC = "Appends XP per hour and the time to the next level to the text, e.g. \"(12,345/h, 1 Hr 5 Min)\". Updated on every XP gain and every 15 seconds; shown after the first minute with XP.",
 		SUFFIX = " (%s/h, %s)",
 	},
 	deDE = {
@@ -15,7 +15,7 @@ local L = ns.NewLocale({
 		NOTE = "Aktuelle / benötigte EP immer auf der Leiste",
 		DESC = "Zeigt aktuelle / benötigte EP dauerhaft auf der Erfahrungsleiste statt nur beim Überfahren mit der Maus. Optional mit EP pro Stunde und der Zeit bis zur nächsten Stufe. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 		RATE = "EP pro Stunde und Zeit anhängen",
-		RATE_DESC = "Hängt EP pro Stunde und die Zeit bis zur nächsten Stufe an den Text an, z. B. „(12.345/h, 1 Std. 5 Min.)“. Wird bei jedem EP-Gewinn aktualisiert; erscheint nach der ersten Minute mit EP.",
+		RATE_DESC = "Hängt EP pro Stunde und die Zeit bis zur nächsten Stufe an den Text an, z. B. „(12.345/h, 1 Std. 5 Min.)“. Wird bei jedem EP-Gewinn und alle 15 Sekunden aktualisiert; erscheint nach der ersten Minute mit EP.",
 		SUFFIX = " (%s/h, %s)",
 	},
 })
@@ -24,7 +24,7 @@ local module = ns:NewModule("XPBarText", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "XP_BAR",
 	defaults = {
 		rate = false,
 	},
@@ -34,7 +34,11 @@ local module = ns:NewModule("XPBarText", {
 })
 
 local XPSession = ns.XPSession
+-- The permanent text is only rewritten on XP gains (hovering rewrites it on
+-- enter); the ticker keeps rate and time to level current in between.
+local REFRESH_SECONDS = 15
 local expBars = {}
+local ticker
 
 -- Runs after Blizzard wrote "current / max" into the bar text.
 function module:AppendRate(bar)
@@ -67,7 +71,18 @@ local function RefreshTextVisibility()
 	end
 end
 
+function module:UpdateTicker()
+	local wanted = self.enabled and self.db.rate
+	if wanted and not ticker then
+		ticker = C_Timer.NewTicker(REFRESH_SECONDS, RefreshBarText)
+	elseif not wanted and ticker then
+		ticker:Cancel()
+		ticker = nil
+	end
+end
+
 function module:OnOptionChanged()
+	self:UpdateTicker()
 	RefreshBarText()
 end
 
@@ -89,11 +104,13 @@ function module:OnEnable()
 	-- Blizzard's own "always show XP text" setting.
 	self:SetCVar("xpBarText", 1)
 	RefreshTextVisibility()
+	self:UpdateTicker()
 	RefreshBarText()
 end
 
 function module:OnDisable()
 	-- The CVar is restored after OnDisable returns; the hook is already off.
 	C_Timer.After(0, RefreshTextVisibility)
+	self:UpdateTicker()
 	RefreshBarText()
 end

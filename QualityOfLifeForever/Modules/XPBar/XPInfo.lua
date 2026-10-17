@@ -36,7 +36,7 @@ local module = ns:NewModule("XPInfo", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "XP_BAR",
 	options = {
 		{
 			type = "button",
