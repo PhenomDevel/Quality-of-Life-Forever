@@ -1,4 +1,4 @@
--- luacheck: read globals CharacterFrame PaperDollFrame C_TooltipInfo INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED REPAIR_COST
+-- luacheck: read globals CharacterFrame CharacterModelScene CreateFrame PaperDollFrame C_TooltipInfo INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED REPAIR_COST
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -52,9 +52,14 @@ end
 
 function module:OnEnable()
 	if not text then
-		local inset = CharacterFrame.Inset or PaperDollFrame
-		text = PaperDollFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-		text:SetPoint("TOP", inset, "TOP", 0, -6)
+		-- Own frame above the model scene, whose background would cover a
+		-- font string on PaperDollFrame itself.
+		local anchor = CharacterModelScene or CharacterFrame.Inset or PaperDollFrame
+		local holder = CreateFrame("Frame", nil, PaperDollFrame)
+		holder:SetAllPoints(anchor)
+		holder:SetFrameLevel(anchor:GetFrameLevel() + 10)
+		text = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		text:SetPoint("TOP", holder, "TOP", 0, -6)
 	end
 	self:HookScript(PaperDollFrame, "OnShow", self.Update)
 	for _, event in ipairs({ "UPDATE_INVENTORY_DURABILITY", "PLAYER_EQUIPMENT_CHANGED", "MERCHANT_CLOSED" }) do
