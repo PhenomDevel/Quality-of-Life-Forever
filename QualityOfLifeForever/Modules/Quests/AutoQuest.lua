@@ -12,7 +12,7 @@ local L = ns.NewLocale({
 		ACCEPT_DESC = "Accepts quests offered by NPCs.",
 		TURN_IN = "Turn in quests",
 		TURN_IN_DESC = "Turns in completed quests unless a reward has to be chosen.",
-		SKIP_TRIVIAL = "Skip low-level quests",
+		SKIP_TRIVIAL = "Skip gray quests",
 		SKIP_TRIVIAL_DESC = "Doesn't accept quests that are gray (far below your level).",
 	},
 	deDE = {
@@ -25,7 +25,7 @@ local L = ns.NewLocale({
 		ACCEPT_DESC = "Nimmt von NPCs angebotene Quests an.",
 		TURN_IN = "Quests abgeben",
 		TURN_IN_DESC = "Gibt abgeschlossene Quests ab, außer es muss eine Belohnung gewählt werden.",
-		SKIP_TRIVIAL = "Niedrigstufige Quests auslassen",
+		SKIP_TRIVIAL = "Graue Quests auslassen",
 		SKIP_TRIVIAL_DESC = "Nimmt keine grauen Quests an (weit unter deiner Stufe).",
 	},
 })
