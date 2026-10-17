@@ -2,7 +2,7 @@
 local _, ns = ...
 
 --[[
-	XP gained since login (or the last reset), shared by the XP modules.
+	XP gained since login (or the last reset), used by the XPBar module.
 	Costs one subtraction per PLAYER_XP_UPDATE; rates are computed on demand.
 	Listeners are called after every XP gain with (owner, gain).
 ]]

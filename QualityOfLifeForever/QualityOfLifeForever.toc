@@ -96,8 +96,7 @@ Modules\Map\WorldMapWindow.lua
 Modules\Map\ZoneLevels.lua
 
 # XP Bar
-Modules\XPBar\XPBarText.lua
-Modules\XPBar\XPInfo.lua
+Modules\XPBar\XPBar.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
