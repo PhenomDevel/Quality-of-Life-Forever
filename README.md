@@ -3,6 +3,12 @@
 Many small quality-of-life improvements for World of Warcraft **Forever**.
 Every feature can be turned on or off individually.
 
+## Missing a feature?
+
+New quality-of-life features can be requested at any time:
+[open an issue on GitHub](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues/new)
+and describe what you would like the addon to do.
+
 ## Features
 
 Every module is off by default unless marked *(on by default)*. Turning a
