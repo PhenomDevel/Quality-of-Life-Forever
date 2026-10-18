@@ -5,18 +5,21 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Auto-sort bags",
 		NOTE = "Sorts your bags when you open them",
-		DESC = "Runs the game's bag cleanup every time you open your backpack. Skipped in combat and while you hold an item on the cursor. Bags you excluded from cleanup stay untouched.",
+		DESC = "Runs the game's bag cleanup every time you open your backpack. Skipped in combat and while you hold an item on the cursor.",
+		NOTICE = "Moves the items in your bags every time you open your backpack. Bags you excluded from cleanup stay untouched.",
 	},
 	deDE = {
 		TITLE = "Taschen automatisch sortieren",
 		NOTE = "Sortiert deine Taschen beim Öffnen",
-		DESC = "Führt die Taschen-Aufräumfunktion des Spiels bei jedem Öffnen deines Rucksacks aus. Wird im Kampf und mit einem Gegenstand am Mauszeiger übersprungen. Taschen, die du vom Aufräumen ausgenommen hast, bleiben unberührt.",
+		DESC = "Führt die Taschen-Aufräumfunktion des Spiels bei jedem Öffnen deines Rucksacks aus. Wird im Kampf und mit einem Gegenstand am Mauszeiger übersprungen.",
+		NOTICE = "Verschiebt die Gegenstände in deinen Taschen bei jedem Öffnen des Rucksacks. Taschen, die du vom Aufräumen ausgenommen hast, bleiben unberührt.",
 	},
 })
 
 local module = ns:NewModule("AutoSortBags", {
 	title = L.TITLE,
 	description = L.DESC,
+	notice = L.NOTICE,
 	note = L.NOTE,
 	category = "INTERFACE",
 })

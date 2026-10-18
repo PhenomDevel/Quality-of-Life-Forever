@@ -3,13 +3,15 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Max camera distance",
-		DESC = "Sets the maximum camera zoom distance (CVar cameraDistanceMaxZoomFactor). Disabling restores your previous value.",
+		DESC = "Sets the maximum camera zoom distance.",
+		NOTICE = "Changes the game setting cameraDistanceMaxZoomFactor. Disabling restores your previous value.",
 		FACTOR = "Zoom factor",
 		FACTOR_DESC = "Multiplier for the maximum zoom distance. The client may cap the value.",
 	},
 	deDE = {
 		TITLE = "Maximale Kameradistanz",
-		DESC = "Setzt die maximale Zoomdistanz der Kamera (CVar cameraDistanceMaxZoomFactor). Beim Deaktivieren wird der vorherige Wert wiederhergestellt.",
+		DESC = "Setzt die maximale Zoomdistanz der Kamera.",
+		NOTICE = "Ändert die Spieleinstellung cameraDistanceMaxZoomFactor. Beim Deaktivieren wird dein vorheriger Wert wiederhergestellt.",
 		FACTOR = "Zoomfaktor",
 		FACTOR_DESC = "Multiplikator für die maximale Zoomdistanz. Der Client kann den Wert begrenzen.",
 	},
@@ -18,6 +20,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("CameraZoom", {
 	title = L.TITLE,
 	description = L.DESC,
+	notice = L.NOTICE,
 	category = "CAMERA",
 	defaults = {
 		factor = 4.0,
