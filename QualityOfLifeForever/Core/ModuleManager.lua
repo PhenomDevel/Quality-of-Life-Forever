@@ -206,6 +206,8 @@ ns.moduleOrder = {}
 		title           = string, shown in the settings panel (localized)
 		description     = string, tooltip of the enable checkbox (localized)
 		note            = optional short gray line shown below the title (localized)
+		status          = optional function(module) returning a hint while the module
+		                  still lacks something to work (e.g. data it records), else nil
 		category        = one of the ids in ns.categories (default "INTERFACE")
 		order           = number, position within the category; lower comes first,
 		                  equal values are sorted by title (default 0)
@@ -241,6 +243,7 @@ function ns:NewModule(name, info)
 		title = info.title or name,
 		description = info.description or "",
 		note = info.note,
+		status = info.status,
 		category = category,
 		order = info.order or 0,
 		defaultEnabled = info.defaultEnabled == true,

@@ -9,6 +9,7 @@ local L = ns.NewLocale({
 		NEW = "Level %d – new at your class trainer: %s (%s)",
 		WAITING = "%d more skill(s) from earlier levels are still waiting at your trainer.",
 		FILTER_OFF = "Trainer reminder: turn on the \"Unavailable\" filter in the trainer window so upcoming skills can be remembered.",
+		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the \"Unavailable\" filter turned on.",
 	},
 	deDE = {
 		TITLE = "Lehrer-Erinnerung",
@@ -17,6 +18,7 @@ local L = ns.NewLocale({
 		NEW = "Stufe %d – neu bei deinem Klassenlehrer: %s (%s)",
 		WAITING = "%d weitere Fähigkeit(en) früherer Stufen warten noch bei deinem Lehrer.",
 		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter „Nicht verfügbar“, damit kommende Fähigkeiten gemerkt werden können.",
+		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter „Nicht verfügbar“.",
 	},
 })
 
@@ -29,6 +31,11 @@ local module = ns:NewModule("TrainerReminder", {
 		-- [player GUID] = { { name, rank, level, cost, icon }, ... }
 		characters = {},
 	},
+	status = function(self)
+		if not self.db.characters[UnitGUID("player")] then
+			return L.STATUS_NO_RECORD
+		end
+	end,
 })
 
 local FormatMoney = ns.Utils.FormatMoney
