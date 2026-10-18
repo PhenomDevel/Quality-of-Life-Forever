@@ -82,8 +82,10 @@ local function OnDragStop(frame)
 end
 
 local function AddBorder(frame)
+	frame.Border = {}
 	for _, side in ipairs({ "TOP", "BOTTOM", "LEFT", "RIGHT" }) do
 		local line = frame:CreateTexture(nil, "BORDER")
+		frame.Border[#frame.Border + 1] = line
 		line:SetColorTexture(unpack(BORDER))
 		if side == "TOP" or side == "BOTTOM" then
 			line:SetPoint(side .. "LEFT")
@@ -154,9 +156,14 @@ function ns:CreateOverlay(key, info)
 	return frame
 end
 
--- Opacity of the shared background (0–1); the border stays as it is.
+-- Opacity of the shared background (0–1). The border fades along, relative
+-- to its default, so the default background alpha keeps the default look.
 function ns:SetOverlayBackgroundAlpha(frame, alpha)
 	frame.Background:SetColorTexture(BACKGROUND[1], BACKGROUND[2], BACKGROUND[3], alpha)
+	local borderAlpha = math.min(1, BORDER[4] * alpha / BACKGROUND[4])
+	for _, line in ipairs(frame.Border) do
+		line:SetColorTexture(BORDER[1], BORDER[2], BORDER[3], borderAlpha)
+	end
 end
 
 LibEditMode:RegisterCallback("layout", function(layoutName)
