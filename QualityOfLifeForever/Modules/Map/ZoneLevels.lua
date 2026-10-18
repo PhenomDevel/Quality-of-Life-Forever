@@ -15,7 +15,19 @@ local L = ns.NewLocale({
 		HOVER = "In the zone name on hover",
 		HOVER_DESC = "Adds the range to the zone name shown when hovering a zone on a continent map.",
 		MINIMAP = "On the minimap",
-		MINIMAP_DESC = "Shows the range of your current zone at the bottom of the minimap.",
+		MINIMAP_DESC = "Shows the range of your current zone on the minimap.",
+		MINIMAP_POSITION = "Position",
+		MINIMAP_POSITION_DESC = "Where on or next to the minimap the range is shown.",
+		INSIDE_BOTTOM = "Inside, bottom",
+		INSIDE_TOP = "Inside, top",
+		BELOW = "Below the minimap",
+		ABOVE = "Above the minimap",
+		OFFSET_X = "Horizontal offset",
+		OFFSET_X_DESC = "Moves the range to the right (positive) or left (negative), in pixels.",
+		OFFSET_Y = "Vertical offset",
+		OFFSET_Y_DESC = "Moves the range up (positive) or down (negative), in pixels.",
+		SIZE = "Text size",
+		SIZE_DESC = "Size of the range text in pixels.",
 		LEVEL = "Level %s",
 	},
 	deDE = {
@@ -31,10 +43,35 @@ local L = ns.NewLocale({
 		HOVER = "Im Zonennamen beim Überfahren",
 		HOVER_DESC = "Ergänzt den Bereich am Zonennamen, der beim Überfahren einer Zone auf der Kontinentkarte erscheint.",
 		MINIMAP = "Auf der Minimap",
-		MINIMAP_DESC = "Zeigt den Bereich deiner aktuellen Zone unten auf der Minimap.",
+		MINIMAP_DESC = "Zeigt den Bereich deiner aktuellen Zone auf der Minimap.",
+		MINIMAP_POSITION = "Position",
+		MINIMAP_POSITION_DESC = "Wo auf oder neben der Minimap der Bereich angezeigt wird.",
+		INSIDE_BOTTOM = "Innen, unten",
+		INSIDE_TOP = "Innen, oben",
+		BELOW = "Unter der Minimap",
+		ABOVE = "Über der Minimap",
+		OFFSET_X = "Horizontaler Versatz",
+		OFFSET_X_DESC = "Verschiebt den Bereich nach rechts (positiv) oder links (negativ), in Pixeln.",
+		OFFSET_Y = "Vertikaler Versatz",
+		OFFSET_Y_DESC = "Verschiebt den Bereich nach oben (positiv) oder unten (negativ), in Pixeln.",
+		SIZE = "Textgröße",
+		SIZE_DESC = "Größe des Bereichstexts in Pixeln.",
 		LEVEL = "Stufe %s",
 	},
 })
+
+-- Anchor of the minimap text: { point, relativePoint, x, y } on the Minimap.
+local MINIMAP_ANCHORS = {
+	-- Inside: the client shows player coordinates right below the minimap.
+	INSIDE_BOTTOM = { "BOTTOM", "BOTTOM", 0, 12 },
+	INSIDE_TOP = { "TOP", "TOP", 0, -12 },
+	BELOW = { "TOP", "BOTTOM", 0, -4 },
+	ABOVE = { "BOTTOM", "TOP", 0, 4 },
+}
+
+local function FormatPixels(value)
+	return ("%d px"):format(value)
+end
 
 local module = ns:NewModule("ZoneLevels", {
 	title = L.TITLE,
@@ -46,6 +83,10 @@ local module = ns:NewModule("ZoneLevels", {
 		continentMap = true,
 		hover = true,
 		minimap = true,
+		minimapPosition = "INSIDE_BOTTOM",
+		minimapX = 0,
+		minimapY = 0,
+		minimapSize = 13,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_WORLD_MAP },
@@ -54,6 +95,21 @@ local module = ns:NewModule("ZoneLevels", {
 		{ key = "hover", type = "checkbox", label = L.HOVER, tooltip = L.HOVER_DESC },
 		{ type = "header", label = L.SECTION_MINIMAP },
 		{ key = "minimap", type = "checkbox", label = L.MINIMAP, tooltip = L.MINIMAP_DESC },
+		{
+			key = "minimapPosition",
+			type = "dropdown",
+			label = L.MINIMAP_POSITION,
+			tooltip = L.MINIMAP_POSITION_DESC,
+			values = {
+				{ value = "INSIDE_BOTTOM", label = L.INSIDE_BOTTOM },
+				{ value = "INSIDE_TOP", label = L.INSIDE_TOP },
+				{ value = "BELOW", label = L.BELOW },
+				{ value = "ABOVE", label = L.ABOVE },
+			},
+		},
+		{ key = "minimapX", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -100, max = 100, step = 1, format = FormatPixels },
+		{ key = "minimapY", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -100, max = 100, step = 1, format = FormatPixels },
+		{ key = "minimapSize", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 24, step = 1, format = FormatPixels },
 	},
 })
 
@@ -108,13 +164,12 @@ local LEVELS = {
 }
 
 local ZONE_FONT_SIZE = 26
-local MINIMAP_FONT_SIZE = 13
 -- In canvas units; the canvas is scaled with the map zoom.
 local LABEL_FONT_SIZE = 16
 
 -- zoneText: top right of the map frame (zone maps).
 -- labels: font strings on the map canvas (continent maps), reused.
--- minimapText: bottom of the minimap (current zone).
+-- minimapText: on or next to the minimap (current zone).
 local zoneText, labelFrame, minimapText
 local labels = {}
 -- Localized zone name -> uiMapID, for the hover label.
@@ -213,6 +268,14 @@ local function GetPlayerZone()
 	end
 end
 
+function module:ApplyMinimapLayout()
+	local db = self.db
+	local anchor = MINIMAP_ANCHORS[db.minimapPosition] or MINIMAP_ANCHORS.INSIDE_BOTTOM
+	minimapText:SetFont(GameFontNormal:GetFont(), db.minimapSize, "OUTLINE")
+	minimapText:ClearAllPoints()
+	minimapText:SetPoint(anchor[1], Minimap, anchor[2], anchor[3] + db.minimapX, anchor[4] + db.minimapY)
+end
+
 function module:UpdateMinimap()
 	local mapID = self.db.minimap and GetPlayerZone()
 	if mapID then
@@ -285,10 +348,9 @@ function module:OnEnable()
 		labelFrame:SetAllPoints(canvas)
 		labelFrame:SetFrameLevel(canvas:GetFrameLevel() + 10)
 
-		minimapText = CreateText(Minimap, MINIMAP_FONT_SIZE)
-		-- Inside the minimap: the client shows player coordinates right below it.
-		minimapText:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, 12)
+		minimapText = CreateText(Minimap, self.db.minimapSize)
 	end
+	self:ApplyMinimapLayout()
 	self:SecureHook(WorldMapFrame, "OnMapChanged", self.QueueUpdate)
 	self:HookAreaLabel()
 	self:HookScript(WorldMapFrame, "OnShow", self.QueueUpdate)
@@ -323,5 +385,6 @@ end
 
 function module:OnOptionChanged()
 	self:QueueUpdate()
+	self:ApplyMinimapLayout()
 	self:UpdateMinimap()
 end
