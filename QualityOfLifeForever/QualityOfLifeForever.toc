@@ -79,6 +79,7 @@ Modules\Merchant\TrainerReminder.lua
 
 # Loot
 Modules\Loot\AutoConfirmBindOnPickup.lua
+Modules\Loot\AutoGreed.lua
 Modules\Loot\AutoLoot.lua
 Modules\Loot\FastLoot.lua
 
