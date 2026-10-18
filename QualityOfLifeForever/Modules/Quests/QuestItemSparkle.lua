@@ -1,18 +1,18 @@
--- luacheck: read globals C_Timer
+-- luacheck: read globals C_Timer C_CVar
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Quest item sparkle",
 		NOTE = "Quest objects in the world sparkle again",
-		DESC = "The game only shows the sparkle on quest items and objects while the graphics option \"Outline mode\" is disabled. This module keeps it disabled, also after you pick a graphics preset, and turns the sparkle on.",
-		NOTICE = "Changes the graphics setting \"Outline mode\" (off) and the sparkle setting. Units are no longer outlined on mouseover. Disabling restores your previous settings.",
+		DESC = "Turns on the sparkle on quest items and objects you still need and keeps it on, also after you pick a graphics preset. Outlines stay as they are.",
+		NOTICE = "Changes the game setting outlineModeShowLootEffectWhenDisabled. Applies to objects that appear afterwards; objects already in view keep their state. Disabling restores your previous setting.",
 	},
 	deDE = {
 		TITLE = "Questgegenstände funkeln",
 		NOTE = "Quest-Objekte in der Welt funkeln wieder",
-		DESC = "Das Spiel zeigt das Funkeln an Questgegenständen und -objekten nur, solange die Grafikoption „Umrissmodus“ deaktiviert ist. Dieses Modul hält ihn deaktiviert, auch nachdem du eine Grafikvoreinstellung wählst, und schaltet das Funkeln ein.",
-		NOTICE = "Ändert die Grafikeinstellung „Umrissmodus“ (aus) und die Funkel-Einstellung. Einheiten werden beim Überfahren mit der Maus nicht mehr umrandet. Beim Deaktivieren werden deine vorherigen Einstellungen wiederhergestellt.",
+		DESC = "Schaltet das Funkeln an Questgegenständen und -objekten ein, die du noch brauchst, und hält es eingeschaltet, auch nachdem du eine Grafikvoreinstellung wählst. Umrisse bleiben unverändert.",
+		NOTICE = "Ändert die Spieleinstellung outlineModeShowLootEffectWhenDisabled. Gilt für Objekte, die danach erscheinen; bereits sichtbare Objekte behalten ihren Zustand. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 	},
 })
 
@@ -24,34 +24,37 @@ local module = ns:NewModule("QuestItemSparkle", {
 	category = "QUESTS",
 })
 
--- Outline mode keys equal their CVar names (Blizzard settings: Graphics.lua).
--- outlineModeShowLootEffectWhenDisabled draws the sparkle while outlines are
--- off (CVar named on the CurseForge page of "Forever
--- Loot Sparkles", which describes the same fix).
-local CVARS = {
-	graphicsOutlineMode = "0",
-	raidGraphicsOutlineMode = "0",
-	outlineModeShowLootEffectWhenDisabled = "1",
-}
+-- Enough on its own (verified in-game): outlines may stay on.
+local CVAR = "outlineModeShowLootEffectWhenDisabled"
+-- Earlier versions also turned outlines off; put back the user's values.
+local OLD_CVARS = { "graphicsOutlineMode", "raidGraphicsOutlineMode" }
 
-function module:Apply()
-	for cvar, value in pairs(CVARS) do
-		self:SetCVar(cvar, value)
+local function RestoreOldOutline(self)
+	local backup = self.db.cvarBackup
+	if not backup then
+		return
+	end
+	for _, cvar in ipairs(OLD_CVARS) do
+		if backup[cvar] ~= nil then
+			C_CVar.SetCVar(cvar, backup[cvar])
+			backup[cvar] = nil
+		end
 	end
 end
 
--- Graphics presets write the outline mode back; set it again right after.
+-- Graphics presets reset the setting; set it again right after.
 function module:CVAR_UPDATE(cvar, value)
-	if CVARS[cvar] and tostring(value) ~= CVARS[cvar] then
+	if cvar == CVAR and tostring(value) ~= "1" then
 		C_Timer.After(0, function()
 			if self.enabled then
-				self:Apply()
+				self:SetCVar(CVAR, 1)
 			end
 		end)
 	end
 end
 
 function module:OnEnable()
-	self:Apply()
+	RestoreOldOutline(self)
+	self:SetCVar(CVAR, 1)
 	self:RegisterEvent("CVAR_UPDATE")
 end
