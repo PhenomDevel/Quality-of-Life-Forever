@@ -2,7 +2,9 @@
 
 Small quality-of-life improvements for World of Warcraft **Forever** in one
 addon. Every feature can be switched on and off on its own; almost all are off
-until you turn them on.
+until you turn them on. Features that change game settings or act without
+asking are marked in the options, and turning them off restores your previous
+settings.
 
 **Open the options:** `/qol`, the button at the minimap, or the addon menu
 next to the minimap. The options have their own window with search; drag its
@@ -18,21 +20,21 @@ scale widgets like the XP widget; drag them anytime to move them.
 
 | Category | Features |
 |----------|----------|
-| **Bags** | Auto-sort on open · free/total slots on the backpack button |
+| **Bags** | Auto-sort on open · free/total slots on the backpack button, adjustable size |
 | **Camera** | Larger max camera distance |
 | **Character** | Custom or hidden player name · pet happiness warning |
 | **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · hide chat buttons · spam filter tab · guild ads in their own tab |
 | **Cooldown Manager** | Keybinds on the cooldown icons |
 | **Graphics** | Extra graphics settings |
-| **Interface** | Item level on gear · durability in % · repair costs · hide error messages, zone text and banners · hide the quest tracker in combat · skip cinematics |
+| **Interface** | Item level on gear · durability in % · repair costs · hide error messages, zone text and banners · hide the objective tracker in combat · skip cinematics |
 | **Loot** | Auto loot · fast loot · confirm BoP loot when solo |
 | **Merchant & Trainer** | Auto repair\* · sell junk\* · "Train all" button · new skills at your trainer on level-up |
 | **Quests** | Auto accept/turn in · skip single-option gossip · instant quest text · progress in chat, optionally shared with your party · sparkle on quest items |
 | **Social** | Auto-accept invites and summons · auto-decline duels and guild invites |
 | **Statistics** | Search on the statistics page |
-| **Tooltip** | Position and scale · guild rank, target, class color · item/spell IDs |
+| **Tooltip** | Position, scale and background opacity · guild rank, target, class color · item/spell IDs |
 | **World map** | Movable, scalable map · zone level ranges |
-| **XP Bar** | XP text always visible · XP per hour and time to level · movable XP widget with rested and quest XP |
+| **XP Bar** | XP text always visible · XP per hour and time to level · movable XP widget with rested and quest XP, adjustable text size and background opacity, optionally replacing the standard XP bar |
 
 \* on by default
 
