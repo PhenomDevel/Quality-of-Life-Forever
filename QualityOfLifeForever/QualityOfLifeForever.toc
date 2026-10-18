@@ -24,6 +24,7 @@ Locales\deDE.lua
 # Core
 Core\Init.lua
 Core\Utils.lua
+Core\Chat.lua
 Core\Database.lua
 Core\ModuleManager.lua
 Core\OptionsWidgets.lua

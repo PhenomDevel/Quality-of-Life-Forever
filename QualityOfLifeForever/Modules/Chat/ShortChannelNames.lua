@@ -1,4 +1,4 @@
--- luacheck: read globals EnumerateServerChannels Constants NUM_CHAT_WINDOWS
+-- luacheck: read globals EnumerateServerChannels
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -20,8 +20,6 @@ local module = ns:NewModule("ShortChannelNames", {
 	note = L.NOTE,
 	category = "CHAT",
 })
-
-local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
 
 -- Localized base names of the server channels (General, Trade, …).
 local serverChannels
@@ -81,7 +79,5 @@ local function Wrap(frame)
 end
 
 function module:OnEnable()
-	for i = 1, MAX_WINDOWS do
-		Wrap(_G["ChatFrame" .. i])
-	end
+	ns.Chat.ForEachFrame(Wrap)
 end

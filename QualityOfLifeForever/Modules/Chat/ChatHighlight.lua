@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter UnitName Ambiguate PlaySound SOUNDKIT strtrim
+-- luacheck: read globals UnitName Ambiguate PlaySound SOUNDKIT
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -74,8 +74,7 @@ local module = ns:NewModule("ChatHighlight", {
 	},
 })
 
-local AddFilter = ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
-local RemoveFilter = ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter or ChatFrame_RemoveMessageEventFilter
+local Chat = ns.Chat
 
 -- Lower-case words to look for: keywords plus the player name.
 local words = {}
@@ -88,12 +87,7 @@ function module:UpdateWords()
 	if self.db.name and playerName then
 		words[#words + 1] = playerName:lower()
 	end
-	for word in self.db.keywords:gmatch("[^,]+") do
-		word = strtrim(word):lower()
-		if word ~= "" then
-			words[#words + 1] = word
-		end
-	end
+	Chat.ParseList(self.db.keywords, words)
 end
 
 -- Wraps every case-insensitive occurrence of word in the highlight color.
@@ -120,14 +114,7 @@ local function Filter(_, _, text, author, ...)
 	if type(author) == "string" and Ambiguate(author, "short") == playerName then
 		return false
 	end
-	local lower, found = text:lower(), false
-	for _, word in ipairs(words) do
-		if lower:find(word, 1, true) then
-			found = true
-			break
-		end
-	end
-	if not found then
+	if not Chat.ContainsAny(text, words) then
 		return false
 	end
 	local lineID = select(9, ...)
@@ -154,17 +141,13 @@ module.CHAT_MSG_BN_WHISPER = module.CHAT_MSG_WHISPER
 
 function module:OnEnable()
 	self:UpdateWords()
-	for _, event in ipairs(EVENTS) do
-		AddFilter(event, Filter)
-	end
+	Chat.AddFilters(EVENTS, Filter)
 	self:RegisterEvent("CHAT_MSG_WHISPER")
 	self:RegisterEvent("CHAT_MSG_BN_WHISPER")
 end
 
 function module:OnDisable()
-	for _, event in ipairs(EVENTS) do
-		RemoveFilter(event, Filter)
-	end
+	Chat.RemoveFilters(EVENTS, Filter)
 end
 
 function module:OnOptionChanged()

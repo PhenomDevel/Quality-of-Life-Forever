@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter EventRegistry StaticPopup_Show CLOSE
+-- luacheck: read globals EventRegistry StaticPopup_Show CLOSE
 local addonName, ns = ...
 
 local L = ns.NewLocale({
@@ -39,9 +39,6 @@ local LINK_PREFIX = "addon:" .. addonName .. ":url:"
 local LINK_FORMAT = "%s|cff4fb3ff|H" .. LINK_PREFIX .. "%s|h%s|h|r%s"
 local LINK_PATTERN = "^" .. LINK_PREFIX:gsub("%p", "%%%0") .. "(.+)$"
 local POPUP = "QUALITYOFLIFEFOREVER_COPY_URL"
-
-local AddFilter = ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
-local RemoveFilter = ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter or ChatFrame_RemoveMessageEventFilter
 
 -- Words containing "|" are part of hyperlinks or escape sequences and stay as
 -- they are. Surrounding brackets/quotes and trailing punctuation are not part
@@ -104,13 +101,9 @@ function module:OnInitialize()
 end
 
 function module:OnEnable()
-	for _, event in ipairs(EVENTS) do
-		AddFilter(event, Filter)
-	end
+	ns.Chat.AddFilters(EVENTS, Filter)
 end
 
 function module:OnDisable()
-	for _, event in ipairs(EVENTS) do
-		RemoveFilter(event, Filter)
-	end
+	ns.Chat.RemoveFilters(EVENTS, Filter)
 end

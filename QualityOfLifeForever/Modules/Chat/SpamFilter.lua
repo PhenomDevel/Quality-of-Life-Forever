@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer Constants NUM_CHAT_WINDOWS strtrim
+-- luacheck: read globals ChatFrameUtil GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -74,35 +74,18 @@ local module = ns:NewModule("SpamFilter", {
 	},
 })
 
-local AddFilter = ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
-local RemoveFilter = ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter or ChatFrame_RemoveMessageEventFilter
-local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
+local Chat = ns.Chat
 
 local keywords = {}
 
 function module:ParseKeywords()
 	wipe(keywords)
-	for word in self.db.keywords:gmatch("[^,]+") do
-		word = strtrim(word):lower()
-		if word ~= "" then
-			keywords[#keywords + 1] = word
-		end
-	end
-end
-
-local function IsSpam(text)
-	text = text:lower()
-	for _, word in ipairs(keywords) do
-		if text:find(word, 1, true) then
-			return true
-		end
-	end
-	return false
+	Chat.ParseList(self.db.keywords, keywords)
 end
 
 -- The shown chat window named "Spam", if any.
 function module:GetSpamFrame()
-	for i = 1, MAX_WINDOWS do
+	for i = 1, Chat.MAX_WINDOWS do
 		local name, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(i)
 		if name == L.TAB and (shown or docked) then
 			return _G["ChatFrame" .. i]
@@ -147,7 +130,7 @@ local function Filter(chatFrame, _, text)
 	if not spamFrame then
 		return false
 	end
-	local spam = IsSpam(text)
+	local spam = Chat.ContainsAny(text, keywords)
 	if chatFrame == spamFrame then
 		return not spam
 	end
@@ -183,14 +166,10 @@ function module:OnEnable()
 			self:CheckSpamFrame()
 		end
 	end)
-	for _, event in ipairs(EVENTS) do
-		AddFilter(event, Filter)
-	end
+	Chat.AddFilters(EVENTS, Filter)
 end
 
 function module:OnDisable()
 	self.db.tabCreated = false
-	for _, event in ipairs(EVENTS) do
-		RemoveFilter(event, Filter)
-	end
+	Chat.RemoveFilters(EVENTS, Filter)
 end

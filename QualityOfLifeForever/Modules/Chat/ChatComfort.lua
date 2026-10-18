@@ -1,4 +1,4 @@
--- luacheck: read globals Constants NUM_CHAT_WINDOWS IsShiftKeyDown
+-- luacheck: read globals IsShiftKeyDown
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -39,23 +39,14 @@ local module = ns:NewModule("ChatComfort", {
 	},
 })
 
-local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
-
-local function EachChatFrame(func)
-	for i = 1, MAX_WINDOWS do
-		local frame = _G["ChatFrame" .. i]
-		if frame then
-			func(frame, _G["ChatFrame" .. i .. "EditBox"])
-		end
-	end
-end
+local ForEachFrame = ns.Chat.ForEachFrame
 
 -- Line counts before the module changed them, restored on disable.
 local originalLines = {}
 
 -- SetMaxLines clears the frame, so only call it when the value changes.
 function module:ApplyHistory()
-	EachChatFrame(function(frame)
+	ForEachFrame(function(frame)
 		if originalLines[frame] == nil then
 			originalLines[frame] = frame:GetMaxLines()
 		end
@@ -67,7 +58,7 @@ end
 
 function module:OnEnable()
 	self:ApplyHistory()
-	EachChatFrame(function(frame)
+	ForEachFrame(function(frame)
 		self:HookScript(frame, "OnMouseWheel", function(_, chatFrame, delta)
 			if self.db.scroll and IsShiftKeyDown() then
 				if delta > 0 then
