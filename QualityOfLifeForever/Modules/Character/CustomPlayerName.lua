@@ -1,4 +1,4 @@
--- luacheck: read globals GetUnitName PlayerFrame PlayerName StaticPopup_Show ACCEPT CANCEL strtrim
+-- luacheck: read globals GetUnitName PlayerFrame PlayerName
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -7,22 +7,19 @@ local L = ns.NewLocale({
 		NOTE = "Shown on the player frame",
 		DESC = "Shows a name of your choice on the player unit frame instead of your character name. Only visible to you.",
 		SET = "Name",
-		SET_BUTTON = "Change…",
-		SET_DESC = "Enter the name to show. Leave empty to show your character name.",
-		DIALOG = "Name on the player frame (empty = character name):",
+		SET_DESC = "The name to show, saved with Enter. Leave empty to show your character name.",
+		SET_HINT = "Character name",
 	},
 	deDE = {
 		TITLE = "Eigener Spielername",
 		NOTE = "Wird im Spielerrahmen angezeigt",
 		DESC = "Zeigt im Spielerrahmen einen Namen deiner Wahl statt deines Charakternamens an. Nur für dich sichtbar.",
 		SET = "Name",
-		SET_BUTTON = "Ändern…",
-		SET_DESC = "Den anzuzeigenden Namen eingeben. Leer lassen, um den Charakternamen anzuzeigen.",
-		DIALOG = "Name im Spielerrahmen (leer = Charaktername):",
+		SET_DESC = "Der anzuzeigende Name, wird mit Enter gespeichert. Leer lassen, um den Charakternamen anzuzeigen.",
+		SET_HINT = "Charaktername",
 	},
 })
 
-local DIALOG = "QOLFOREVER_CUSTOM_PLAYER_NAME"
 local MAX_LETTERS = 32
 
 local module = ns:NewModule("CustomPlayerName", {
@@ -35,13 +32,12 @@ local module = ns:NewModule("CustomPlayerName", {
 	},
 	options = {
 		{
-			type = "button",
+			key = "name",
+			type = "text",
 			label = L.SET,
-			buttonText = L.SET_BUTTON,
 			tooltip = L.SET_DESC,
-			onClick = function()
-				StaticPopup_Show(DIALOG)
-			end,
+			placeholder = L.SET_HINT,
+			maxLetters = MAX_LETTERS,
 		},
 	},
 })
@@ -60,33 +56,8 @@ function module:Refresh()
 	nameText:SetText(name ~= "" and name or GetUnitName("player"))
 end
 
-function module:SetName(name)
-	self.db.name = strtrim(name or "")
+function module:OnOptionChanged()
 	self:Refresh()
-end
-
-function module:OnInitialize()
-	StaticPopupDialogs[DIALOG] = {
-		text = L.DIALOG,
-		button1 = ACCEPT,
-		button2 = CANCEL,
-		hasEditBox = 1,
-		maxLetters = MAX_LETTERS,
-		OnShow = function(dialog)
-			local editBox = dialog:GetEditBox()
-			editBox:SetText(self.db.name)
-			editBox:HighlightText()
-		end,
-		OnAccept = function(dialog)
-			self:SetName(dialog:GetEditBox():GetText())
-		end,
-		EditBoxOnEnterPressed = function(editBox)
-			editBox:GetParent():GetButton1():Click()
-		end,
-		timeout = 0,
-		whileDead = 1,
-		hideOnEscape = 1,
-	}
 end
 
 function module:OnEnable()

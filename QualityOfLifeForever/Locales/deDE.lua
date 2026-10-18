@@ -25,9 +25,8 @@ L.CATEGORY_CAMERA = "Kamera"
 L.CATEGORY_GRAPHICS = "Grafik"
 L.CATEGORY_XP_BAR = "EP-Leiste"
 
--- Settings panel
+-- Options window
 L.SETTINGS_GENERAL_HEADER = "Allgemein"
-L.SETTINGS_MODULE_OPTIONS = "Optionen"
 L.SETTINGS_ENABLE_FOR_OPTIONS = "Weitere Optionen erscheinen nach dem Aktivieren."
 L.SETTING_PRINT_MESSAGES = "Chatnachrichten anzeigen"
 L.SETTING_PRINT_MESSAGES_DESC = "Zeigt Rückmeldungen der Module im Chatfenster an (z. B. Reparaturkosten, verkaufter Plunder)."
@@ -35,7 +34,19 @@ L.SETTING_MINIMAP_BUTTON = "Minimap-Knopf"
 L.SETTING_MINIMAP_BUTTON_DESC = "Zeigt den Addon-Knopf an der Minimap. Ziehen verschiebt ihn um die Minimap. Der Eintrag im Addon-Menü neben der Minimap bleibt in jedem Fall."
 L.SETTING_DEBUG = "Debug-Modus"
 L.SETTING_DEBUG_DESC = "Gibt zusätzliche Diagnosemeldungen aus. Nur für die Entwicklung sinnvoll."
-L.SETTINGS_UNAVAILABLE = "Das Einstellungsfenster ist in diesem Client nicht verfügbar. Nutze stattdessen |cffffd100/qol help|r."
+L.OPTIONS_VERSION = "Version %s"
+L.OPTIONS_ENABLED_COUNT = "%d von %d aktiviert"
+L.OPTIONS_SEARCH = "Suchen"
+L.OPTIONS_SEARCH_RESULTS = "Suchergebnisse"
+L.OPTIONS_RESULT_COUNT = "%d gefunden"
+L.OPTIONS_NO_RESULTS = "Nichts passt zu „%s“."
+L.OPTIONS_RESET = "Alle Einstellungen zurücksetzen"
+L.OPTIONS_RESET_DESC = "Setzt alle Funktionen auf ihren Standard zurück und lädt die Oberfläche neu."
+L.OPTIONS_RESET_BUTTON = "Zurücksetzen"
+
+-- Blizzard-Einstellungsseite (Optionen > AddOns)
+L.SETTINGS_PAGE_TEXT = "Die Optionen haben ein eigenes Fenster. Du öffnest es auch mit |cffffd100/qol|r oder über das Addon-Menü an der Minimap."
+L.SETTINGS_PAGE_BUTTON = "Optionen öffnen"
 L.RELOAD_REQUIRED = "%s benötigt ein Neuladen der Oberfläche, damit die Änderung vollständig greift. Jetzt neu laden?"
 L.COMBAT_QUEUED = "%s wird nach dem Kampf aktualisiert."
 

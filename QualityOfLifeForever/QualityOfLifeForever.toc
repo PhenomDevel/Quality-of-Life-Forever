@@ -26,8 +26,9 @@ Core\Init.lua
 Core\Utils.lua
 Core\Database.lua
 Core\ModuleManager.lua
+Core\OptionsWidgets.lua
+Core\OptionsWindow.lua
 Core\Settings.lua
-Core\SettingsTemplates.xml
 Core\SlashCommands.lua
 Core\MinimapButton.lua
 Core\Overlays.lua

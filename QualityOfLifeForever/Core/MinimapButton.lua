@@ -107,7 +107,7 @@ local function CreateButton()
 		if mouseButton == "RightButton" then
 			ns:OpenEditMode()
 		else
-			ns:OpenSettings()
+			ns:ToggleSettings()
 		end
 	end)
 	button:SetScript("OnEnter", function(self)

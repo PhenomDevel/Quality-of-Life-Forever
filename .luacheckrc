@@ -16,8 +16,6 @@ ignore = { "212/_.*" }
 globals = {
 	"QualityOfLifeForever",
 	"QualityOfLifeForeverDB",
-	"QualityOfLifeForeverSettingsNoteMixin",
-	"QualityOfLifeForeverSettingsDividerMixin",
 	"QualityOfLifeForever_OnAddonCompartmentClick",
 	"QualityOfLifeForever_OnAddonCompartmentEnter",
 	"QualityOfLifeForever_OnAddonCompartmentLeave",
@@ -48,9 +46,6 @@ read_globals = {
 
 	-- Settings
 	"Settings",
-	"CreateSettingsButtonInitializer",
-	"CreateSettingsListSectionHeaderInitializer",
-	"MinimalSliderWithSteppersMixin",
 
 	-- General API
 	"C_AddOns",
