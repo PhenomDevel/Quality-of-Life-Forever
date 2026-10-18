@@ -4,17 +4,20 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Fast loot",
-		DESC = "Loot all items instantly when auto loot is active instead of waiting for the loot window.",
+		NOTE = "Needs auto loot",
+		DESC = "Loots all items instantly when auto loot is on instead of waiting for the loot window. Auto loot comes from the game setting or the Auto loot module.",
 	},
 	deDE = {
 		TITLE = "Schnelles Plündern",
-		DESC = "Plündert bei aktivem automatischem Plündern alle Gegenstände sofort, ohne auf das Beutefenster zu warten.",
+		NOTE = "Braucht automatisches Plündern",
+		DESC = "Plündert bei aktivem automatischem Plündern alle Gegenstände sofort, ohne auf das Beutefenster zu warten. Automatisches Plündern kommt aus der Spieleinstellung oder dem Modul „Automatisch plündern“.",
 	},
 })
 
 local module = ns:NewModule("FastLoot", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "LOOT",
 	defaultEnabled = false,
 })

@@ -4,29 +4,34 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Skip cinematics",
+		NOTE = "Hold Shift to watch one",
+		SECTION_SKIP = "Skip",
 		DESC = "Skips in-game cinematics and pre-rendered movies automatically. Hold Shift when one starts to watch it.",
-		CINEMATICS = "Skip in-game cinematics",
+		CINEMATICS = "In-game cinematics",
 		CINEMATICS_DESC = "Cutscenes rendered by the game engine.",
-		MOVIES = "Skip movies",
+		MOVIES = "Movies",
 		MOVIES_DESC = "Pre-rendered videos.",
-		ONLY_SEEN = "Only movies seen before",
-		ONLY_SEEN_DESC = "Play each movie once and skip it afterwards. In-game cinematics can't be identified and are always skipped.",
+		ONLY_SEEN = "Only movies you have seen",
+		ONLY_SEEN_DESC = "Plays each movie once and skips it afterwards. In-game cinematics can't be identified and are always skipped.",
 	},
 	deDE = {
 		TITLE = "Filmsequenzen überspringen",
+		NOTE = "Shift halten zum Ansehen",
+		SECTION_SKIP = "Überspringen",
 		DESC = "Überspringt Zwischensequenzen und vorgerenderte Videos automatisch. Shift gedrückt halten, wenn eine startet, um sie anzusehen.",
-		CINEMATICS = "Zwischensequenzen überspringen",
+		CINEMATICS = "Zwischensequenzen",
 		CINEMATICS_DESC = "Szenen, die von der Spielengine dargestellt werden.",
-		MOVIES = "Videos überspringen",
+		MOVIES = "Videos",
 		MOVIES_DESC = "Vorgerenderte Videos.",
-		ONLY_SEEN = "Nur bereits gesehene Videos",
-		ONLY_SEEN_DESC = "Jedes Video einmal abspielen und danach überspringen. Zwischensequenzen lassen sich nicht unterscheiden und werden immer übersprungen.",
+		ONLY_SEEN = "Nur Videos, die du kennst",
+		ONLY_SEEN_DESC = "Spielt jedes Video einmal ab und überspringt es danach. Zwischensequenzen lassen sich nicht unterscheiden und werden immer übersprungen.",
 	},
 })
 
 local module = ns:NewModule("SkipCinematics", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "INTERFACE",
 	defaults = {
 		cinematics = true,
@@ -35,6 +40,7 @@ local module = ns:NewModule("SkipCinematics", {
 		seenMovies = {},
 	},
 	options = {
+		{ type = "header", label = L.SECTION_SKIP },
 		{ key = "cinematics", type = "checkbox", label = L.CINEMATICS, tooltip = L.CINEMATICS_DESC },
 		{ key = "movies", type = "checkbox", label = L.MOVIES, tooltip = L.MOVIES_DESC },
 		{ key = "onlySeen", type = "checkbox", label = L.ONLY_SEEN, tooltip = L.ONLY_SEEN_DESC },
