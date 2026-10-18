@@ -1,4 +1,4 @@
--- luacheck: read globals UISpecialFrames GetCursorPosition PlaySound SOUNDKIT SettingsPanel HideUIPanel tinsert strtrim
+-- luacheck: read globals UISpecialFrames GetCursorPosition PlaySound SOUNDKIT SettingsPanel HideUIPanel tinsert strtrim C_Timer
 local _, ns = ...
 
 local L = ns.L
@@ -10,26 +10,28 @@ local colors, fonts = Widgets.colors, Widgets.fonts
 
 	┌ header: logo, title, search, close ──────────────────────────────┐
 	│ sidebar: General +      │ page title + subtitle                  │
-	│ one entry per category  │ module cards in two columns (scrolls)  │
-	└─────────────────────────┴────────────────────────────────────────┘
+	│ one entry per category  │ module cards in 1–3 columns (scrolls)  │
+	└─────────────────────────┴───────────────────────────── resize grip ┘
 
-	Cards fill two columns, each card going to the currently shorter one, so
-	a card never moves when its own height changes (only the cards after it).
+	The window is resizable; the number of columns follows its width. Each
+	card goes to the currently shortest column, so a card never moves when
+	its own height changes (only the cards after it).
 	Pages are rebuilt from pooled frames whenever the layout changes (page,
 	search, a module turned on/off). Value changes from elsewhere (slash
 	commands, SetOption) only refresh the visible controls.
 ]]
 
-local WIDTH, HEIGHT = 1040, 640
+local DEFAULT_WIDTH, DEFAULT_HEIGHT = 1040, 640
+local MIN_WIDTH, MIN_HEIGHT = 640, 420
+local MAX_WIDTH, MAX_HEIGHT = 1700, 1200
 local HEADER_HEIGHT = 56
 local SIDEBAR_WIDTH = 210
 local PADDING = 16
 local SCROLLBAR_WIDTH = 10
-local CONTENT_WIDTH = WIDTH - SIDEBAR_WIDTH - 2 * PADDING - SCROLLBAR_WIDTH
 local CARD_PADDING = 14
 local CARD_GAP = 10
-local COLUMN_WIDTH = (CONTENT_WIDTH - CARD_GAP) / 2
-local ROW_WIDTH = COLUMN_WIDTH - 2 * CARD_PADDING
+local MIN_COLUMN_WIDTH = 340
+local MAX_COLUMNS = 3
 local ROW_HEIGHT = 30
 local SLIDER_EXTRA = 22
 local INPUT_WIDTH = 160
@@ -37,6 +39,9 @@ local TEXTAREA_HEIGHT = 64
 local SCROLL_STEP = 48
 
 local GENERAL = "GENERAL"
+
+-- Derived from the window width by UpdateLayout() before every render.
+local columnCount, columnWidth, rowWidth
 
 local frame, scroll, content, sidebar, searchBox
 local state = { page = GENERAL, search = "" }
@@ -61,13 +66,13 @@ end
 
 -- Sets label, note and tooltip; returns the row height.
 local function SetupRow(row, spec, controlWidth, baseHeight)
-	row:SetWidth(ROW_WIDTH)
-	row.Label:SetWidth(ROW_WIDTH - controlWidth - 16)
+	row:SetWidth(rowWidth)
+	row.Label:SetWidth(rowWidth - controlWidth - 16)
 	row.Label:SetText(spec.label)
 	row.tooltipTitle, row.tooltipText = spec.label, spec.tooltip
 	local height = baseHeight
 	if spec.note then
-		row.Note:SetWidth(ROW_WIDTH - controlWidth - 16)
+		row.Note:SetWidth(rowWidth - controlWidth - 16)
 		row.Note:SetText(spec.note)
 		row.Note:Show()
 		height = height + row.Note:GetStringHeight() + 2
@@ -233,7 +238,7 @@ rowTypes.header = {
 		return row
 	end,
 	setup = function(row, spec)
-		row:SetSize(ROW_WIDTH, 28)
+		row:SetSize(rowWidth, 28)
 		row.Label:SetText(spec.label)
 		return 28
 	end,
@@ -249,7 +254,7 @@ rowTypes.hint = {
 		return row
 	end,
 	setup = function(row, spec)
-		row:SetSize(ROW_WIDTH, 18)
+		row:SetSize(rowWidth, 18)
 		row.Label:SetText(spec.label)
 		return 18
 	end,
@@ -278,10 +283,8 @@ local cardPool = Widgets.NewPool(function(parent)
 
 	card.Title = Widgets.Text(card.Header, fonts.heading)
 	card.Title:SetPoint("TOPLEFT", CARD_PADDING, -CARD_PADDING)
-	card.Title:SetWidth(ROW_WIDTH - 48)
 	card.Note = Widgets.Text(card.Header, fonts.small)
 	card.Note:SetPoint("TOPLEFT", card.Title, "BOTTOMLEFT", 0, -4)
-	card.Note:SetWidth(ROW_WIDTH - 48)
 	card.Note:SetWordWrap(true)
 
 	card.Toggle = Widgets.CreateToggle(card.Header)
@@ -310,8 +313,11 @@ end
 -- Builds a card at (left, top) of the content frame; returns its height.
 local function AddCard(spec, left, top)
 	local card = Widgets.Acquire(cardPool, content)
-	card:SetWidth(COLUMN_WIDTH)
+	card:SetWidth(columnWidth)
 	card:SetPoint("TOPLEFT", left, -top)
+	-- Room for the toggle switch on the right.
+	card.Title:SetWidth(rowWidth - 48)
+	card.Note:SetWidth(rowWidth - 48)
 
 	local y
 	if spec.title then
@@ -590,7 +596,7 @@ local function CreateScrollArea(parent)
 	end)
 
 	content = CreateFrame("Frame", nil, scroll)
-	content:SetSize(CONTENT_WIDTH, 1)
+	content:SetSize(1, 1)
 	scroll:SetScrollChild(content)
 
 	local bar = CreateFrame("Frame", nil, parent)
@@ -634,9 +640,6 @@ local function UpdateSidebar()
 		button.Selected:SetShown(selected)
 		button.Marker:SetShown(selected)
 		button.Label:SetTextColor(unpack(selected and colors.text or colors.muted))
-		if button.modules then
-			button.Count:SetText(("%d/%d"):format(CountEnabled(button.modules), #button.modules))
-		end
 	end
 end
 
@@ -652,12 +655,12 @@ local function SelectPage(page)
 	Render()
 end
 
-local function AddSidebarButton(page, label, modules, y)
+local function AddSidebarButton(page, label, y)
 	local button = CreateFrame("Button", nil, sidebar)
 	button:SetPoint("TOPLEFT", 8, -y)
 	button:SetPoint("TOPRIGHT", -8, -y)
 	button:SetHeight(28)
-	button.page, button.modules = page, modules
+	button.page = page
 
 	button.Hover = Widgets.Fill(button, colors.hover)
 	button.Hover:Hide()
@@ -670,12 +673,9 @@ local function AddSidebarButton(page, label, modules, y)
 
 	button.Label = Widgets.Text(button, fonts.body)
 	button.Label:SetPoint("LEFT", 12, 0)
-	button.Label:SetPoint("RIGHT", -40, 0)
+	button.Label:SetPoint("RIGHT", -8, 0)
 	button.Label:SetJustifyV("MIDDLE")
 	button.Label:SetText(label)
-	button.Count = Widgets.Text(button, fonts.dim, "RIGHT")
-	button.Count:SetPoint("RIGHT", -8, 0)
-	button.Count:SetJustifyV("MIDDLE")
 
 	button:SetScript("OnEnter", function(self)
 		self.Hover:Show()
@@ -703,15 +703,16 @@ local function CreateSidebar(parent)
 	edge:SetWidth(1)
 
 	local y = 10
-	AddSidebarButton(GENERAL, L.SETTINGS_GENERAL_HEADER, nil, y)
+	AddSidebarButton(GENERAL, L.SETTINGS_GENERAL_HEADER, y)
 	y = y + 28 + 12
 	for _, category in ipairs(ns.categories) do
 		local modules = ns:GetSortedModules(category.id)
 		if #modules > 0 then
-			AddSidebarButton(category.id, category.name, modules, y)
+			AddSidebarButton(category.id, category.name, y)
 			y = y + 28
 		end
 	end
+	return y + 10
 end
 
 --------------------------------------------------------------------------------
@@ -805,6 +806,10 @@ local function CreateHeader(parent)
 	title:SetJustifyV("MIDDLE")
 	title:SetText(("Quality of Life |cff%sForever|r"):format(ns.color))
 
+	local byline = Widgets.Text(header, fonts.small)
+	byline:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 8, 1)
+	byline:SetText(L.OPTIONS_BYLINE)
+
 	local close = CreateCloseButton(header)
 	close:SetPoint("RIGHT", -PADDING + 4, 0)
 	CreateSearchBox(header):SetPoint("RIGHT", close, "LEFT", -10, 0)
@@ -822,8 +827,18 @@ end
 
 local pageTitle, pageSubtitle
 
+local function UpdateLayout()
+	local contentWidth = frame:GetWidth() - SIDEBAR_WIDTH - 2 * PADDING - SCROLLBAR_WIDTH
+	columnCount = math.floor((contentWidth + CARD_GAP) / (MIN_COLUMN_WIDTH + CARD_GAP))
+	columnCount = math.max(1, math.min(MAX_COLUMNS, columnCount))
+	columnWidth = math.floor((contentWidth - (columnCount - 1) * CARD_GAP) / columnCount)
+	rowWidth = columnWidth - 2 * CARD_PADDING
+	content:SetWidth(contentWidth)
+end
+
 Render = function()
 	local offset = scroll:GetVerticalScroll()
+	UpdateLayout()
 	for _, rowType in pairs(rowTypes) do
 		Widgets.ReleaseAll(rowType.pool)
 	end
@@ -834,21 +849,78 @@ Render = function()
 	pageTitle:SetText(title)
 	pageSubtitle:SetText(subtitle)
 
-	local columns = { 0, 0 }
+	local columns = {}
+	for i = 1, columnCount do
+		columns[i] = 0
+	end
 	for _, card in ipairs(cards) do
-		local column = columns[2] < columns[1] and 2 or 1
-		local left = (column - 1) * (COLUMN_WIDTH + CARD_GAP)
+		local column = 1
+		for i = 2, columnCount do
+			if columns[i] < columns[column] then
+				column = i
+			end
+		end
+		local left = (column - 1) * (columnWidth + CARD_GAP)
 		columns[column] = columns[column] + AddCard(card, left, columns[column]) + CARD_GAP
 	end
-	content:SetHeight(math.max(1, math.max(columns[1], columns[2]) - CARD_GAP))
+	content:SetHeight(math.max(1, math.max(unpack(columns)) - CARD_GAP))
 	scroll:UpdateScrollChildRect()
 	SetScroll(offset)
 	UpdateSidebar()
 end
 
+-- Re-render at most every 0.05 s while the window is being resized.
+local renderQueued
+local function QueueRender()
+	if renderQueued then
+		return
+	end
+	renderQueued = true
+	C_Timer.After(0.05, function()
+		renderQueued = false
+		if frame:IsShown() then
+			Render()
+		end
+	end)
+end
+
+local function CreateResizeGrip(parent)
+	local grip = CreateFrame("Button", nil, parent)
+	grip:SetSize(16, 16)
+	grip:SetPoint("BOTTOMRIGHT", -1, 1)
+	grip:SetFrameLevel(parent:GetFrameLevel() + 20)
+	local lines = {
+		Widgets.Line(grip, grip, "BOTTOMRIGHT", -13, 3, -3, 13),
+		Widgets.Line(grip, grip, "BOTTOMRIGHT", -9, 3, -3, 9),
+		Widgets.Line(grip, grip, "BOTTOMRIGHT", -5, 3, -3, 5),
+	}
+	local function SetColor(color)
+		for _, line in ipairs(lines) do
+			line:SetColorTexture(unpack(color))
+		end
+	end
+	grip:SetScript("OnEnter", function()
+		SetColor(colors.text)
+	end)
+	grip:SetScript("OnLeave", function()
+		SetColor(colors.muted)
+	end)
+	grip:SetScript("OnMouseDown", function()
+		parent:StartSizing("BOTTOMRIGHT")
+	end)
+	grip:SetScript("OnMouseUp", function()
+		parent:StopMovingOrSizing()
+		ns.db.global.optionsWidth, ns.db.global.optionsHeight = parent:GetSize()
+		Render()
+	end)
+end
+
+local function Clamp(value, min, max)
+	return math.max(min, math.min(max, value))
+end
+
 local function CreateWindow()
 	frame = CreateFrame("Frame", "QualityOfLifeForeverOptionsFrame", UIParent)
-	frame:SetSize(WIDTH, HEIGHT)
 	frame:SetPoint("CENTER")
 	frame:SetFrameStrata("DIALOG")
 	frame:SetToplevel(true)
@@ -861,14 +933,23 @@ local function CreateWindow()
 	tinsert(UISpecialFrames, frame:GetName())
 
 	CreateHeader(frame)
-	CreateSidebar(frame)
+	-- Never shorter than the sidebar's category list.
+	local minHeight = math.max(MIN_HEIGHT, HEADER_HEIGHT + CreateSidebar(frame))
+	frame:SetResizable(true)
+	frame:SetResizeBounds(MIN_WIDTH, minHeight, MAX_WIDTH, MAX_HEIGHT)
+	frame:SetSize(
+		Clamp(ns.db.global.optionsWidth or DEFAULT_WIDTH, MIN_WIDTH, MAX_WIDTH),
+		Clamp(ns.db.global.optionsHeight or DEFAULT_HEIGHT, minHeight, MAX_HEIGHT)
+	)
 	CreateScrollArea(frame)
+	CreateResizeGrip(frame)
 
 	pageTitle = Widgets.Text(frame, fonts.title)
 	pageTitle:SetPoint("TOPLEFT", SIDEBAR_WIDTH + PADDING, -(HEADER_HEIGHT + 18))
 	pageSubtitle = Widgets.Text(frame, fonts.small)
 	pageSubtitle:SetPoint("TOPLEFT", pageTitle, "BOTTOMLEFT", 0, -5)
 
+	frame:SetScript("OnSizeChanged", QueueRender)
 	frame:SetScript("OnShow", function()
 		PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
 		Render()
