@@ -116,6 +116,7 @@ Modules\XPBar\XPWidget.lua
 
 # Widgets
 Modules\Widgets\GoldWidget.lua
+Modules\Widgets\PowerTickWidget.lua
 Modules\Widgets\ReputationWidget.lua
 
 # Bootstrap (must be last)
