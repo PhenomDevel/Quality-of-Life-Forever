@@ -1,4 +1,3 @@
--- luacheck: read globals ChatFrameUtil GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -37,7 +36,6 @@ local L = ns.NewLocale({
 })
 
 local DEFAULT_KEYWORDS = "boost, goldselling, carry"
-local EVENTS = { "CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL" }
 
 local module = ns:NewModule("SpamFilter", {
 	title = L.TITLE,
@@ -64,112 +62,11 @@ local module = ns:NewModule("SpamFilter", {
 			buttonText = L.CREATE,
 			tooltip = L.CREATE_TAB_DESC,
 			onClick = function(self)
-				if self:GetSpamFrame() then
-					self:Print(L.TAB_EXISTS)
-				else
-					self:CreateSpamFrame()
-				end
+				self:CreateTabButton()
 			end,
 		},
 	},
 })
 
-local Chat = ns.Chat
-
-local keywords = {}
-
-function module:ParseKeywords()
-	wipe(keywords)
-	Chat.ParseList(self.db.keywords, keywords)
-end
-
--- The shown chat window named "Spam", if any.
-function module:GetSpamFrame()
-	for i = 1, Chat.MAX_WINDOWS do
-		local name, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(i)
-		if name == L.TAB and (shown or docked) then
-			return _G["ChatFrame" .. i]
-		end
-	end
-end
-
-function module:CreateSpamFrame()
-	-- FCF_OpenNewWindow selects the new tab; keep the current one selected.
-	local selected = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	local frame = FCF_OpenNewWindow(L.TAB, true)
-	if not frame then
-		self:Print(L.NO_FREE_WINDOW)
-		return
-	end
-	if selected then
-		FCFDock_SelectWindow(GENERAL_CHAT_DOCK, selected)
-		if ChatFrameUtil and ChatFrameUtil.SetLastActiveWindow and selected.editBox then
-			ChatFrameUtil.SetLastActiveWindow(selected.editBox)
-		end
-	end
-	frame:AddMessageGroup("SAY")
-	frame:AddMessageGroup("YELL")
-	frame:AddMessageGroup("CHANNEL")
-	local channels = { GetChannelList() }
-	for i = 2, #channels, 3 do
-		frame:AddChannel(channels[i])
-	end
-	self:Print(L.TAB_CREATED)
-	return frame
-end
-
--- Runs once per chat frame that receives the message: matches are dropped
--- everywhere except the spam tab, which in turn drops everything else.
--- Without a spam tab nothing is dropped. Blizzard only calls filters when all
--- args are accessible (no secret values).
-local function Filter(chatFrame, _, text)
-	if type(text) ~= "string" then
-		return false
-	end
-	local spamFrame = module:GetSpamFrame()
-	if not spamFrame then
-		return false
-	end
-	local spam = Chat.ContainsAny(text, keywords)
-	if chatFrame == spamFrame then
-		return not spam
-	end
-	return spam
-end
-
--- tabCreated is true while the module is enabled with its tab. Enabled with
--- tabCreated set but no tab means the tab was closed since the last session
--- (the check runs at login): turn the module off instead of recreating it.
--- Turning it off clears the flag, so the next enable creates the tab again.
-function module:CheckSpamFrame()
-	if self:GetSpamFrame() then
-		self.db.tabCreated = true
-	elseif self.db.tabCreated then
-		self:Print(L.TAB_MISSING)
-		ns:SetModuleEnabled(self, false)
-	elseif self:CreateSpamFrame() then
-		self.db.tabCreated = true
-	end
-end
-
-function module:OnOptionChanged(key)
-	if key == "keywords" then
-		self:ParseKeywords()
-	end
-end
-
-function module:OnEnable()
-	self:ParseKeywords()
-	-- Delayed because chat windows are set up after PLAYER_LOGIN.
-	C_Timer.After(2, function()
-		if self.enabled then
-			self:CheckSpamFrame()
-		end
-	end)
-	Chat.AddFilters(EVENTS, Filter)
-end
-
-function module:OnDisable()
-	self.db.tabCreated = false
-	Chat.RemoveFilters(EVENTS, Filter)
-end
+-- Matches are dropped from every other tab, including the guild tab.
+ns.Chat.NewTabFilter(module, { L = L })
