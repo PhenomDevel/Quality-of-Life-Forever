@@ -20,7 +20,7 @@ scale widgets like the XP widget; drag them anytime to move them.
 
 | Category | Features |
 |----------|----------|
-| **Bags** | Auto-sort on open · free/total slots on the backpack button, adjustable size |
+| **Bags** | Auto-sort on open · free slots on the backpack button |
 | **Camera** | Larger max camera distance |
 | **Character** | Custom or hidden player name · pet happiness warning |
 | **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · hide chat buttons · spam filter tab · guild ads in their own tab |
