@@ -4,7 +4,8 @@ local addonName, ns = ...
 ns.name = addonName
 ns.title = "Quality of Life Forever"
 ns.shortTitle = "QoL Forever"
-ns.color = "33ff99"
+-- Accent color (chat prefix, options window, minimap button, overlays).
+ns.color = "ff4d4d"
 
 local getMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
 local version = getMetadata and getMetadata(addonName, "Version")

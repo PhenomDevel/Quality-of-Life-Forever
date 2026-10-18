@@ -13,20 +13,24 @@ ns.OptionsWidgets = Widgets
 local accent = CreateColorFromHexString("ff" .. ns.color)
 local ACCENT = { accent:GetRGB() }
 
+-- All surfaces are opaque; text colors keep at least ~4.5:1 contrast on the
+-- card background (dim text is for hints and placeholders only).
 local colors = {
 	accent = ACCENT,
-	window = { 0.07, 0.07, 0.08, 0.97 },
+	window = { 0.07, 0.07, 0.08, 1 },
 	sidebar = { 0.09, 0.09, 0.10, 1 },
 	card = { 0.12, 0.12, 0.13, 1 },
-	control = { 0.20, 0.20, 0.22, 1 },
-	controlHover = { 0.26, 0.26, 0.28, 1 },
-	knobOff = { 0.70, 0.70, 0.72, 1 },
-	border = { 1, 1, 1, 0.07 },
-	hover = { 1, 1, 1, 0.04 },
-	selected = { 1, 1, 1, 0.07 },
-	text = { 0.93, 0.93, 0.93, 1 },
-	muted = { 0.62, 0.62, 0.64, 1 },
-	dim = { 0.45, 0.45, 0.47, 1 },
+	control = { 0.22, 0.22, 0.24, 1 },
+	controlHover = { 0.28, 0.28, 0.30, 1 },
+	knobOff = { 0.75, 0.75, 0.77, 1 },
+	border = { 1, 1, 1, 0.12 },
+	hover = { 1, 1, 1, 0.05 },
+	selected = { 1, 1, 1, 0.09 },
+	tooltip = { 0.05, 0.05, 0.06, 1 },
+	tooltipBorder = { 1, 1, 1, 0.22 },
+	text = { 0.95, 0.95, 0.95, 1 },
+	muted = { 0.72, 0.72, 0.74, 1 },
+	dim = { 0.56, 0.56, 0.58, 1 },
 }
 Widgets.colors = colors
 
@@ -34,7 +38,7 @@ local function NewFont(name, size, color)
 	local font = CreateFont("QualityOfLifeForeverFont" .. name)
 	font:SetFont(STANDARD_TEXT_FONT, size, "")
 	font:SetShadowOffset(1, -1)
-	font:SetShadowColor(0, 0, 0, 0.6)
+	font:SetShadowColor(0, 0, 0, 0.8)
 	font:SetTextColor(unpack(color))
 	return font
 end
@@ -45,7 +49,8 @@ Widgets.fonts = {
 	body = NewFont("Body", 12, colors.text),
 	small = NewFont("Small", 11, colors.muted),
 	dim = NewFont("Dim", 11, colors.dim),
-	section = NewFont("Section", 10, colors.accent),
+	section = NewFont("Section", 11, colors.accent),
+	tooltip = NewFont("Tooltip", 12, { 0.88, 0.88, 0.90, 1 }),
 	accent = NewFont("Accent", 12, colors.accent),
 }
 local fonts = Widgets.fonts
@@ -100,8 +105,68 @@ function Widgets.Line(parent, anchor, point, x1, y1, x2, y2, color)
 end
 
 -- Tooltips --------------------------------------------------------------------
--- Frames carry tooltipTitle/tooltipText; children forward their hover to the
--- row so the tooltip stays while the cursor is on a control.
+-- Own opaque tooltip instead of GameTooltip, whose background follows the
+-- player's (or a tooltip addon's) transparency. Frames carry
+-- tooltipTitle/tooltipText; children forward their hover to the row so the
+-- tooltip stays while the cursor is on a control.
+
+local TOOLTIP_MAX_WIDTH = 300
+local TOOLTIP_PADDING = 10
+local tooltip
+
+local function GetTooltip()
+	if tooltip then
+		return tooltip
+	end
+	tooltip = CreateFrame("Frame", "QualityOfLifeForeverTooltip", UIParent)
+	tooltip:SetFrameStrata("TOOLTIP")
+	tooltip:SetClampedToScreen(true)
+	tooltip:Hide()
+	Widgets.Fill(tooltip, colors.tooltip)
+	Widgets.Border(tooltip, colors.tooltipBorder)
+	local marker = tooltip:CreateTexture(nil, "ARTWORK")
+	marker:SetColorTexture(unpack(ACCENT))
+	marker:SetPoint("TOPLEFT", 1, -1)
+	marker:SetPoint("TOPRIGHT", -1, -1)
+	marker:SetHeight(2)
+	tooltip.Title = Widgets.Text(tooltip, fonts.heading)
+	tooltip.Title:SetPoint("TOPLEFT", TOOLTIP_PADDING, -TOOLTIP_PADDING - 2)
+	tooltip.Body = Widgets.Text(tooltip, fonts.tooltip)
+	tooltip.Body:SetWordWrap(true)
+	tooltip.Body:SetSpacing(2)
+	return tooltip
+end
+
+local function FitText(text, value)
+	text:SetWidth(TOOLTIP_MAX_WIDTH)
+	text:SetText(value)
+	local width = math.min(TOOLTIP_MAX_WIDTH, text:GetUnboundedStringWidth())
+	text:SetWidth(width + 1)
+	return width, text:GetStringHeight()
+end
+
+-- Shows title + body (lines joined with "\n") with the tooltip's `point`
+-- attached to `relativePoint` of `owner`.
+function Widgets.ShowTooltipAt(owner, point, relativePoint, x, y, title, body)
+	local frame = GetTooltip()
+	local titleWidth, titleHeight = FitText(frame.Title, title or "")
+	local height = TOOLTIP_PADDING * 2 + 2 + titleHeight
+	local bodyWidth = 0
+	if body and body ~= "" then
+		frame.Body:Show()
+		frame.Body:ClearAllPoints()
+		frame.Body:SetPoint("TOPLEFT", frame.Title, "BOTTOMLEFT", 0, -6)
+		local bodyHeight
+		bodyWidth, bodyHeight = FitText(frame.Body, body)
+		height = height + 6 + bodyHeight
+	else
+		frame.Body:Hide()
+	end
+	frame:SetSize(math.max(titleWidth, bodyWidth) + TOOLTIP_PADDING * 2, height)
+	frame:ClearAllPoints()
+	frame:SetPoint(point, owner, relativePoint, x, y)
+	frame:Show()
+end
 
 function Widgets.ShowTooltip(frame)
 	if frame.OnHoverChanged then
@@ -110,18 +175,16 @@ function Widgets.ShowTooltip(frame)
 	if not frame.tooltipText or frame.tooltipText == "" then
 		return
 	end
-	GameTooltip:SetOwner(frame, "ANCHOR_NONE")
-	GameTooltip:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, 2)
-	GameTooltip:SetText(frame.tooltipTitle or "", 1, 1, 1)
-	GameTooltip:AddLine(frame.tooltipText, 0.85, 0.85, 0.85, true)
-	GameTooltip:Show()
+	Widgets.ShowTooltipAt(frame, "BOTTOMLEFT", "TOPLEFT", 0, 4, frame.tooltipTitle, frame.tooltipText)
 end
 
 function Widgets.HideTooltip(frame)
-	if frame.OnHoverChanged then
+	if frame and frame.OnHoverChanged then
 		frame:OnHoverChanged(false)
 	end
-	GameTooltip:Hide()
+	if tooltip then
+		tooltip:Hide()
+	end
 end
 
 function Widgets.ForwardHover(child, owner)
@@ -279,14 +342,14 @@ end
 -- Button ----------------------------------------------------------------------
 
 local function SetButtonHovered(button, hovered)
-	button.Background:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], hovered and 0.28 or 0.14)
+	button.Background:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], hovered and 0.32 or 0.18)
 end
 
 function Widgets.CreateButton(parent)
 	local button = CreateFrame("Button", nil, parent)
 	button:SetHeight(22)
 	button.Background = Widgets.Fill(button, colors.control)
-	Widgets.Border(button, { ACCENT[1], ACCENT[2], ACCENT[3], 0.45 })
+	Widgets.Border(button, { ACCENT[1], ACCENT[2], ACCENT[3], 0.7 })
 	button.Text = Widgets.Text(button, fonts.accent, "CENTER")
 	button.Text:SetPoint("LEFT", 10, 0)
 	button.Text:SetPoint("RIGHT", -10, 0)
@@ -313,7 +376,7 @@ end
 local INPUT_INSET = 8
 
 local function SetInputFocused(input, focused)
-	local color = focused and { ACCENT[1], ACCENT[2], ACCENT[3], 0.6 } or colors.border
+	local color = focused and { ACCENT[1], ACCENT[2], ACCENT[3], 0.9 } or colors.border
 	for _, edge in ipairs(input.Edges) do
 		edge:SetColorTexture(unpack(color))
 	end

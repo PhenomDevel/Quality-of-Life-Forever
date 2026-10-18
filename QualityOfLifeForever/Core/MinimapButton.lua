@@ -11,7 +11,7 @@ local L = ns.L
 
 local SIZE = 30
 local ICON_SIZE = 20
-local RING_ALPHA, RING_ALPHA_HOVER = 0.35, 0.9
+local RING_ALPHA, RING_ALPHA_HOVER = 0.75, 1
 local CIRCLE_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
 
@@ -63,17 +63,13 @@ end
 
 local function SetHovered(hovered)
 	button.Ring:SetAlpha(hovered and RING_ALPHA_HOVER or RING_ALPHA)
-	button.Icon:SetVertexColor(1, 1, 1, hovered and 1 or 0.85)
+	local brightness = hovered and 1 or 0.9
+	button.Icon:SetVertexColor(brightness, brightness, brightness)
 end
 
 local function ShowTooltip(self)
-	GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-	GameTooltip:SetText(ns.title, 1, 1, 1)
-	GameTooltip:AddLine(ns.version, 0.6, 0.6, 0.6)
-	GameTooltip:AddLine(L.MINIMAP_HINT_OPTIONS)
-	GameTooltip:AddLine(L.MINIMAP_HINT_EDIT_MODE)
-	GameTooltip:AddLine(L.MINIMAP_HINT_DRAG)
-	GameTooltip:Show()
+	local body = table.concat({ ns.version, L.MINIMAP_HINT_OPTIONS, L.MINIMAP_HINT_EDIT_MODE, L.MINIMAP_HINT_DRAG }, "\n")
+	ns.OptionsWidgets.ShowTooltipAt(self, "TOPRIGHT", "BOTTOMLEFT", 0, 0, ns.title, body)
 end
 
 local function AddCircle(layer, sublevel, size)
@@ -98,8 +94,8 @@ local function CreateButton()
 	-- Accent ring = accent circle with a slightly smaller dark circle on top.
 	button.Ring = AddCircle("BACKGROUND", 0, SIZE)
 	button.Ring:SetColorTexture(ACCENT:GetRGB())
-	local background = AddCircle("BACKGROUND", 1, SIZE - 2)
-	background:SetColorTexture(0.08, 0.08, 0.09, 0.95)
+	local background = AddCircle("BACKGROUND", 1, SIZE - 4)
+	background:SetColorTexture(0.07, 0.07, 0.08, 1)
 	button.Icon = AddCircle("ARTWORK", 0, ICON_SIZE)
 	button.Icon:SetTexture("Interface\\AddOns\\QualityOfLifeForever\\Media\\Logo")
 
@@ -116,10 +112,10 @@ local function CreateButton()
 	end)
 	button:SetScript("OnLeave", function()
 		SetHovered(false)
-		GameTooltip:Hide()
+		ns.OptionsWidgets.HideTooltip()
 	end)
 	button:SetScript("OnDragStart", function(self)
-		GameTooltip:Hide()
+		ns.OptionsWidgets.HideTooltip()
 		self:SetScript("OnUpdate", OnDragUpdate)
 	end)
 	button:SetScript("OnDragStop", function(self)

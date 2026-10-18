@@ -875,7 +875,7 @@ local function CreateWindow()
 	end)
 	frame:SetScript("OnHide", function()
 		PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
-		GameTooltip:Hide()
+		Widgets.HideTooltip()
 		searchBox:ClearFocus()
 	end)
 end
