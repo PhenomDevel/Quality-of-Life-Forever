@@ -235,6 +235,7 @@ ns.moduleOrder = {}
 		OnDisable()             every time the module gets disabled (events are
 		                        unregistered and CVars restored afterwards)
 		OnOptionChanged(key, value)
+		OnOptionsShown(shown)   the options window opened (true) or closed (false)
 ]]
 function ns:NewModule(name, info)
 	assert(type(name) == "string" and name ~= "", "Module name must be a non-empty string")

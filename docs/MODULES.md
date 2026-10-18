@@ -66,6 +66,7 @@ editable while the module is enabled.
 | `OnEnable()`                  | on login (if enabled) and every time the module is switched on |
 | `OnDisable()`                 | every time the module is switched off – undo everything it changed; events are unregistered and CVars restored afterwards |
 | `OnOptionChanged(key, value)` | an option changed while the module is enabled |
+| `OnOptionsShown(shown)`      | the options window opened (`true`) or closed (`false`), while the module is enabled; check `ns:IsOptionsShown()` in `OnEnable` for the current state |
 
 Callback errors are caught and routed to the error handler, so a broken module
 doesn't take others down.
