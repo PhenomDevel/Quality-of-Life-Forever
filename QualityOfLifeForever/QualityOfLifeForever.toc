@@ -37,6 +37,7 @@ Core\XPSession.lua
 # Modules: one section per category, alphabetical within a section
 # Interface
 Modules\Interface\CombatHideTracker.lua
+Modules\Interface\DurabilityWarning.lua
 Modules\Interface\ItemLevel.lua
 Modules\Interface\RepairCosts.lua
 Modules\Interface\ShowDurability.lua
