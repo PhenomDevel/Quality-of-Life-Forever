@@ -5,8 +5,8 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Trainer reminder",
 		NOTE = "Tells you on level-up what your class trainer has",
-		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a chat message lists them with their cost. Needs one visit at your class trainer with the {Unavailable} filter turned on; without that nothing is announced.",
-		NEW = "Level %d – new at your class trainer: %s (%s)",
+		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a popup lists them with their cost. Needs one visit at your class trainer with the {Unavailable} filter turned on; without that nothing is announced.",
+		NEW = "Level %d – new at your class trainer for %s:",
 		WAITING = "%d more skill(s) from earlier levels are still waiting at your trainer.",
 		FILTER_OFF = "Trainer reminder: turn on the {Unavailable} filter in the trainer window so upcoming skills can be remembered.",
 		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the {Unavailable} filter turned on.",
@@ -14,8 +14,8 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Lehrer-Erinnerung",
 		NOTE = "Meldet beim Level-up, was dein Klassenlehrer hat",
-		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet eine Chatnachricht sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}; ohne das wird nichts gemeldet.",
-		NEW = "Stufe %d – neu bei deinem Klassenlehrer: %s (%s)",
+		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet ein Popup sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}; ohne das wird nichts gemeldet.",
+		NEW = "Stufe %d – neu bei deinem Klassenlehrer für %s:",
 		WAITING = "%d weitere Fähigkeit(en) früherer Stufen warten noch bei deinem Lehrer.",
 		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter {Nicht verfügbar}, damit kommende Fähigkeiten gemerkt werden können.",
 		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}.",
@@ -86,7 +86,7 @@ end
 -- Records from before icons were stored, or skills the trainer listed without
 -- one, fall back to the spell's icon by name (works for new ranks of spells
 -- the character already knows).
-local function WithIcon(skill, text)
+local function GetIcon(skill)
 	local icon = skill.icon
 	if not icon and C_Spell and C_Spell.GetSpellTexture then
 		icon = C_Spell.GetSpellTexture(skill.name)
@@ -94,6 +94,10 @@ local function WithIcon(skill, text)
 			icon = nil
 		end
 	end
+	return icon
+end
+
+local function WithIcon(icon, text)
 	return icon and ("|T%s:0|t %s"):format(icon, text) or text
 end
 
@@ -102,11 +106,13 @@ function module:OnLevelUp(level)
 	if not upcoming or type(level) ~= "number" then
 		return
 	end
-	local names, total, waiting = {}, 0, 0
+	local names, total, waiting, firstIcon = {}, 0, 0, nil
 	for _, skill in ipairs(upcoming) do
 		if skill.level == level then
 			local text = skill.rank and ("%s (%s)"):format(skill.name, skill.rank) or skill.name
-			names[#names + 1] = WithIcon(skill, text)
+			local icon = GetIcon(skill)
+			firstIcon = firstIcon or icon
+			names[#names + 1] = WithIcon(icon, text)
 			total = total + skill.cost
 		elseif skill.level < level then
 			waiting = waiting + 1
@@ -115,10 +121,14 @@ function module:OnLevelUp(level)
 	if #names == 0 then
 		return
 	end
-	self:Print(L.NEW:format(level, table.concat(names, ", "), FormatMoney(total)))
-	if waiting > 0 then
-		self:Print(L.WAITING:format(waiting))
+	local lines = { L.NEW:format(level, FormatMoney(total)) }
+	for _, name in ipairs(names) do
+		lines[#lines + 1] = name
 	end
+	if waiting > 0 then
+		lines[#lines + 1] = L.WAITING:format(waiting)
+	end
+	self:Notice(table.concat(lines, "\n"), firstIcon)
 end
 
 function module:OnEnable()

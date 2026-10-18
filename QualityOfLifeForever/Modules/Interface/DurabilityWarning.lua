@@ -1,16 +1,14 @@
--- luacheck: read globals GetInventoryItemDurability GetInventoryItemLink INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED PlaySound SOUNDKIT UIErrorsFrame
+-- luacheck: read globals GetInventoryItemDurability GetInventoryItemLink GetInventoryItemTexture INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED PlaySound SOUNDKIT
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Durability warning",
 		NOTE = "Reminds you to repair",
-		DESC = "Warns you once when an equipped item drops below the durability threshold. After a repair the warning is armed again.",
+		DESC = "Warns you once with a popup when an equipped item drops below the durability threshold. After a repair the warning is armed again.",
 		THRESHOLD = "Warn below",
 		THRESHOLD_DESC = "Durability in percent at which the warning appears; the most worn item counts.",
 		SECTION_HOW = "How to warn",
-		SCREEN = "Also on screen",
-		SCREEN_DESC = "Shows the warning in the middle of the screen as well as in chat.",
 		SOUND = "Sound",
 		SOUND_DESC = "Plays a sound with the warning.",
 		MESSAGE = "Durability low: %s at %d%%. Time to repair.",
@@ -18,12 +16,10 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Haltbarkeits-Warnung",
 		NOTE = "Erinnert ans Reparieren",
-		DESC = "Warnt dich einmal, wenn ein angelegter Gegenstand unter die Haltbarkeits-Schwelle fällt. Nach einer Reparatur ist die Warnung wieder scharf.",
+		DESC = "Warnt dich einmal mit einem Popup, wenn ein angelegter Gegenstand unter die Haltbarkeits-Schwelle fällt. Nach einer Reparatur ist die Warnung wieder scharf.",
 		THRESHOLD = "Warnen unter",
 		THRESHOLD_DESC = "Haltbarkeit in Prozent, ab der die Warnung erscheint; es zählt der am stärksten abgenutzte Gegenstand.",
 		SECTION_HOW = "Wie warnen",
-		SCREEN = "Auch auf dem Bildschirm",
-		SCREEN_DESC = "Zeigt die Warnung zusätzlich zum Chat in der Bildschirmmitte.",
 		SOUND = "Ton",
 		SOUND_DESC = "Spielt einen Ton zur Warnung.",
 		MESSAGE = "Haltbarkeit niedrig: %s bei %d %%. Zeit zum Reparieren.",
@@ -41,13 +37,11 @@ local module = ns:NewModule("DurabilityWarning", {
 	category = "INTERFACE",
 	defaults = {
 		threshold = 20,
-		screen = true,
 		sound = true,
 	},
 	options = {
 		{ key = "threshold", type = "slider", label = L.THRESHOLD, tooltip = L.THRESHOLD_DESC, min = 5, max = 50, step = 5, format = FormatPercent },
 		{ type = "header", label = L.SECTION_HOW },
-		{ key = "screen", type = "checkbox", label = L.SCREEN, tooltip = L.SCREEN_DESC },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
 	},
 })
@@ -82,10 +76,7 @@ function module:Check()
 	end
 	warned = true
 	local message = L.MESSAGE:format(GetInventoryItemLink("player", slot) or "?", math.floor(lowest))
-	self:Print(message)
-	if self.db.screen and UIErrorsFrame then
-		UIErrorsFrame:AddMessage(message, 1, 0.5, 0)
-	end
+	self:Notice(message, GetInventoryItemTexture("player", slot))
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end

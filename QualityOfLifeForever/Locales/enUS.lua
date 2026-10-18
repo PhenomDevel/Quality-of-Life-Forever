@@ -98,3 +98,13 @@ L.MINIMAP_HINT_DRAG = "|cffffd100Drag|r to move the button."
 -- Overlays
 L.OVERLAY_SCALE = "Scale"
 L.EDIT_MODE_COMBAT = "Edit Mode is not available in combat."
+
+-- Notices
+L.SETTING_NOTICES = "Popup notices"
+L.SETTING_NOTICES_DESC = "Shows hints and reminders (e.g. new trainer skills, unspent talent points) as small popups instead of in the chat. They only appear out of combat; move them in {Edit Mode}. Click a popup to close it."
+L.NOTICES_TEST = "Test popup"
+L.NOTICES_TEST_DESC = "Shows a sample popup, e.g. to check its position."
+L.NOTICES_TEST_BUTTON = "Show"
+L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Notices"
+L.NOTICES_TEST_TITLE = "Quality of Life Forever"
+L.NOTICES_TEST_TEXT = "Hints and reminders appear here. Move them in {Edit Mode}; click to close."

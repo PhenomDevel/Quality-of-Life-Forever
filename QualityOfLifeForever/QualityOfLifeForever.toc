@@ -32,6 +32,7 @@ Core\Settings.lua
 Core\SlashCommands.lua
 Core\MinimapButton.lua
 Core\Overlays.lua
+Core\Notices.lua
 Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
