@@ -107,7 +107,7 @@ local frame = ns:CreateOverlay("MyWidget", {
   appear there.
 - The frame comes with the shared flat background and border; use
   `ns.overlayFont` for text. `ns:SetOverlayBackgroundAlpha(frame, alpha)`
-  changes the background opacity (0–1), e.g. for a user option.
+  changes the opacity of background and border (0–1), e.g. for a user option.
 - `ns:OpenEditMode()` opens Edit Mode (not in combat), also bound to
   right-clicking the minimap button.
 
