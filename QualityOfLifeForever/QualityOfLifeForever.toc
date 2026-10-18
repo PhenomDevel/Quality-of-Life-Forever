@@ -1,5 +1,5 @@
 ## Interface: 16001
-## Title: Quality of Life |cffd63a3aForever|r
+## Title: Quality of Life |cff3a8ee6Forever|r
 ## Notes: Many small quality-of-life improvements that can be toggled individually.
 ## Notes-deDE: Viele kleine Komfortverbesserungen, die einzeln ein- und ausgeschaltet werden können.
 ## Author: PhenomDevel

@@ -14,8 +14,8 @@
 		<stop offset="1" stop-color="#0a0f1d"/>
 	</radialGradient>
 	<linearGradient id="accent" x1="0" y1="0" x2="0" y2="1">
-		<stop offset="0" stop-color="#e57373"/>
-		<stop offset="1" stop-color="#c62828"/>
+		<stop offset="0" stop-color="#7fb8ff"/>
+		<stop offset="1" stop-color="#1f6fd1"/>
 	</linearGradient>
 	<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
 		<feGaussianBlur stdDeviation="9" result="b"/>
@@ -34,6 +34,6 @@
 </g>
 <g transform="translate(256,256) scale(1.08)" filter="url(#glow)">
 	<path d="M0,0 C40,-62 118,-62 118,0 C118,62 40,62 0,0 C-40,-62 -118,-62 -118,0 C-118,62 -40,62 0,0 Z" fill="none" stroke="url(#accent)" stroke-width="26" stroke-linejoin="round" stroke-linecap="round"/>
-	<path d="M0,0 C40,-62 118,-62 118,0 C118,62 40,62 0,0 C-40,-62 -118,-62 -118,0 C-118,62 -40,62 0,0 Z" fill="none" stroke="#ffe5e5" stroke-opacity="0.35" stroke-width="5" stroke-linejoin="round" transform="translate(0,-4)"/>
+	<path d="M0,0 C40,-62 118,-62 118,0 C118,62 40,62 0,0 C-40,-62 -118,-62 -118,0 C-118,62 -40,62 0,0 Z" fill="none" stroke="#e6f2ff" stroke-opacity="0.35" stroke-width="5" stroke-linejoin="round" transform="translate(0,-4)"/>
 </g>
 </svg>

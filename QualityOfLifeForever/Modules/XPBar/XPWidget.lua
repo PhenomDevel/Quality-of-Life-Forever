@@ -77,7 +77,7 @@ local PADDING = 7
 local BAR_HEIGHT = 6
 local REFRESH_SECONDS = 15
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
-local RESTED_COLOR = { 0.4, 0.6, 1, 0.6 }
+local RESTED_COLOR = { 0.72, 0.5, 1, 0.65 }
 local QUEST_COLOR = { 1, 0.78, 0.25, 0.8 }
 local QUEST_SCAN_DELAY = 0.5
 
