@@ -37,6 +37,9 @@ L.SETTINGS_UNAVAILABLE = "Das Einstellungsfenster ist in diesem Client nicht ver
 L.RELOAD_REQUIRED = "%s benötigt ein Neuladen der Oberfläche, damit die Änderung vollständig greift. Jetzt neu laden?"
 L.COMBAT_QUEUED = "%s wird nach dem Kampf aktualisiert."
 
+-- XP session
+L.XP_UNDER_A_MINUTE = "< 1 Min."
+
 -- Slash commands
 L.SLASH_HELP_HEADER = "Befehle:"
 L.SLASH_HELP_CONFIG = "|cffffd100/qol|r - Optionen öffnen"
