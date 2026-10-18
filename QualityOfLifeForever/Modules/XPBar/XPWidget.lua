@@ -11,11 +11,15 @@ local L = ns.NewLocale({
 		SECTION_LOOK = "Appearance",
 		SECTION_BAR = "Standard XP bar",
 		SHOW_RATE = "XP per hour and time to level",
-		SHOW_RATE_DESC = "Shows XP per hour and the time to the next level on the right. Counts from login or the last {Reset} in the {Experience bar} module; appears after the first minute with XP. Updated every 3 seconds.",
+		SHOW_RATE_DESC = "Shows XP per hour and the time to the next level. Counts from login or the last {Reset} in the {Experience bar} module; appears after the first minute with XP. Updated every 3 seconds.",
 		SHOW_RESTED = "Rested XP",
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		LAYOUT = "Layout",
+		LAYOUT_DESC = "Horizontal: wide, with the bar between the text rows. Vertical: narrow, with the bar on the left filling from bottom to top and the texts stacked next to it.",
+		LAYOUT_HORIZONTAL = "Horizontal",
+		LAYOUT_VERTICAL = "Vertical",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
 		BG_OPACITY = "Background opacity",
@@ -37,11 +41,15 @@ local L = ns.NewLocale({
 		SECTION_LOOK = "Darstellung",
 		SECTION_BAR = "Standard-EP-Leiste",
 		SHOW_RATE = "EP pro Stunde und Zeit bis Level-up",
-		SHOW_RATE_DESC = "Zeigt rechts EP pro Stunde und die Zeit bis zur nächsten Stufe. Zählt ab dem Einloggen oder dem letzten {Zurücksetzen} im Modul {Erfahrungsleiste}; erscheint nach der ersten Minute mit EP. Wird alle 3 Sekunden aktualisiert.",
+		SHOW_RATE_DESC = "Zeigt EP pro Stunde und die Zeit bis zur nächsten Stufe. Zählt ab dem Einloggen oder dem letzten {Zurücksetzen} im Modul {Erfahrungsleiste}; erscheint nach der ersten Minute mit EP. Wird alle 3 Sekunden aktualisiert.",
 		SHOW_RESTED = "Erholungsbonus",
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		LAYOUT = "Ausrichtung",
+		LAYOUT_DESC = "Horizontal: breit, die Leiste zwischen den Textzeilen. Vertikal: schmal, die Leiste links wird von unten nach oben gefüllt, die Texte stehen untereinander daneben.",
+		LAYOUT_HORIZONTAL = "Horizontal",
+		LAYOUT_VERTICAL = "Vertikal",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
@@ -69,6 +77,7 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
+		layout = "HORIZONTAL",
 		fontSize = 11,
 		backgroundOpacity = 92,
 		hideBlizzardBar = false,
@@ -79,6 +88,16 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
+		{
+			key = "layout",
+			type = "dropdown",
+			label = L.LAYOUT,
+			tooltip = L.LAYOUT_DESC,
+			values = {
+				{ value = "HORIZONTAL", label = L.LAYOUT_HORIZONTAL },
+				{ value = "VERTICAL", label = L.LAYOUT_VERTICAL },
+			},
+		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		{ type = "header", label = L.SECTION_BAR },
@@ -89,6 +108,9 @@ local module = ns:NewModule("XPWidget", {
 local XPSession = ns.XPSession
 -- Width at the default text size of 11; it scales with the text size.
 local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
+-- Text column of the vertical layout at the default text size.
+local VERTICAL_TEXT_WIDTH = 150
+local ROW_GAP = 3
 local PADDING = 7
 local BAR_HEIGHT = 6
 local REFRESH_SECONDS = 3
@@ -118,14 +140,12 @@ local function CreateWidget()
 		default = { point = "TOP", x = 0, y = -120 },
 	})
 
+	-- Positions and justification are set by ApplyLayout.
 	frame.Level = CreateText(frame, "LEFT")
-	frame.Level:SetPoint("TOPLEFT", PADDING, -PADDING)
 	frame.Rate = CreateText(frame, "RIGHT")
-	frame.Rate:SetPoint("TOPRIGHT", -PADDING, -PADDING)
 	frame.Rate:SetTextColor(0.72, 0.72, 0.74)
 
 	local bar = CreateFrame("StatusBar", nil, frame)
-	bar:SetHeight(BAR_HEIGHT)
 	bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
 	bar:SetStatusBarColor(ACCENT:GetRGB())
 	local track = bar:CreateTexture(nil, "BACKGROUND")
@@ -136,20 +156,12 @@ local function CreateWidget()
 	bar.Rested:SetColorTexture(unpack(RESTED_COLOR))
 	bar.Quests = bar:CreateTexture(nil, "ARTWORK", nil, -1)
 	bar.Quests:SetColorTexture(unpack(QUEST_COLOR))
-	for _, segment in ipairs({ bar.Rested, bar.Quests }) do
-		segment:SetPoint("TOP")
-		segment:SetPoint("BOTTOM")
-	end
 	frame.Bar = bar
 
 	frame.Values = CreateText(frame, "LEFT")
-	frame.Values:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
 	frame.Values:SetTextColor(0.72, 0.72, 0.74)
 	frame.Rested = CreateText(frame, "RIGHT")
-	frame.Rested:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
-
-	-- Anchored in UpdateQuests: next to the values, or below rested XP.
 	frame.Quests = CreateText(frame, "RIGHT")
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
 end
@@ -158,27 +170,46 @@ local function AtMaxLevel()
 	return IsPlayerAtEffectiveMaxLevel and IsPlayerAtEffectiveMaxLevel()
 end
 
--- Shows `segment` from the current XP over `amount` more XP, clipped at the bar end.
+local function IsVertical()
+	return module.db.layout == "VERTICAL"
+end
+
+local function HasText(text)
+	return (text:GetText() or "") ~= ""
+end
+
+-- Shows `segment` from the current XP over `amount` more XP, clipped at the bar
+-- end; along the width, or the height in the vertical layout.
 local function SetSegment(segment, xp, amount, maxXP)
 	if not amount or amount <= 0 then
 		segment:Hide()
 		return
 	end
-	local width = frame.Bar:GetWidth()
-	local from = xp / maxXP * width
-	local to = math.min(1, (xp + amount) / maxXP) * width
-	segment:SetPoint("LEFT", frame.Bar, "LEFT", from, 0)
-	segment:SetWidth(math.max(1, to - from))
+	local vertical = IsVertical()
+	local length = vertical and frame.Bar:GetHeight() or frame.Bar:GetWidth()
+	local from = xp / maxXP * length
+	local size = math.max(1, math.min(1, (xp + amount) / maxXP) * length - from)
+	segment:ClearAllPoints()
+	if vertical then
+		segment:SetPoint("LEFT")
+		segment:SetPoint("RIGHT")
+		segment:SetPoint("BOTTOM", frame.Bar, "BOTTOM", 0, from)
+		segment:SetHeight(size)
+	else
+		segment:SetPoint("TOP")
+		segment:SetPoint("BOTTOM")
+		segment:SetPoint("LEFT", frame.Bar, "LEFT", from, 0)
+		segment:SetWidth(size)
+	end
 	segment:Show()
 end
 
-function module:UpdateRested(xp, maxXP)
+local function GetRested(self)
 	local rested = self.db.showRested and GetXPExhaustion()
 	if not rested or ns.Utils.IsSecret(rested) or rested <= 0 then
-		rested = nil
+		return nil
 	end
-	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
-	frame.Rested:SetText(rested and L.RESTED:format(Short(rested)) or "")
+	return rested
 end
 
 -- Completed quests -------------------------------------------------------------
@@ -218,19 +249,13 @@ function module:QueueQuestScan()
 	end)
 end
 
-function module:UpdateQuests(xp, maxXP)
-	local amount = self.db.showQuestXP and questXP > 0 and questXP or nil
-	SetSegment(frame.Bar.Quests, xp, amount, maxXP)
-	frame.Quests:SetText(amount and L.QUESTS:format(Short(amount), questCount) or "")
-	-- Shares the values row with rested XP; only both together need a 4th row.
-	local belowRested = amount ~= nil and (frame.Rested:GetText() or "") ~= ""
-	frame.Quests:ClearAllPoints()
-	if belowRested then
-		frame.Quests:SetPoint("TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -3)
-	else
-		frame.Quests:SetPoint("TOPRIGHT", frame.Bar, "BOTTOMRIGHT", 0, -4)
+-- Rows that are shown decide the size: in the horizontal layout only a 4th
+-- row for quest XP below rested XP, in the vertical one every optional row.
+function module:GetLayoutKey()
+	if IsVertical() then
+		return ("V%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0, HasText(frame.Rate) and 1 or 0)
 	end
-	return belowRested
+	return (HasText(frame.Rested) and HasText(frame.Quests)) and "H4" or "H3"
 end
 
 function module:Update()
@@ -250,13 +275,10 @@ function module:Update()
 	frame.Bar:SetMinMaxValues(0, maxXP)
 	frame.Bar:SetValue(xp)
 	frame.Values:SetText(L.VALUES:format(Short(xp), Short(maxXP)))
-	self:UpdateRested(xp, maxXP)
-	local extraRow = self:UpdateQuests(xp, maxXP)
-	if extraRow ~= self.extraRow then
-		self.extraRow = extraRow
-		self:ApplyLayout()
-	end
-
+	local rested = GetRested(self)
+	frame.Rested:SetText(rested and L.RESTED:format(Short(rested)) or "")
+	local quests = self.db.showQuestXP and questXP > 0 and questXP or nil
+	frame.Quests:SetText(quests and L.QUESTS:format(Short(quests), questCount) or "")
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
 		local timeToLevel = XPSession.FormatTimeToLevel() or ""
@@ -264,6 +286,15 @@ function module:Update()
 	else
 		frame.Rate:SetText("")
 	end
+
+	local layoutKey = self:GetLayoutKey()
+	if layoutKey ~= self.layoutKey then
+		self.layoutKey = layoutKey
+		self:ApplyLayout()
+	end
+	-- After the layout, which sets the bar length.
+	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
+	SetSegment(frame.Bar.Quests, xp, quests, maxXP)
 end
 
 function module:UpdateTicker()
@@ -336,26 +367,75 @@ function module:HookContainers()
 	end
 end
 
--- Font, size and bar position follow the text size. A 4th row is only added
--- while rested XP and quest XP are both shown.
+local function PlaceText(text, justify, width, ...)
+	text:SetJustifyH(justify)
+	text:SetWidth(width)
+	text:SetPoint(...)
+end
+
+-- Horizontal: level and rate, the bar, then values with rested XP and quest XP
+-- (in a 4th row below rested XP when both are shown).
+local function LayoutHorizontal(size, lineHeight)
+	local bar = frame.Bar
+	local barTop = PADDING + lineHeight + 2
+	bar:SetOrientation("HORIZONTAL")
+	bar:SetHeight(BAR_HEIGHT)
+	bar:SetPoint("TOPLEFT", PADDING, -barTop)
+	bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
+	PlaceText(frame.Level, "LEFT", 0, "TOPLEFT", PADDING, -PADDING)
+	PlaceText(frame.Rate, "RIGHT", 0, "TOPRIGHT", -PADDING, -PADDING)
+	PlaceText(frame.Values, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
+	PlaceText(frame.Rested, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
+	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
+	if HasText(frame.Rested) and HasText(frame.Quests) then
+		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -ROW_GAP)
+		height = height + lineHeight + ROW_GAP
+	else
+		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
+	end
+	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+end
+
+-- Vertical: the bar on the left as high as the text column; empty optional
+-- rows take no space.
+local function LayoutVertical(size, lineHeight)
+	local rows = { frame.Level, frame.Values }
+	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate }) do
+		if HasText(text) then
+			rows[#rows + 1] = text
+		end
+	end
+	local textLeft = PADDING + BAR_HEIGHT + PADDING
+	local textWidth = math.floor(VERTICAL_TEXT_WIDTH * size / BASE_FONT_SIZE + 0.5)
+	for i, text in ipairs(rows) do
+		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + (i - 1) * (lineHeight + ROW_GAP)))
+	end
+	local contentHeight = #rows * lineHeight + (#rows - 1) * ROW_GAP
+	local bar = frame.Bar
+	bar:SetOrientation("VERTICAL")
+	bar:SetSize(BAR_HEIGHT, contentHeight)
+	bar:SetPoint("TOPLEFT", PADDING, -PADDING)
+	frame:SetSize(textLeft + textWidth + PADDING, contentHeight + PADDING * 2)
+end
+
+-- Font, layout and size follow the text size and the shown rows.
 function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
-	local lineHeight = size + 2
-	local barTop = PADDING + lineHeight + 2
 	frame.Bar:ClearAllPoints()
-	frame.Bar:SetPoint("TOPLEFT", PADDING, -barTop)
-	frame.Bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
-	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
-	if self.extraRow then
-		height = height + lineHeight + 3
+	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests }) do
+		text:ClearAllPoints()
 	end
-	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+	if IsVertical() then
+		LayoutVertical(size, size + 2)
+	else
+		LayoutHorizontal(size, size + 2)
+	end
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "showQuestXP" or key == "backgroundOpacity" then
+	if key == "fontSize" or key == "showQuestXP" or key == "backgroundOpacity" or key == "layout" then
 		self:ApplyLayout()
 	end
 	if key == "hideBlizzardBar" then
