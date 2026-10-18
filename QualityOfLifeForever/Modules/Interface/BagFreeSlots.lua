@@ -1,86 +1,73 @@
--- luacheck: read globals EventRegistry C_Container Enum ContainerFrameUtil_EnumerateContainerFrames RED_FONT_COLOR HIGHLIGHT_FONT_COLOR DISPLAY_FREE_BAG_SLOTS
+-- luacheck: read globals C_Container MainMenuBarBackpackButton BACKPACK_CONTAINER NUM_BAG_SLOTS RED_FONT_COLOR HIGHLIGHT_FONT_COLOR
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Free bag slots",
-		NOTE = "Shown in the backpack window",
-		DESC = "Shows how many slots are free in all your bags in the title bar of the backpack window (also with combined bags). Red when your bags are full. The game's option \"%s\" (Interface) shows the number on the backpack button.",
-		FREE = "%d free",
+		NOTE = "Free / total slots on the backpack button",
+		DESC = "Shows free and total slots of your bags as \"free/total\" on the backpack button. Profession bags, quivers and ammo pouches are not counted. Red when your bags are full.",
+		NOTICE = "Turns off the game's own free slot count on the backpack button (setting displayFreeBagSlots), which would overlap. Disabling restores your previous setting.",
 	},
 	deDE = {
 		TITLE = "Freie Taschenplätze",
-		NOTE = "Im Rucksackfenster angezeigt",
-		DESC = "Zeigt in der Titelleiste des Rucksackfensters (auch bei kombinierten Taschen), wie viele Plätze in all deinen Taschen frei sind. Rot, wenn deine Taschen voll sind. Die Spieloption „%s“ (Interface) zeigt die Zahl auf dem Rucksack-Button.",
-		FREE = "%d frei",
+		NOTE = "Freie / gesamte Plätze am Rucksack-Button",
+		DESC = "Zeigt freie und gesamte Plätze deiner Taschen als „frei/gesamt“ auf dem Rucksack-Button. Berufstaschen, Köcher und Munitionsbeutel werden nicht mitgezählt. Rot, wenn deine Taschen voll sind.",
+		NOTICE = "Schaltet die spieleigene Anzeige freier Plätze auf dem Rucksack-Button aus (Einstellung displayFreeBagSlots), die sich sonst überlagern würde. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 	},
 })
 
 local module = ns:NewModule("BagFreeSlots", {
 	title = L.TITLE,
-	-- Blizzard's own label, so the option name matches the client language.
-	description = L.DESC:format(DISPLAY_FREE_BAG_SLOTS or ""),
+	description = L.DESC,
 	note = L.NOTE,
+	notice = L.NOTICE,
 	category = "INTERFACE",
 })
 
--- Container frames are reused for any bag, so a label stays with its frame
--- and is only shown while the frame holds the backpack.
-local labels = {}
+local text
 
-local function IsBackpack(frame)
-	return frame:GetBagID() == Enum.BagIndex.Backpack
+-- Only general-purpose bags (bag family 0) can hold any item.
+local function CountSlots()
+	local free, total = 0, 0
+	for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+		local numFree, family = C_Container.GetContainerNumFreeSlots(bag)
+		if family == 0 then
+			free = free + numFree
+			total = total + C_Container.GetContainerNumSlots(bag)
+		end
+	end
+	return free, total
 end
 
-function module:UpdateLabel(frame)
-	local label = labels[frame]
-	if not label then
+function module:Update()
+	if not text then
 		return
 	end
-	if not (self.enabled and IsBackpack(frame)) then
-		label:Hide()
-		return
-	end
-	local free = C_Container.CalculateTotalNumberOfFreeBagSlots()
+	local free, total = CountSlots()
 	local color = free == 0 and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-	label:SetText(L.FREE:format(free))
-	label:SetTextColor(color:GetRGB())
-	label:Show()
-end
-
-function module:OnBagOpened(frame)
-	if not labels[frame] then
-		if not (IsBackpack(frame) and frame.CloseButton) then
-			return
-		end
-		local label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-		label:SetPoint("RIGHT", frame.CloseButton, "LEFT", -2, 0)
-		labels[frame] = label
-	end
-	self:UpdateLabel(frame)
-end
-
-function module:UpdateShown()
-	for frame in pairs(labels) do
-		if frame:IsShown() then
-			self:UpdateLabel(frame)
-		end
-	end
+	text:SetFormattedText("%d/%d", free, total)
+	text:SetTextColor(color:GetRGB())
+	text:Show()
 end
 
 function module:OnEnable()
-	EventRegistry:RegisterCallback("ContainerFrame.OpenBag", self.OnBagOpened, self)
-	self:RegisterEvent("BAG_UPDATE_DELAYED", self.UpdateShown)
-	for _, frame in ContainerFrameUtil_EnumerateContainerFrames() do
-		if frame:IsShown() then
-			self:OnBagOpened(frame)
-		end
+	if not MainMenuBarBackpackButton then
+		return
 	end
+	if not text then
+		-- Same spot as the game's own count, which is turned off below.
+		text = MainMenuBarBackpackButton:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
+		text:SetPoint("CENTER", 0, -10)
+	end
+	self:SetCVar("displayFreeBagSlots", 0)
+	self:RegisterEvent("BAG_UPDATE_DELAYED", self.Update)
+	self:RegisterEvent("BAG_CONTAINER_UPDATE", self.Update)
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", self.Update)
+	self:Update()
 end
 
 function module:OnDisable()
-	EventRegistry:UnregisterCallback("ContainerFrame.OpenBag", self)
-	for _, label in pairs(labels) do
-		label:Hide()
+	if text then
+		text:Hide()
 	end
 end
