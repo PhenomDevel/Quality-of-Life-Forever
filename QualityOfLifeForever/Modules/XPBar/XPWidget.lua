@@ -15,6 +15,8 @@ local L = ns.NewLocale({
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
+		BG_OPACITY = "Background opacity",
+		BG_OPACITY_DESC = "Opacity of the widget's background, 0 % (transparent) to 100 %. Border and text stay as they are.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
 		HIDE_BLIZZARD_DESC = "Makes the game's XP bar invisible while the widget is on. Its place stays free, so the action bars don't move; a reputation bar is not affected. The XP bar module then stops updating its text.",
 		LEVEL = "Level %d  ·  %.1f%%",
@@ -36,6 +38,8 @@ local L = ns.NewLocale({
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
+		BG_OPACITY = "Hintergrund-Deckkraft",
+		BG_OPACITY_DESC = "Deckkraft des Widget-Hintergrunds, von 0 % (durchsichtig) bis 100 %. Rahmen und Text bleiben unverändert.",
 		HIDE_BLIZZARD = "Standard-EP-Leiste ausblenden",
 		HIDE_BLIZZARD_DESC = "Macht die EP-Leiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine Rufleiste bleibt sichtbar. Das Modul Erfahrungsleiste aktualisiert ihren Text dann nicht mehr.",
 		LEVEL = "Stufe %d  ·  %.1f %%",
@@ -45,6 +49,10 @@ local L = ns.NewLocale({
 		QUESTS = "+%s aus %d |4Quest:Quests;",
 	},
 })
+
+local function FormatPercent(value)
+	return ("%d%%"):format(value)
+end
 
 local module = ns:NewModule("XPWidget", {
 	title = L.TITLE,
@@ -56,6 +64,7 @@ local module = ns:NewModule("XPWidget", {
 		showRested = true,
 		showQuestXP = true,
 		fontSize = 11,
+		backgroundOpacity = 92,
 		hideBlizzardBar = false,
 	},
 	options = {
@@ -63,6 +72,7 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
+		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 	},
 })
@@ -332,10 +342,11 @@ function module:ApplyLayout()
 		height = height + lineHeight + 3
 	end
 	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "showQuestXP" then
+	if key == "fontSize" or key == "showQuestXP" or key == "backgroundOpacity" then
 		self:ApplyLayout()
 	end
 	if key == "hideBlizzardBar" then
