@@ -37,6 +37,7 @@ Core\XPSession.lua
 # Modules: one section per category, alphabetical within a section
 # Interface
 Modules\Interface\CombatHideTracker.lua
+Modules\Interface\CombatText.lua
 Modules\Interface\DurabilityWarning.lua
 Modules\Interface\ItemLevel.lua
 Modules\Interface\RepairCosts.lua
@@ -78,6 +79,7 @@ Modules\Merchant\TrainerReminder.lua
 
 # Loot
 Modules\Loot\AutoConfirmBindOnPickup.lua
+Modules\Loot\AutoGreed.lua
 Modules\Loot\AutoLoot.lua
 Modules\Loot\FastLoot.lua
 
@@ -115,6 +117,7 @@ Modules\XPBar\XPWidget.lua
 # Widgets
 Modules\Widgets\GoldWidget.lua
 Modules\Widgets\PowerTickWidget.lua
+Modules\Widgets\ReputationWidget.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
