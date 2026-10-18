@@ -37,6 +37,7 @@ Core\XPSession.lua
 # Modules: one section per category, alphabetical within a section
 # Interface
 Modules\Interface\AutoSortBags.lua
+Modules\Interface\BagFreeSlots.lua
 Modules\Interface\CombatHideTracker.lua
 Modules\Interface\ItemLevel.lua
 Modules\Interface\RepairCosts.lua
