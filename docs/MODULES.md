@@ -84,8 +84,9 @@ doesn't take others down.
 
 ## Overlays (2.0)
 
-Small frames the player moves in Blizzard's Edit Mode (via the embedded
-LibEditMode). Position and scale are stored account-wide per Edit Mode layout.
+Small frames the player drags directly or moves and scales in Blizzard's Edit
+Mode (via the embedded LibEditMode). Position and scale are stored
+account-wide per Edit Mode layout.
 
 ```lua
 local frame = ns:CreateOverlay("MyWidget", {
