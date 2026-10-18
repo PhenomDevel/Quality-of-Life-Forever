@@ -113,6 +113,7 @@ Modules\Map\ZoneLevels.lua
 
 # Widgets
 Modules\Widgets\GoldWidget.lua
+Modules\Widgets\JunkWidget.lua
 Modules\Widgets\PerformanceWidget.lua
 Modules\Widgets\PowerTickWidget.lua
 Modules\Widgets\ReagentWidget.lua

@@ -54,8 +54,9 @@ local STACK_ORDER = {
 	GoldWidget = 3,
 	ReagentWidget = 4,
 	PerformanceWidget = 5,
+	JunkWidget = 6,
 	-- Last: it shows and hides often and would move the others.
-	PowerTickWidget = 6,
+	PowerTickWidget = 7,
 }
 local STACK_GAP = 2
 local stackAnchor
