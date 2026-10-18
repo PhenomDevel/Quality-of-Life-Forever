@@ -86,4 +86,9 @@ L.COMPARTMENT_HINT = "|cffffd100Click|r to open the options."
 
 -- Minimap button
 L.MINIMAP_HINT_OPTIONS = "|cffffd100Click|r to open the options."
+L.MINIMAP_HINT_EDIT_MODE = "|cffffd100Right-click|r for Edit Mode to move widgets."
 L.MINIMAP_HINT_DRAG = "|cffffd100Drag|r to move the button."
+
+-- Overlays
+L.OVERLAY_SCALE = "Scale"
+L.EDIT_MODE_COMBAT = "Edit Mode is not available in combat."

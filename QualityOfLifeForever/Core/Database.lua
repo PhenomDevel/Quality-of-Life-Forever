@@ -11,6 +11,8 @@ local GLOBAL_DEFAULTS = {
 	debug = false,
 	minimapButton = true,
 	minimapAngle = 225,
+	-- [overlay key][Edit Mode layout name] = { point, x, y, scale }
+	overlays = {},
 }
 
 -- migrations[n] upgrades a database from version n - 1 to version n.
@@ -32,7 +34,7 @@ end
 	Layout of QualityOfLifeForeverDB (account wide):
 	{
 		version = 1,
-		global = { printMessages = true, debug = false, minimapButton = true, minimapAngle = 225 },
+		global = { printMessages = true, debug = false, minimapButton = true, minimapAngle = 225, overlays = {} },
 		modules = {
 			AutoRepair = { enabled = true, useGuildFunds = true },
 			...

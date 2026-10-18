@@ -31,6 +31,7 @@ Core\OptionsWindow.lua
 Core\Settings.lua
 Core\SlashCommands.lua
 Core\MinimapButton.lua
+Core\Overlays.lua
 Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
@@ -48,6 +49,7 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
+Modules\Character\PetHappiness.lua
 
 # Statistics
 Modules\Statistics\StatisticsSearch.lua
@@ -103,6 +105,7 @@ Modules\Map\ZoneLevels.lua
 
 # XP Bar
 Modules\XPBar\XPBar.lua
+Modules\XPBar\XPWidget.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
