@@ -4,12 +4,12 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Hide objective tracker in combat",
-		NOTE = "Quest tracker invisible while fighting",
-		DESC = "Makes the quest tracker invisible during combat and shows it again afterwards. It stays clickable; only its look changes.",
+		NOTE = "Invisible while you fight",
+		DESC = "Makes the objective tracker invisible during combat and shows it again afterwards. It stays clickable; only its look changes.",
 	},
 	deDE = {
 		TITLE = "Questverfolgung im Kampf ausblenden",
-		NOTE = "Questverfolgung im Kampf unsichtbar",
+		NOTE = "Unsichtbar, solange du kämpfst",
 		DESC = "Macht die Questverfolgung während des Kampfes unsichtbar und zeigt sie danach wieder. Sie bleibt anklickbar; nur die Darstellung ändert sich.",
 	},
 })

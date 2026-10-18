@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Add train all button",
+		TITLE = "Train all button",
 		NOTE = "Button at trainers to learn everything",
 		DESC = "Adds a \"Train all\" button to the trainer window that learns every available skill at once. Professions are left out. Hover the button to see the total cost.",
 		BUTTON = "Train all",
@@ -16,9 +16,9 @@ local L = ns.NewLocale({
 		PET_TRAINER_DESC = "Shows the button at pet trainers too. It spends your pet's training points instead of gold.",
 	},
 	deDE = {
-		TITLE = "Knopf „Alles lernen“ hinzufügen",
-		NOTE = "Knopf beim Lehrer, um alles zu lernen",
-		DESC = "Ergänzt das Lehrerfenster um einen Knopf „Alles lernen“, der alle verfügbaren Fähigkeiten auf einmal lernt. Berufe sind ausgenommen. Mit der Maus über dem Knopf siehst du die Gesamtkosten.",
+		TITLE = "Button „Alles lernen“",
+		NOTE = "Button beim Lehrer, um alles zu lernen",
+		DESC = "Ergänzt das Lehrerfenster um einen Button „Alles lernen“, der alle verfügbaren Fähigkeiten auf einmal lernt. Berufe sind ausgenommen. Mit der Maus über dem Button siehst du die Gesamtkosten.",
 		BUTTON = "Alles lernen",
 		COUNT = "%d Fähigkeiten",
 		TOTAL = "Gesamt: %s",
@@ -26,7 +26,7 @@ local L = ns.NewLocale({
 		TOTAL_POINTS = "Gesamt: %d Trainingspunkte",
 		NOT_ENOUGH_POINTS = "Nicht genug Trainingspunkte für alles; lernt in Listenreihenfolge, bis sie nicht mehr reichen.",
 		PET_TRAINER = "Auch bei Begleiterlehrern",
-		PET_TRAINER_DESC = "Zeigt den Knopf auch bei Begleiterlehrern. Er verbraucht dort die Trainingspunkte deines Begleiters statt Gold.",
+		PET_TRAINER_DESC = "Zeigt den Button auch bei Begleiterlehrern. Er verbraucht dort die Trainingspunkte deines Begleiters statt Gold.",
 	},
 })
 
