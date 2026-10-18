@@ -4,12 +4,12 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Auto loot",
 		DESC = "Turns on the game's auto loot setting.",
-		NOTICE = "Changes the game setting autoLootDefault. Disabling restores your previous setting.",
+		NOTICE = "Changes the game setting `autoLootDefault`. Disabling restores your previous setting.",
 	},
 	deDE = {
 		TITLE = "Automatisch plündern",
 		DESC = "Aktiviert das automatische Plündern des Spiels.",
-		NOTICE = "Ändert die Spieleinstellung autoLootDefault. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
+		NOTICE = "Ändert die Spieleinstellung `autoLootDefault`. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 	},
 })
 

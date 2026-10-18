@@ -158,7 +158,7 @@ function Widgets.ShowTooltipAt(owner, point, relativePoint, x, y, title, body)
 		frame.Body:ClearAllPoints()
 		frame.Body:SetPoint("TOPLEFT", frame.Title, "BOTTOMLEFT", 0, -6)
 		local bodyHeight
-		bodyWidth, bodyHeight = FitText(frame.Body, body)
+		bodyWidth, bodyHeight = FitText(frame.Body, ns.Utils.Markup(body))
 		height = height + 6 + bodyHeight
 	else
 		frame.Body:Hide()

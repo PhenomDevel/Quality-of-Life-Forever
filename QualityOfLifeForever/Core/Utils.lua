@@ -4,13 +4,32 @@ local Utils = {}
 ns.Utils = Utils
 
 --------------------------------------------------------------------------------
+-- Text markup
+--------------------------------------------------------------------------------
+
+-- Inline markup for texts shown to the user (descriptions, notices, tooltips,
+-- notes, chat output), so references stand out from the prose:
+--   `name`   game setting (CVar) or other technical name
+--   {Label}  an option of this addon or of the game
+local SETTING_COLOR = "|cff8fe3a8"
+local OPTION_COLOR = "|cff8cc4ff"
+
+function Utils.Markup(text)
+	if type(text) ~= "string" then
+		return text
+	end
+	text = text:gsub("`([^`]+)`", SETTING_COLOR .. "%1|r")
+	return (text:gsub("{([^{}]+)}", OPTION_COLOR .. "%1|r"))
+end
+
+--------------------------------------------------------------------------------
 -- Output
 --------------------------------------------------------------------------------
 
 local function Output(prefix, ...)
 	local parts = { ... }
 	for i = 1, select("#", ...) do
-		parts[i] = tostring(parts[i])
+		parts[i] = Utils.Markup(tostring(parts[i]))
 	end
 	DEFAULT_CHAT_FRAME:AddMessage(prefix .. " " .. table.concat(parts, " "))
 end
