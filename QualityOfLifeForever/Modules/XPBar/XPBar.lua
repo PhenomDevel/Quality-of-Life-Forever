@@ -1,4 +1,4 @@
--- luacheck: read globals C_Timer StatusTrackingBarManager GameTooltip GameTooltip_SetDefaultAnchor UIParent SecondsToTime BreakUpLargeNumbers IsPlayerAtEffectiveMaxLevel MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR
+-- luacheck: read globals C_Timer StatusTrackingBarManager GameTooltip GameTooltip_SetDefaultAnchor UIParent BreakUpLargeNumbers IsPlayerAtEffectiveMaxLevel MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -103,7 +103,7 @@ function module:AppendRate(bar)
 	if not perHour or not current or ns.Utils.IsSecret(current) then
 		return
 	end
-	local timeToLevel = SecondsToTime(XPSession.GetTimeToLevel() or 0, true)
+	local timeToLevel = XPSession.FormatTimeToLevel() or ""
 	text:SetText(current .. L.SUFFIX:format(BreakUpLargeNumbers(math.floor(perHour)), timeToLevel))
 end
 
@@ -174,7 +174,7 @@ function module:AddTooltipLines()
 		AddLine(L.NO_DATA)
 	else
 		AddLine(L.SESSION:format(BreakUpLargeNumbers(XPSession.GetSessionXP()), BreakUpLargeNumbers(math.floor(perHour))))
-		AddLine(L.TIME_TO_LEVEL:format(SecondsToTime(XPSession.GetTimeToLevel(), true)))
+		AddLine(L.TIME_TO_LEVEL:format(XPSession.FormatTimeToLevel() or ""))
 	end
 	local lastGain = XPSession.GetLastGain()
 	if lastGain then

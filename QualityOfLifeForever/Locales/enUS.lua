@@ -56,6 +56,9 @@ L.SETTINGS_PAGE_BUTTON = "Open options"
 L.RELOAD_REQUIRED = "%s requires a UI reload to fully apply this change. Reload now?"
 L.COMBAT_QUEUED = "%s will be updated after combat."
 
+-- XP session
+L.XP_UNDER_A_MINUTE = "< 1 Min"
+
 -- Slash commands
 L.SLASH_HELP_HEADER = "Commands:"
 L.SLASH_HELP_CONFIG = "|cffffd100/qol|r - open the options"
