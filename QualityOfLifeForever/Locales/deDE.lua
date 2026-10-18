@@ -25,6 +25,7 @@ L.CATEGORY_TOOLTIP = "Tooltip"
 L.CATEGORY_CAMERA = "Kamera"
 L.CATEGORY_GRAPHICS = "Grafik"
 L.CATEGORY_XP_BAR = "EP-Leiste"
+L.CATEGORY_WIDGETS = "Widgets"
 
 -- Options window
 L.SETTINGS_GENERAL_HEADER = "Allgemein"

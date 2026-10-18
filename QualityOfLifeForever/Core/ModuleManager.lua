@@ -25,6 +25,7 @@ ns.categories = {
 	{ id = "CHAT", name = L.CATEGORY_CHAT },
 	{ id = "MAP", name = L.CATEGORY_MAP },
 	{ id = "XP_BAR", name = L.CATEGORY_XP_BAR },
+	{ id = "WIDGETS", name = L.CATEGORY_WIDGETS },
 }
 
 table.sort(ns.categories, function(a, b)
