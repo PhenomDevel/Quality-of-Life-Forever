@@ -13,9 +13,17 @@ old Classic Era API.
 - Every feature is a module created with `ns:NewModule(name, info)` in
   `Modules/<Category>/<Name>.lua`. API reference: `docs/MODULES.md`, template: `docs/ModuleTemplate.lua`.
 
+## Branches
+- `main`: released addon. `2.0`: redesign (own options window, minimap button,
+  movable overlays) that may never ship – Kevin decides.
+- Redesign work: feature branch from `origin/2.0`, PR against `2.0`. Merge
+  `main` into `2.0` regularly (merge commit, Kevin as author).
+- Everything else keeps going through `main`.
+
 ## Original code only (strict)
 - Every line of code, data table and asset in this repo must be written
-  independently. Never copy, port, translate or closely paraphrase code from
+  independently – except the embedded libraries in `QualityOfLifeForever/Libs/`
+  (see *Libraries*). Never copy, port, translate or closely paraphrase code from
   other addons (e.g. Leatrix Plus/Maps, BlizzMove, ElvUI, …) – regardless of
   their license.
 - Other addons may only be named as *feature inspiration* ("what"), never as a
@@ -31,8 +39,17 @@ old Classic Era API.
 - If a feature cannot be built without someone else's code or data, stop and
   tell Kevin instead of working around it.
 
+## Libraries
+- Only libraries Kevin approved: currently **LibEditMode** (frames in Blizzard's
+  Edit Mode). No Ace3 – the options window, minimap button and widgets are our own.
+- Embedded unmodified in `QualityOfLifeForever/Libs/<Name>/` with their license
+  file, loaded first in the `.toc`. Update them only via `tools/update-libs.sh`
+  (pinned versions); never edit a library file.
+- LibEditMode is embedded namespaced (`ns.LibEditMode`), without LibStub.
+- Libraries are excluded from luacheck.
+
 ## Conventions
-- Lua 5.1, tabs for indentation, English code comments, no external libraries (no Ace3).
+- Lua 5.1, tabs for indentation, English code comments, no libraries beyond *Libraries*.
 - All docs (`*.md`) in English; in-game strings in enUS + deDE.
 - Modules are self-contained in one file: strings via `ns.NewLocale({ enUS = …, deDE = … })`,
   WoW API declared inline (`-- luacheck: read globals …`). Core strings stay in `Locales/`.

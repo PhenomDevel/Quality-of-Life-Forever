@@ -2,8 +2,9 @@ name: Release
 
 # Packages the addon and uploads it to CurseForge and GitHub releases.
 # Start it from Actions → Release → Run workflow with a version (v0.2.0, or
-# v0.2.0-beta1 / -alpha1 for test releases); it tags the current main. Pushing
-# a v* tag manually works as well.
+# v0.2.0-beta1 / -alpha1 for test releases); it tags the current main, or 2.0
+# for alpha/beta releases of the redesign. Pushing a v* tag manually works as
+# well.
 on:
   workflow_dispatch:
     inputs:
@@ -31,8 +32,13 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
         run: |
-          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-            echo "::error::Releases are only created from main"; exit 1
+          # 2.0 is the redesign branch; it only ships test releases.
+          if [[ "$GITHUB_REF" == "refs/heads/2.0" ]]; then
+            if [[ ! "$VERSION" =~ -(alpha|beta)[0-9]+$ ]]; then
+              echo "::error::Only alpha/beta releases are created from 2.0"; exit 1
+            fi
+          elif [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Releases are only created from main or 2.0"; exit 1
           fi
           if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)[0-9]+)?$ ]]; then
             echo "::error::Invalid version '$VERSION'"; exit 1

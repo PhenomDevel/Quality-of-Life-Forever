@@ -462,6 +462,9 @@ local function GeneralPage()
 		{
 			rows = {
 				GlobalToggle("printMessages", L.SETTING_PRINT_MESSAGES, L.SETTING_PRINT_MESSAGES_DESC),
+				GlobalToggle("minimapButton", L.SETTING_MINIMAP_BUTTON, L.SETTING_MINIMAP_BUTTON_DESC, function()
+					ns:UpdateMinimapButton()
+				end),
 				GlobalToggle("debug", L.SETTING_DEBUG, L.SETTING_DEBUG_DESC),
 				{
 					type = "button",

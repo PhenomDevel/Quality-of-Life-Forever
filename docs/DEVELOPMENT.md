@@ -8,8 +8,10 @@ QualityOfLifeForever/        addon folder (the only thing that gets installed)
   Locales/                   enUS (base) + deDE
   Core/                      DB, module registry/lifecycle, settings panel, slash commands
   Modules/<Category>/        one file per module
+  Libs/                      embedded third-party libraries (unmodified)
   Media/                     Logo.tga (64x64, 32-bit TGA from docs/media/logo.png)
 docs/                        module API, template, roadmap, logo source
+tools/update-libs.sh         refreshes Libs/ from pinned upstream versions
 .pkgmeta                     packaging config (BigWigs packager)
 ```
 
@@ -17,7 +19,19 @@ docs/                        module API, template, roadmap, logo source
   [`ModuleTemplate.lua`](ModuleTemplate.lua). Roadmap: [`IDEAS.md`](IDEAS.md)
 * Settings are stored account-wide in `QualityOfLifeForeverDB`.
 * `/qol debug` toggles debug output.
-* All code is original. No code or data is taken from other addons.
+* All code is original. No code or data is taken from other addons, except
+  the embedded libraries below.
+
+## Libraries
+
+| Library | Version | Purpose | License |
+|---------|---------|---------|---------|
+| [LibEditMode](https://github.com/p3lim-wow/LibEditMode) | 18 | Movable frames in Blizzard's Edit Mode | Own license, may be embedded unmodified (`Libs/LibEditMode/LICENSE.txt`) |
+
+Libraries are committed unmodified so the linked addon folder works without a
+build step. To update one, bump its version in `tools/update-libs.sh`, run it
+and commit the result. LibEditMode is loaded namespaced (`namespaced.lua`
+before `embed.xml`), so it lives in `ns.LibEditMode` and needs no LibStub.
 
 ## Local setup
 
@@ -48,7 +62,8 @@ in-game; there are no automated tests.
 Add a section for the version to `CHANGELOG.md` (the whole file is uploaded
 as release notes, so keep it user-facing), merge it, then run *Actions →
 Release → Run workflow* on `main` with the version (`v0.1.0`, or
-`v0.1.0-beta1` / `-alpha1` for test releases). The workflow checks that the
+`v0.1.0-beta1` / `-alpha1` for test releases). Test releases of the 2.0
+redesign are started on the `2.0` branch and must be alpha or beta versions. The workflow checks that the
 changelog has a `## <version>` section and the tag is new, creates the tag,
 lints and runs the [BigWigs packager](https://github.com/BigWigsMods/packager),
 which uploads to CurseForge (project ID 1748279 via `## X-Curse-Project-ID`,
@@ -69,4 +84,5 @@ update the `.toc`, otherwise the client flags the addon as out of date.
 
 ## License
 
-GPL-3.0, see [`LICENSE`](../LICENSE).
+GPL-3.0, see [`LICENSE`](../LICENSE). The embedded libraries keep their own
+licenses (see *Libraries*).

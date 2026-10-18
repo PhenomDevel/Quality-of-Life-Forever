@@ -11,6 +11,7 @@ local function PrintHelp()
 	ns:Print(L.SLASH_HELP_ENABLE)
 	ns:Print(L.SLASH_HELP_DISABLE)
 	ns:Print(L.SLASH_HELP_TOGGLE)
+	ns:Print(L.SLASH_HELP_MINIMAP)
 	ns:Print(L.SLASH_HELP_DEBUG)
 	ns:Print(L.SLASH_HELP_RESET)
 	ns:Print(L.SLASH_HELP_CVARINFO)
@@ -57,6 +58,14 @@ commands.toggle = function(argument)
 	ChangeModule(argument, function(module)
 		return not module.db.enabled
 	end)
+end
+
+commands.minimap = function()
+	local shown = not ns.db.global.minimapButton
+	ns.db.global.minimapButton = shown
+	ns:UpdateMinimapButton()
+	ns:RefreshOptionValues()
+	ns:Print(shown and L.MINIMAP_SHOWN or L.MINIMAP_HIDDEN)
 end
 
 commands.debug = function()
