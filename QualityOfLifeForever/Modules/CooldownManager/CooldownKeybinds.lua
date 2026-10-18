@@ -1,11 +1,11 @@
--- luacheck: read globals C_ActionBar C_AddOns CreateFrame GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
+-- luacheck: read globals C_ActionBar C_AddOns CreateFrame GetActionButtonForID GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Keybinds",
 		NOTE = "Key of the action button on each icon",
-		DESC = "Shows the keybind of the action button that holds the spell on the icons of the cooldown manager.",
+		DESC = "Shows the keybind of the action button that holds the spell on the icons of the cooldown manager and lights the icon up while the key is held.",
 		ESSENTIAL = "Essential cooldowns",
 		UTILITY = "Utility cooldowns",
 		SHOW = "Show keybinds",
@@ -28,11 +28,14 @@ local L = ns.NewLocale({
 		BOTTOMLEFT = "Bottom left",
 		BOTTOM = "Bottom",
 		BOTTOMRIGHT = "Bottom right",
+		PRESS = "Key press",
+		PRESS_HIGHLIGHT = "Highlight on key press",
+		PRESS_HIGHLIGHT_DESC = "Lights up the icon while you hold down the key of the action button that holds the spell.",
 	},
 	deDE = {
 		TITLE = "Tastenbelegung",
 		NOTE = "Taste der Aktionsleiste auf jedem Symbol",
-		DESC = "Zeigt auf den Symbolen des Cooldown-Managers die Tastenbelegung der Aktionstaste, auf der der Zauber liegt.",
+		DESC = "Zeigt auf den Symbolen des Cooldown-Managers die Tastenbelegung der Aktionstaste, auf der der Zauber liegt, und lässt das Symbol aufleuchten, solange die Taste gedrückt ist.",
 		ESSENTIAL = "Wichtige Abklingzeiten",
 		UTILITY = "Nützliche Abklingzeiten",
 		SHOW = "Tastenbelegung anzeigen",
@@ -55,6 +58,9 @@ local L = ns.NewLocale({
 		BOTTOMLEFT = "Unten links",
 		BOTTOM = "Unten",
 		BOTTOMRIGHT = "Unten rechts",
+		PRESS = "Tastendruck",
+		PRESS_HIGHLIGHT = "Bei Tastendruck aufleuchten",
+		PRESS_HIGHLIGHT_DESC = "Lässt das Symbol aufleuchten, solange die Taste der Aktionstaste mit dem Zauber gedrückt ist.",
 	},
 })
 
@@ -98,6 +104,9 @@ for _, viewer in ipairs(VIEWERS) do
 		options[#options + 1] = option
 	end
 end
+defaults.pressHighlight = true
+options[#options + 1] = { type = "header", label = L.PRESS }
+options[#options + 1] = { key = "pressHighlight", type = "checkbox", label = L.PRESS_HIGHLIGHT, tooltip = L.PRESS_HIGHLIGHT_DESC }
 
 local module = ns:NewModule("CooldownKeybinds", {
 	title = L.TITLE,
@@ -144,30 +153,34 @@ local function GetSlotCommand(slot, mainFirst)
 	end
 end
 
--- spellID -> key text ("" when unbound); cleared when bindings or bars change.
-local keyCache = {}
+-- spellID -> { key = text ("" when unbound), slots = { [slot] = true } };
+-- cleared when bindings or bars change.
+local spellCache = {}
 
-local function GetSpellKey(spellID)
-	local key = keyCache[spellID]
-	if key then
-		return key
+local function GetSpellInfo(spellID)
+	local cached = spellCache[spellID]
+	if cached then
+		return cached
 	end
-	key = ""
+	cached = { key = "", slots = {} }
 	local slots = C_ActionBar.FindSpellActionButtons(spellID)
 	if slots then
 		local mainFirst = MainBarFirstSlot()
 		for _, slot in ipairs(slots) do
+			cached.slots[slot] = true
 			local command = GetSlotCommand(slot, mainFirst)
-			local binding = command and GetBindingKey(command)
+			local binding = cached.key == "" and command and GetBindingKey(command)
 			if binding then
-				key = GetBindingText(binding, true)
-				break
+				cached.key = GetBindingText(binding, true)
 			end
 		end
 	end
-	keyCache[spellID] = key
-	return key
+	spellCache[spellID] = cached
+	return cached
 end
+
+-- item frame -> slots of the spell shown on it, for the key press highlight
+local itemSlots = {}
 
 -- Only reads the item's cooldown info; Blizzard's item fields stay untouched.
 local function GetItemKey(item)
@@ -175,35 +188,56 @@ local function GetItemKey(item)
 	if not info then
 		return ""
 	end
-	local key = ""
+	local spell
 	if info.overrideSpellID and not IsSecret(info.overrideSpellID) then
-		key = GetSpellKey(info.overrideSpellID)
+		spell = GetSpellInfo(info.overrideSpellID)
 	end
-	if key == "" and info.spellID and not IsSecret(info.spellID) then
-		key = GetSpellKey(info.spellID)
+	if (not spell or spell.key == "") and info.spellID and not IsSecret(info.spellID) then
+		local base = GetSpellInfo(info.spellID)
+		if not spell or next(base.slots) then
+			spell = base
+		end
 	end
-	return key
+	itemSlots[item] = spell and spell.slots
+	return spell and spell.key or ""
 end
 
--- item frame -> font string (on an own frame above the cooldown swipe)
-local texts = {}
+-- item frame -> own frame above the cooldown swipe, holding the key text
+-- (.text) and the press highlight (.highlight)
+local overlays = {}
+
+local function GetOverlay(item)
+	local overlay = overlays[item]
+	if not overlay then
+		overlay = CreateFrame("Frame", nil, item)
+		overlay:SetAllPoints()
+		overlay:SetFrameLevel(item:GetFrameLevel() + 10)
+		overlay.text = overlay:CreateFontString(nil, "OVERLAY")
+		overlay.highlight = overlay:CreateTexture(nil, "ARTWORK")
+		overlay.highlight:SetColorTexture(1, 1, 1, 0.35)
+		overlay.highlight:SetBlendMode("ADD")
+		local icon = item.Icon or item
+		overlay.highlight:SetAllPoints(icon)
+		-- Same rounded corners as the icon.
+		local mask = icon.GetMaskTexture and icon:GetMaskTexture(1)
+		if mask then
+			overlay.highlight:AddMaskTexture(mask)
+		end
+		overlay.highlight:Hide()
+		overlays[item] = overlay
+	end
+	return overlay
+end
 
 local function UpdateItem(item, enabled, p)
-	local text = texts[item]
-	local key = enabled and GetItemKey(item) or ""
-	if key == "" then
-		if text then
-			text:Hide()
+	local key = GetItemKey(item)
+	if not enabled or key == "" then
+		if overlays[item] then
+			overlays[item].text:Hide()
 		end
 		return
 	end
-	if not text then
-		local overlay = CreateFrame("Frame", nil, item)
-		overlay:SetAllPoints()
-		overlay:SetFrameLevel(item:GetFrameLevel() + 10)
-		text = overlay:CreateFontString(nil, "OVERLAY")
-		texts[item] = text
-	end
+	local text = GetOverlay(item).text
 	local db = module.db
 	local font, _, flags = NumberFontNormal:GetFont()
 	text:SetFont(font, db[p .. "Size"], flags ~= "" and flags or "OUTLINE")
@@ -232,8 +266,67 @@ function module:UpdateAll()
 end
 
 function module:Invalidate()
-	wipe(keyCache)
+	wipe(spellCache)
 	self:UpdateAll()
+end
+
+-- action button -> overlays it lit up; released by the same button even if
+-- the bar paged (form change) while the key was held.
+local pressedOverlays = {}
+
+-- Bound keys run ActionButtonDown/Up or MultiActionButtonDown/Up; both get
+-- the pressed button, whose current action slot identifies the spell.
+function module:SetPressed(button, pressed)
+	if not button then
+		return
+	end
+	local lit = pressedOverlays[button]
+	if lit then
+		for _, overlay in ipairs(lit) do
+			overlay.highlight:Hide()
+		end
+		pressedOverlays[button] = nil
+	end
+	local slot = button.action
+	if not pressed or not slot or not self.db.pressHighlight then
+		return
+	end
+	lit = {}
+	for item, slots in pairs(itemSlots) do
+		if slots[slot] then
+			local overlay = GetOverlay(item)
+			overlay.highlight:Show()
+			lit[#lit + 1] = overlay
+		end
+	end
+	pressedOverlays[button] = lit
+end
+
+local function MultiBarButton(barName, id)
+	local bar = _G[barName]
+	return bar and bar.actionButtons and bar.actionButtons[id]
+end
+
+function module:HookPresses()
+	self:SecureHook("ActionButtonDown", function(_, id)
+		self:SetPressed(GetActionButtonForID(id), true)
+	end)
+	self:SecureHook("ActionButtonUp", function(_, id)
+		self:SetPressed(GetActionButtonForID(id), false)
+	end)
+	self:SecureHook("MultiActionButtonDown", function(_, barName, id)
+		self:SetPressed(MultiBarButton(barName, id), true)
+	end)
+	self:SecureHook("MultiActionButtonUp", function(_, barName, id)
+		self:SetPressed(MultiBarButton(barName, id), false)
+	end)
+end
+
+function module:ClearPressed()
+	wipe(pressedOverlays)
+	for _, overlay in pairs(overlays) do
+		overlay.highlight:Hide()
+	end
 end
 
 function module:HookViewers()
@@ -277,6 +370,7 @@ function module:OnEnable()
 	}) do
 		self:RegisterEvent(event, self.Invalidate)
 	end
+	self:HookPresses()
 	if C_AddOns.IsAddOnLoaded("Blizzard_CooldownViewer") then
 		self:HookViewers()
 	else
@@ -285,11 +379,15 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	for _, text in pairs(texts) do
-		text:Hide()
+	self:ClearPressed()
+	for _, overlay in pairs(overlays) do
+		overlay.text:Hide()
 	end
 end
 
-function module:OnOptionChanged()
+function module:OnOptionChanged(key)
+	if key == "pressHighlight" then
+		self:ClearPressed()
+	end
 	self:UpdateAll()
 end

@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -166,10 +166,6 @@ local function CreateWidget()
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
 end
 
-local function AtMaxLevel()
-	return IsPlayerAtEffectiveMaxLevel and IsPlayerAtEffectiveMaxLevel()
-end
-
 local function IsVertical()
 	return module.db.layout == "VERTICAL"
 end
@@ -262,7 +258,7 @@ function module:Update()
 	if not frame then
 		return
 	end
-	frame:SetShown(self.enabled and not AtMaxLevel())
+	frame:SetShown(self.enabled and not ns.Utils.IsAtMaxLevel())
 	if not frame:IsShown() then
 		return
 	end

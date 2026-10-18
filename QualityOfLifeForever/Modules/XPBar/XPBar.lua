@@ -1,4 +1,4 @@
--- luacheck: read globals C_Timer StatusTrackingBarManager GameTooltip GameTooltip_SetDefaultAnchor UIParent BreakUpLargeNumbers IsPlayerAtEffectiveMaxLevel MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR StatusTrackingBarInfo
+-- luacheck: read globals C_Timer StatusTrackingBarManager GameTooltip GameTooltip_SetDefaultAnchor UIParent BreakUpLargeNumbers MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer NORMAL_FONT_COLOR HIGHLIGHT_FONT_COLOR StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -158,7 +158,7 @@ local function AddLine(text)
 end
 
 function module:AddTooltipLines()
-	if not self.db.tooltip or (IsPlayerAtEffectiveMaxLevel and IsPlayerAtEffectiveMaxLevel()) then
+	if not self.db.tooltip or ns.Utils.IsAtMaxLevel() then
 		return
 	end
 	local xp, maxXP = XPSession.Read()
