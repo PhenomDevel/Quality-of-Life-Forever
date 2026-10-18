@@ -21,18 +21,25 @@ local module = ns:NewModule("QuestItemSparkle", {
 	category = "QUESTS",
 })
 
--- Graphics setting keys equal their CVar names (Blizzard settings: Graphics.lua).
-local CVARS = { graphicsOutlineMode = true, raidGraphicsOutlineMode = true }
+-- Outline mode keys equal their CVar names (Blizzard settings: Graphics.lua).
+-- outlineModeShowLootEffectWhenDisabled draws the sparkle while outlines are
+-- off (CVar named on the CurseForge page of "Forever
+-- Loot Sparkles", which describes the same fix).
+local CVARS = {
+	graphicsOutlineMode = "0",
+	raidGraphicsOutlineMode = "0",
+	outlineModeShowLootEffectWhenDisabled = "1",
+}
 
 function module:Apply()
-	for cvar in pairs(CVARS) do
-		self:SetCVar(cvar, 0)
+	for cvar, value in pairs(CVARS) do
+		self:SetCVar(cvar, value)
 	end
 end
 
 -- Graphics presets write the outline mode back; set it again right after.
 function module:CVAR_UPDATE(cvar, value)
-	if CVARS[cvar] and tostring(value) ~= "0" then
+	if CVARS[cvar] and tostring(value) ~= CVARS[cvar] then
 		C_Timer.After(0, function()
 			if self.enabled then
 				self:Apply()
