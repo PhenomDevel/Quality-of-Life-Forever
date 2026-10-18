@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFrame GetTime UnitPower UnitPowerMax UnitPowerType UnitAffectingCombat InCombatLockdown Enum
+-- luacheck: read globals CreateFrame GetTime UnitPower UnitPowerMax UnitPowerType UnitAffectingCombat InCombatLockdown Enum C_Spell
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -94,6 +94,9 @@ local COLORS = {
 }
 
 local IsSecret = ns.Utils.IsSecret
+local LibEditMode = ns.LibEditMode
+-- Shown as a preview while Edit Mode is open, so it can be found and moved.
+local editing = false
 
 local frame
 -- mode: "ENERGY", "MANA" or nil; last: last read power; lastTick: GetTime()
@@ -123,6 +126,9 @@ local function FiveSecondsLeft()
 end
 
 local function OnUpdate(self)
+	if editing then
+		return
+	end
 	if state.mode == "MANA" then
 		local left = FiveSecondsLeft()
 		if left <= 0 then
@@ -155,6 +161,12 @@ end
 
 function module:UpdateShown()
 	if not frame then
+		return
+	end
+	if editing and self.enabled then
+		frame.Bar:SetStatusBarColor(unpack(COLORS[state.mode or "ENERGY"]))
+		frame.Bar:SetValue(0.6)
+		frame:Show()
 		return
 	end
 	local shown = self.enabled and state.mode ~= nil
@@ -193,9 +205,8 @@ function module:UNIT_POWER_FREQUENT(unit)
 	local now = GetTime()
 	if state.last then
 		if state.mode == "MANA" then
-			-- Also out of combat: the opening spell is paid before combat starts.
 			if power < state.last then
-				state.spentAt = now
+				self:OnManaSpent()
 			end
 		elseif power > state.last and (not state.lastTick or now - state.lastTick >= MIN_TICK_GAP) then
 			state.lastTick = now
@@ -203,6 +214,32 @@ function module:UNIT_POWER_FREQUENT(unit)
 	end
 	state.last = power
 	self:UpdateShown()
+end
+
+-- Also out of combat: the opening spell is paid before combat starts.
+function module:OnManaSpent()
+	state.spentAt = GetTime()
+	self:UpdateShown()
+end
+
+local function CostsMana(spellID)
+	if not spellID or IsSecret(spellID) then
+		return false
+	end
+	for _, cost in ipairs(C_Spell.GetSpellPowerCost(spellID) or {}) do
+		if not IsSecret(cost.type) and cost.type == Enum.PowerType.Mana
+			and not IsSecret(cost.cost) and cost.cost > 0 then
+			return true
+		end
+	end
+	return false
+end
+
+-- Mana can be secret in combat, so a cast that costs mana counts as well.
+function module:UNIT_SPELLCAST_SUCCEEDED(unit, _, spellID)
+	if unit == "player" and state.mode == "MANA" and CostsMana(spellID) then
+		self:OnManaSpent()
+	end
 end
 
 function module:OnCombatEnd()
@@ -226,6 +263,18 @@ function module:OnEnable()
 	end
 	self:ApplyLayout()
 	self:RegisterEvent("UNIT_POWER_FREQUENT")
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	if not self.editModeHooked then
+		self.editModeHooked = true
+		LibEditMode:RegisterCallback("enter", function()
+			editing = true
+			self:UpdateShown()
+		end)
+		LibEditMode:RegisterCallback("exit", function()
+			editing = false
+			self:UpdateShown()
+		end)
+	end
 	self:RegisterEvent("UNIT_DISPLAYPOWER", function(_, unit)
 		if unit == "player" then
 			self:ResetPower()
