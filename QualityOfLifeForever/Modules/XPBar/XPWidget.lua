@@ -200,6 +200,7 @@ function module:UpdateQuests(xp, maxXP)
 	local amount = self.db.showQuestXP and questXP > 0 and questXP or nil
 	SetSegment(frame.Bar.Quests, xp, amount, maxXP)
 	frame.Quests:SetText(amount and L.QUESTS:format(BreakUpLargeNumbers(amount), questCount) or "")
+	return amount ~= nil
 end
 
 function module:Update()
@@ -220,7 +221,11 @@ function module:Update()
 	frame.Bar:SetValue(xp)
 	frame.Values:SetText(L.VALUES:format(BreakUpLargeNumbers(xp), BreakUpLargeNumbers(maxXP)))
 	self:UpdateRested(xp, maxXP)
-	self:UpdateQuests(xp, maxXP)
+	local questLineShown = self:UpdateQuests(xp, maxXP)
+	if questLineShown ~= self.questLineShown then
+		self.questLineShown = questLineShown
+		self:ApplyLayout()
+	end
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
@@ -301,7 +306,8 @@ function module:HookContainers()
 	end
 end
 
--- Font, size and bar position follow the text size and the shown lines.
+-- Font, size and bar position follow the text size. The quest line only
+-- takes space while it shows something.
 function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
@@ -311,7 +317,7 @@ function module:ApplyLayout()
 	frame.Bar:SetPoint("TOPLEFT", PADDING, -barTop)
 	frame.Bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
 	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
-	if self.db.showQuestXP then
+	if self.questLineShown then
 		height = height + lineHeight + 3
 	end
 	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
