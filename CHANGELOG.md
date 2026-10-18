@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.6.0 (2026-10-18)
+
+### Bags
+- New category for bag features
+- New: auto-sort bags – runs the game's bag cleanup when you open your
+  backpack (not in combat or with an item on the cursor)
+- New: free bag slots – free/total slots on the backpack button, red when
+  full, adjustable text size
+
+### Options
+- Notices in the module cards highlight game settings a module changes and
+  things it does on its own, also while the module is off
+
+### Quests
+- Quest item sparkle works now: it turns on the game's sparkle effect and
+  leaves the outline mode alone; your previous outline mode is restored.
+  Applies to objects that appear after enabling it
+
 ## v0.5.0 (2026-10-18)
 
 ### Options and look
