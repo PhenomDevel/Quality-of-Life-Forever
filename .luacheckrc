@@ -3,6 +3,8 @@ max_line_length = false
 codes = true
 exclude_files = {
 	".release/",
+	-- Third-party libraries, kept unmodified.
+	"QualityOfLifeForever/Libs/",
 }
 
 -- Ignore unused `self` and unused arguments starting with an underscore.
