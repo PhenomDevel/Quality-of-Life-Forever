@@ -1,11 +1,11 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP GetTime UnitGUID UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "XP widget",
 		NOTE = "Small movable XP display",
-		DESC = "A compact XP bar with level, progress, rested XP, XP from completed quests, XP per hour, time to level and how long the last level took. Drag it to move it; scale it in Edit Mode (Esc > Edit Mode, or right-click the minimap button). Hidden at max level.",
+		DESC = "A compact XP bar with level, progress, rested XP, XP from completed quests, XP per hour and time to level. Drag it to move it; scale it in Edit Mode (Esc > Edit Mode, or right-click the minimap button). Hidden at max level.",
 		EDIT_MODE_NAME = "QoL Forever: XP",
 		SHOW_RATE = "XP per hour and time to level",
 		SHOW_RATE_DESC = "Shows XP per hour and the time to the next level on the right. Counts from login or the last reset in the XP bar options; appears after the first minute with XP. Updated every 3 seconds.",
@@ -13,8 +13,6 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
-		SHOW_LAST_LEVEL = "Time of the last level",
-		SHOW_LAST_LEVEL_DESC = "Shows how long the last level took in played time. Measured by the widget itself, so it is only known for levels it tracked from start to end.",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
@@ -24,12 +22,11 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s rested",
 		QUESTS = "+%s from %d |4quest:quests;",
-		LAST_LEVEL = "Last level: %s",
 	},
 	deDE = {
 		TITLE = "EP-Widget",
 		NOTE = "Kleine verschiebbare EP-Anzeige",
-		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP aus abgeschlossenen Quests, EP pro Stunde, Zeit bis Level-up und Dauer der letzten Stufe. Zum Verschieben ziehen; skalieren im Bearbeitungsmodus (Esc > Bearbeitungsmodus oder Rechtsklick auf den Minimap-Knopf). Auf Maximalstufe ausgeblendet.",
+		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP aus abgeschlossenen Quests, EP pro Stunde und Zeit bis Level-up. Zum Verschieben ziehen; skalieren im Bearbeitungsmodus (Esc > Bearbeitungsmodus oder Rechtsklick auf den Minimap-Knopf). Auf Maximalstufe ausgeblendet.",
 		EDIT_MODE_NAME = "QoL Forever: EP",
 		SHOW_RATE = "EP pro Stunde und Zeit bis Level-up",
 		SHOW_RATE_DESC = "Zeigt rechts EP pro Stunde und die Zeit bis zur nächsten Stufe. Zählt ab dem Einloggen oder dem letzten Zurücksetzen in den Optionen der Erfahrungsleiste; erscheint nach der ersten Minute mit EP. Wird alle 3 Sekunden aktualisiert.",
@@ -37,8 +34,6 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
-		SHOW_LAST_LEVEL = "Dauer der letzten Stufe",
-		SHOW_LAST_LEVEL_DESC = "Zeigt, wie lange die letzte Stufe in Spielzeit gedauert hat. Das Widget misst selbst, daher ist die Dauer nur für Stufen bekannt, die es vom Anfang bis zum Ende mitgezählt hat.",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
 		HIDE_BLIZZARD = "Standard-EP-Leiste ausblenden",
@@ -48,7 +43,6 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s erholt",
 		QUESTS = "+%s aus %d |4Quest:Quests;",
-		LAST_LEVEL = "Letzte Stufe: %s",
 	},
 })
 
@@ -61,17 +55,13 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
-		showLastLevel = true,
 		fontSize = 11,
 		hideBlizzardBar = false,
-		-- [player GUID] = { level, seconds, complete, lastSeconds }
-		characters = {},
 	},
 	options = {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
-		{ key = "showLastLevel", type = "checkbox", label = L.SHOW_LAST_LEVEL, tooltip = L.SHOW_LAST_LEVEL_DESC },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 	},
@@ -137,9 +127,6 @@ local function CreateWidget()
 	frame.Rested:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
 
-	frame.LastLevel = CreateText(frame, "LEFT")
-	frame.LastLevel:SetPoint("TOPLEFT", frame.Values, "BOTTOMLEFT", 0, -3)
-	frame.LastLevel:SetTextColor(0.72, 0.72, 0.74)
 	frame.Quests = CreateText(frame, "RIGHT")
 	frame.Quests:SetPoint("TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -3)
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
@@ -213,48 +200,7 @@ function module:UpdateQuests(xp, maxXP)
 	local amount = self.db.showQuestXP and questXP > 0 and questXP or nil
 	SetSegment(frame.Bar.Quests, xp, amount, maxXP)
 	frame.Quests:SetText(amount and L.QUESTS:format(BreakUpLargeNumbers(amount), questCount) or "")
-end
-
--- Time per level -----------------------------------------------------------------
--- Played time at the current level, counted while the widget is on. A level
--- is only "complete" (and its time shown later) if it was counted from its
--- start; turning the widget off or a missing record makes it incomplete.
-
-local countingSince
-
-function module:LoadCharacter()
-	local guid, level = UnitGUID("player"), UnitLevel("player")
-	local character = self.db.characters[guid]
-	if not character or character.level ~= level then
-		-- With 0 XP the level has just started (e.g. a new character).
-		character = { level = level, seconds = 0, complete = XPSession.Read() == 0 }
-		self.db.characters[guid] = character
-	end
-	self.character = character
-	countingSince = GetTime()
-end
-
-function module:CountTime()
-	if countingSince and self.character then
-		local now = GetTime()
-		self.character.seconds = self.character.seconds + (now - countingSince)
-		countingSince = now
-	end
-end
-
-function module:OnLevelUp(level)
-	self:CountTime()
-	local character = self.character
-	character.lastSeconds = character.complete and character.seconds or nil
-	character.level, character.seconds, character.complete = level, 0, true
-	C_Timer.After(0, function()
-		self:Update()
-	end)
-end
-
-function module:UpdateLastLevel()
-	local seconds = self.db.showLastLevel and self.character and self.character.lastSeconds
-	frame.LastLevel:SetText(seconds and L.LAST_LEVEL:format(SecondsToTime(seconds, true)) or "")
+	return amount ~= nil
 end
 
 function module:Update()
@@ -275,8 +221,11 @@ function module:Update()
 	frame.Bar:SetValue(xp)
 	frame.Values:SetText(L.VALUES:format(BreakUpLargeNumbers(xp), BreakUpLargeNumbers(maxXP)))
 	self:UpdateRested(xp, maxXP)
-	self:UpdateQuests(xp, maxXP)
-	self:UpdateLastLevel()
+	local questLineShown = self:UpdateQuests(xp, maxXP)
+	if questLineShown ~= self.questLineShown then
+		self.questLineShown = questLineShown
+		self:ApplyLayout()
+	end
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
@@ -357,7 +306,8 @@ function module:HookContainers()
 	end
 end
 
--- Font, size and bar position follow the text size and the shown lines.
+-- Font, size and bar position follow the text size. The quest line only
+-- takes space while it shows something.
 function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
@@ -367,14 +317,14 @@ function module:ApplyLayout()
 	frame.Bar:SetPoint("TOPLEFT", PADDING, -barTop)
 	frame.Bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
 	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
-	if self.db.showQuestXP or self.db.showLastLevel then
+	if self.questLineShown then
 		height = height + lineHeight + 3
 	end
 	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "showQuestXP" or key == "showLastLevel" then
+	if key == "fontSize" or key == "showQuestXP" then
 		self:ApplyLayout()
 	end
 	if key == "hideBlizzardBar" then
@@ -407,12 +357,14 @@ function module:OnEnable()
 	end)
 	-- XPSession only reports gains; these cover level-ups, rested and resets.
 	self:RegisterEvent("PLAYER_XP_UPDATE", self.Update)
-	self:RegisterEvent("PLAYER_LEVEL_UP", self.OnLevelUp)
-	self:RegisterEvent("PLAYER_LOGOUT", self.CountTime)
+	self:RegisterEvent("PLAYER_LEVEL_UP", function()
+		C_Timer.After(0, function()
+			self:Update()
+		end)
+	end)
 	self:RegisterEvent("UPDATE_EXHAUSTION", self.Update)
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.QueueQuestScan)
 	self:RegisterEvent("QUEST_TURNED_IN", self.QueueQuestScan)
-	self:LoadCharacter()
 	self:QueueQuestScan()
 	self:UpdateTicker()
 	self:Update()
@@ -421,10 +373,6 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	-- Time while off isn't counted, so the current level can't be complete.
-	self:CountTime()
-	self.character.complete = false
-	countingSince = nil
 	XPSession.RegisterListener(self, nil)
 	self:UpdateTicker()
 	self:UpdateBlizzardBar()
