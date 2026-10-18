@@ -28,7 +28,7 @@ local module = ns:NewModule("TrainerReminder", {
 	note = L.NOTE,
 	category = "MERCHANT",
 	defaults = {
-		-- [player GUID] = { { name, rank, level, cost }, ... }
+		-- [player GUID] = { { name, rank, level, cost, icon }, ... }
 		characters = {},
 	},
 	status = function(self)
@@ -67,7 +67,7 @@ function module:Record()
 	local level = UnitLevel("player")
 	local upcoming = {}
 	for i = 1, GetNumTrainerServices() do
-		local name, serviceType, _, reqLevel, rank = GetTrainerServiceInfo(i)
+		local name, serviceType, icon, reqLevel, rank = GetTrainerServiceInfo(i)
 		if serviceType == "unavailable" and type(name) == "string" and not IsSecret(name)
 			and type(reqLevel) == "number" and reqLevel > level then
 			local cost = GetTrainerServiceCost(i)
@@ -76,6 +76,7 @@ function module:Record()
 				rank = rank ~= "" and rank or nil,
 				level = reqLevel,
 				cost = type(cost) == "number" and cost or 0,
+				icon = (type(icon) == "number" or type(icon) == "string") and not IsSecret(icon) and icon or nil,
 			}
 		end
 	end
@@ -90,7 +91,9 @@ function module:OnLevelUp(level)
 	local names, total, waiting = {}, 0, 0
 	for _, skill in ipairs(upcoming) do
 		if skill.level == level then
-			names[#names + 1] = skill.rank and ("%s (%s)"):format(skill.name, skill.rank) or skill.name
+			local text = skill.rank and ("%s (%s)"):format(skill.name, skill.rank) or skill.name
+			-- Records from before icons were stored have none.
+			names[#names + 1] = skill.icon and ("|T%s:0|t %s"):format(skill.icon, text) or text
 			total = total + skill.cost
 		elseif skill.level < level then
 			waiting = waiting + 1
