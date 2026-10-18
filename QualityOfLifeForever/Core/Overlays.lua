@@ -116,9 +116,9 @@ function ns:CreateOverlay(key, info)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:Hide()
 
-	local background = frame:CreateTexture(nil, "BACKGROUND")
-	background:SetAllPoints()
-	background:SetColorTexture(unpack(BACKGROUND))
+	frame.Background = frame:CreateTexture(nil, "BACKGROUND")
+	frame.Background:SetAllPoints()
+	frame.Background:SetColorTexture(unpack(BACKGROUND))
 	AddBorder(frame)
 
 	overlays[frame] = { key = key, default = info.default }
@@ -152,6 +152,11 @@ function ns:CreateOverlay(key, info)
 
 	Apply(frame, LibEditMode:GetActiveLayoutName())
 	return frame
+end
+
+-- Opacity of the shared background (0–1); the border stays as it is.
+function ns:SetOverlayBackgroundAlpha(frame, alpha)
+	frame.Background:SetColorTexture(BACKGROUND[1], BACKGROUND[2], BACKGROUND[3], alpha)
 end
 
 LibEditMode:RegisterCallback("layout", function(layoutName)
