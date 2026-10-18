@@ -1,3 +1,4 @@
+-- luacheck: read globals GameRulesUtil GetMaxPlayerLevel UnitLevel
 local _, ns = ...
 
 local Utils = {}
@@ -144,4 +145,17 @@ end
 -- compared or used in arithmetic. Check before doing logic with such values.
 function Utils.IsSecret(value)
 	return issecretvalue ~= nil and issecretvalue(value) or false
+end
+
+--------------------------------------------------------------------------------
+-- Player
+--------------------------------------------------------------------------------
+
+-- The max level check lives in GameRulesUtil in Forever, not in a global
+-- IsPlayerAtEffectiveMaxLevel().
+function Utils.IsAtMaxLevel()
+	if GameRulesUtil and GameRulesUtil.IsPlayerAtEffectiveMaxLevel then
+		return GameRulesUtil.IsPlayerAtEffectiveMaxLevel()
+	end
+	return GetMaxPlayerLevel ~= nil and UnitLevel("player") >= GetMaxPlayerLevel()
 end
