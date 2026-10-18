@@ -117,3 +117,18 @@ addons (ideas only, never their code).
 | 48 | [ ] Rare alert | Interface | `VIGNETTE_MINIMAP_UPDATED` + `C_VignetteInfo` | medium: vignette data in Forever |
 | 49 | [-] ~~Quest level in quest log and tracker~~ | Quests | dropped: built into Forever | – |
 | 50 | [x] Quest item sparkle (`QuestItemSparkle`) | Graphics & Camera | the game's sparkle only shows with outline mode off: keep `graphicsOutlineMode` at 0, re-apply after presets | low: no unit outlines on mouseover |
+
+## Round 4
+
+Day-to-day annoyances of Classic-style leveling with reagents and pets.
+
+| # | Idea | Area | Approach | Risk |
+|---|------|------|----------|------|
+| 51 | [ ] Restock reagents and ammo | Merchant & Trainer | own list with target amounts, `BuyMerchantItem` up to the target on `MERCHANT_SHOW` | low |
+| 52 | [ ] Auto greed on greens | Loot | `START_LOOT_ROLL` → `RollOnLoot`, chat note | low–medium: BoP confirmations |
+| 53 | [ ] Share accepted quests with the group | Quests | `QuestLogPushQuest` after `QUEST_ACCEPTED`, only in a group | low |
+| 54 | [ ] Invite on whisper keyword (e.g. "inv") | Social | `CHAT_MSG_WHISPER` → `C_PartyInfo.InviteUnit`, optionally friends/guild only | low |
+| 55 | [ ] Low durability warning | Interface | `UPDATE_INVENTORY_DURABILITY`, sound + chat once per threshold | low |
+| 56 | [ ] Flight time remaining | World map | `TAXIMAP_*`, durations measured by us on the first flight per route | medium |
+| 57 | [x] Pet happiness warning (`PetHappiness`) | Character | `UNIT_HAPPINESS` + `C_PetInfo.GetPetHappiness`, warn on drop or unhappy summon, diet in the message | low |
+| 58 | [ ] Buy stacks with Shift-click | Merchant & Trainer | hook the merchant item click, ask for the amount | low: may already be built in |
