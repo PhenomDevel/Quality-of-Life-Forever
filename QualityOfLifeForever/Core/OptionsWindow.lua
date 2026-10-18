@@ -248,6 +248,28 @@ rowTypes.header = {
 	end,
 }
 
+-- Yellow, wrapping hint from the module's `status` (e.g. data still missing).
+local STATUS_COLOR = { 1, 0.82, 0.3, 1 }
+
+rowTypes.status = {
+	create = function(parent)
+		local row = CreateFrame("Frame", nil, parent)
+		row.Label = Widgets.Text(row, fonts.small)
+		row.Label:SetPoint("TOPLEFT", 0, -6)
+		row.Label:SetWordWrap(true)
+		row.Label:SetTextColor(unpack(STATUS_COLOR))
+		row.Update = function() end
+		return row
+	end,
+	setup = function(row, spec)
+		row.Label:SetWidth(rowWidth)
+		row.Label:SetText(spec.label)
+		local height = row.Label:GetStringHeight() + 10
+		row:SetSize(rowWidth, height)
+		return height
+	end,
+}
+
 -- Gray single line, e.g. "More options appear when enabled."
 rowTypes.hint = {
 	create = function(parent)
@@ -440,6 +462,10 @@ local function ModuleCard(module, categoryName)
 		rows = {},
 	}
 	if module.db.enabled then
+		local status = module.status and module:status()
+		if status then
+			spec.rows[1] = { type = "status", label = status }
+		end
 		for _, option in ipairs(module.options) do
 			spec.rows[#spec.rows + 1] = OptionRow(module, option)
 		end
