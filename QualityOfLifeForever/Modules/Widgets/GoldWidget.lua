@@ -1,11 +1,11 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer GetMoney GetTime UnitGUID
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer GetMoney GetTime UnitGUID time
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Gold widget",
 		NOTE = "Your gold, gold this session and per hour",
-		DESC = "A small movable display of your gold, how much you gained or spent this session and gold per hour. Counts from login or the last {Reset} and continues after a /reload. Drag it to move it; scale it in {Edit Mode}.",
+		DESC = "A small movable display of your gold, how much you gained or spent this session and gold per hour. When a new session starts is up to you: on login, daily or only with {Reset}. Drag it to move it; scale it in {Edit Mode}.",
 		EDIT_MODE_NAME = "QoL Forever: Gold",
 		SECTION_SHOW = "Show",
 		SECTION_LOOK = "Appearance",
@@ -32,7 +32,7 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Gold-Widget",
 		NOTE = "Dein Gold, Gold dieser Sitzung und pro Stunde",
-		DESC = "Eine kleine verschiebbare Anzeige deines Golds, wie viel du in dieser Sitzung verdient oder ausgegeben hast, und Gold pro Stunde. Zählt ab dem Einloggen oder dem letzten {Zurücksetzen} und läuft nach einem /reload weiter. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
+		DESC = "Eine kleine verschiebbare Anzeige deines Golds, wie viel du in dieser Sitzung verdient oder ausgegeben hast, und Gold pro Stunde. Wann eine neue Sitzung beginnt, legst du fest: beim Einloggen, täglich oder nur mit {Zurücksetzen}. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
 		EDIT_MODE_NAME = "QoL Forever: Gold",
 		SECTION_SHOW = "Anzeigen",
 		SECTION_LOOK = "Darstellung",
@@ -69,6 +69,7 @@ local module = ns:NewModule("GoldWidget", {
 	category = "WIDGETS",
 	defaults = {
 		showSession = true,
+		sessionReset = "LOGIN",
 		showRate = true,
 		layout = "HORIZONTAL",
 		fontSize = 11,
@@ -92,6 +93,7 @@ local module = ns:NewModule("GoldWidget", {
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		{ type = "header", label = L.SECTION_SESSION },
+		{ key = "sessionReset", type = "dropdown", label = ns.L.SESSION_RESET, tooltip = ns.L.SESSION_RESET_DESC, values = ns.Utils.SessionResetValues() },
 		{
 			type = "button",
 			label = L.RESET,
@@ -112,13 +114,14 @@ local PADDING = 7
 local ROW_GAP = 3
 local COLUMN_GAP = 12
 local REFRESH_SECONDS = 5
--- A /reload keeps the session if the character comes back within this time.
-local RESUME_SECONDS = 600
 local GAIN_COLOR = { 0.45, 0.9, 0.45 }
 local LOSS_COLOR = { 1, 0.45, 0.45 }
 local NEUTRAL_COLOR = { 0.72, 0.72, 0.74 }
 
 local frame, ticker
+-- money: gold at the session start; elapsed: online seconds before `mark`
+-- (GetTime() of this login or the last save); nextReset: time() of the next
+-- daily reset.
 local session = {}
 
 local function Money()
@@ -135,29 +138,35 @@ local function FormatSigned(copper)
 end
 
 function module:ResetSession()
-	session.start = GetTime()
 	session.money = Money()
+	session.elapsed, session.mark = 0, GetTime()
+	session.nextReset = ns.Utils.NextDailyReset()
 end
 
--- Picks up the session saved on logout when it's the same character shortly
--- after (a /reload), otherwise starts a new one.
+local function Elapsed()
+	return session.elapsed + GetTime() - session.mark
+end
+
+-- Continues this character's saved session unless the reset mode says a new
+-- one is due.
 function module:ResumeSession()
-	local saved = self.db.session
-	self.db.session = nil
-	local age = saved and GetTime() - saved.savedAt
-	if age and age >= 0 and age < RESUME_SECONDS and saved.guid == UnitGUID("player") then
-		session.start, session.money = saved.start, saved.money
+	self.db.session = nil -- layout before the reset modes
+	self.db.sessions = self.db.sessions or {}
+	local saved = self.db.sessions[UnitGUID("player")]
+	if saved and saved.money and not ns.Utils.IsSessionExpired(saved, self.db.sessionReset) then
+		session.money, session.elapsed, session.nextReset = saved.money, saved.elapsed or 0, saved.nextReset
+		session.mark = GetTime()
 	else
 		self:ResetSession()
 	end
 end
 
 function module:SaveSession()
-	self.db.session = {
-		guid = UnitGUID("player"),
+	self.db.sessions[UnitGUID("player")] = {
 		savedAt = GetTime(),
-		start = session.start,
+		elapsed = Elapsed(),
 		money = session.money,
+		nextReset = session.nextReset,
 	}
 end
 
@@ -259,6 +268,9 @@ function module:Update()
 	if not money then
 		return
 	end
+	if self.db.sessionReset == "DAILY" and time() >= (session.nextReset or 0) then
+		self:ResetSession()
+	end
 	session.money = session.money or money
 	frame.Money:SetText(ns.Utils.FormatMoney(money))
 
@@ -269,7 +281,7 @@ function module:Update()
 		frame.Session:SetTextColor(unpack(color))
 	end
 
-	local elapsed = GetTime() - session.start
+	local elapsed = Elapsed()
 	if self.db.showRate and elapsed >= 60 and delta ~= 0 then
 		frame.Rate:SetText(L.RATE:format(FormatSigned(delta / elapsed * 3600)))
 	else
@@ -309,7 +321,7 @@ function module:OnEnable()
 	if not frame then
 		CreateWidget()
 	end
-	if not session.start then
+	if not session.mark then
 		self:ResumeSession()
 	end
 	self:ApplyLayout()
