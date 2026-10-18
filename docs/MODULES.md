@@ -25,6 +25,7 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 | `title`           | string  | Name in the options window (localized) |
 | `description`     | string  | Tooltip of the module title (localized) |
 | `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
+| `status`          | function | Optional `function(module)` returning a hint (localized) while the module can't work yet, else `nil`; shown in the options window |
 | `category`        | string  | `INTERFACE` (default), `CAMERA`, `CHARACTER`, `CHAT`, `COOLDOWN_MANAGER`, `GRAPHICS`, `LOOT`, `MAP`, `MERCHANT`, `QUESTS`, `SOCIAL`, `STATISTICS`, `TOOLTIP`, `XP_BAR` |
 | `order`           | number  | Position within the category; lower comes first, ties sorted by title (default 0) |
 | `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
