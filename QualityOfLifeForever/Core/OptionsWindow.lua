@@ -852,6 +852,10 @@ local function CreateHeader(parent)
 	byline:SetPoint("BOTTOMLEFT", title, "BOTTOMRIGHT", 8, 1)
 	byline:SetText(L.OPTIONS_BYLINE)
 
+	local version = Widgets.Text(header, fonts.dim)
+	version:SetPoint("BOTTOMLEFT", byline, "BOTTOMRIGHT", 8, 0)
+	version:SetText(L.OPTIONS_VERSION:format(ns.version))
+
 	local close = CreateCloseButton(header)
 	close:SetPoint("RIGHT", -PADDING + 4, 0)
 	CreateSearchBox(header):SetPoint("RIGHT", close, "LEFT", -10, 0)

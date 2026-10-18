@@ -68,7 +68,8 @@ local function SetHovered(hovered)
 end
 
 local function ShowTooltip(self)
-	local body = table.concat({ ns.version, L.MINIMAP_HINT_OPTIONS, L.MINIMAP_HINT_EDIT_MODE, L.MINIMAP_HINT_DRAG }, "\n")
+	local version = "|cffb8b8bc" .. L.OPTIONS_VERSION:format(ns.version) .. "|r"
+	local body = table.concat({ version, "", L.MINIMAP_HINT_OPTIONS, L.MINIMAP_HINT_EDIT_MODE, L.MINIMAP_HINT_DRAG }, "\n")
 	ns.OptionsWidgets.ShowTooltipAt(self, "TOPRIGHT", "BOTTOMLEFT", 0, 0, ns.title, body)
 end
 
