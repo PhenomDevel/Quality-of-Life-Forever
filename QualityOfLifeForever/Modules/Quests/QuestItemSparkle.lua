@@ -5,18 +5,21 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Quest item sparkle",
 		NOTE = "Quest objects in the world sparkle again",
-		DESC = "The game only shows the sparkle on quest items and objects while the graphics option \"Outline mode\" is disabled. This module keeps it disabled, also after you pick a graphics preset. Units are no longer outlined on mouseover. Disabling restores your previous outline mode.",
+		DESC = "The game only shows the sparkle on quest items and objects while the graphics option \"Outline mode\" is disabled. This module keeps it disabled, also after you pick a graphics preset, and turns the sparkle on.",
+		NOTICE = "Changes the graphics setting \"Outline mode\" (off) and the sparkle setting. Units are no longer outlined on mouseover. Disabling restores your previous settings.",
 	},
 	deDE = {
 		TITLE = "Questgegenstände funkeln",
 		NOTE = "Quest-Objekte in der Welt funkeln wieder",
-		DESC = "Das Spiel zeigt das Funkeln an Questgegenständen und -objekten nur, solange die Grafikoption „Umrissmodus“ deaktiviert ist. Dieses Modul hält ihn deaktiviert, auch nachdem du eine Grafikvoreinstellung wählst. Einheiten werden beim Überfahren mit der Maus nicht mehr umrandet. Beim Deaktivieren wird dein vorheriger Umrissmodus wiederhergestellt.",
+		DESC = "Das Spiel zeigt das Funkeln an Questgegenständen und -objekten nur, solange die Grafikoption „Umrissmodus“ deaktiviert ist. Dieses Modul hält ihn deaktiviert, auch nachdem du eine Grafikvoreinstellung wählst, und schaltet das Funkeln ein.",
+		NOTICE = "Ändert die Grafikeinstellung „Umrissmodus“ (aus) und die Funkel-Einstellung. Einheiten werden beim Überfahren mit der Maus nicht mehr umrandet. Beim Deaktivieren werden deine vorherigen Einstellungen wiederhergestellt.",
 	},
 })
 
 local module = ns:NewModule("QuestItemSparkle", {
 	title = L.TITLE,
 	description = L.DESC,
+	notice = L.NOTICE,
 	note = L.NOTE,
 	category = "QUESTS",
 })

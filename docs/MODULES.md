@@ -25,6 +25,7 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 | `title`           | string  | Name in the options window (localized) |
 | `description`     | string  | Tooltip of the module title (localized) |
 | `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
+| `notice`          | string  | Optional hint the user should not miss (localized), e.g. which game settings the module changes or what it does on its own; shown highlighted in the module's card, also while it is disabled. Keep it out of `description` |
 | `status`          | function | Optional `function(module)` returning a hint (localized) while the module can't work yet, else `nil`; shown in the options window |
 | `category`        | string  | `INTERFACE` (default), `CAMERA`, `CHARACTER`, `CHAT`, `COOLDOWN_MANAGER`, `GRAPHICS`, `LOOT`, `MAP`, `MERCHANT`, `QUESTS`, `SOCIAL`, `STATISTICS`, `TOOLTIP`, `XP_BAR` |
 | `order`           | number  | Position within the category; lower comes first, ties sorted by title (default 0) |

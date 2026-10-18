@@ -3,12 +3,14 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Instant quest text",
-		DESC = "Shows quest text at once instead of fading it in (CVar instantQuestText). Disabling restores your previous setting.",
+		DESC = "Shows quest text at once instead of fading it in.",
+		NOTICE = "Changes the game setting instantQuestText. Disabling restores your previous setting.",
 		UNSUPPORTED = "Instant quest text is not supported by this client (CVar instantQuestText missing).",
 	},
 	deDE = {
 		TITLE = "Questtext sofort anzeigen",
-		DESC = "Zeigt Questtexte sofort statt sie einzublenden (CVar instantQuestText). Beim Deaktivieren wird die vorherige Einstellung wiederhergestellt.",
+		DESC = "Zeigt Questtexte sofort statt sie einzublenden.",
+		NOTICE = "Ändert die Spieleinstellung instantQuestText. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 		UNSUPPORTED = "Sofortiger Questtext wird von diesem Client nicht unterstützt (CVar instantQuestText fehlt).",
 	},
 })
@@ -16,6 +18,7 @@ local L = ns.NewLocale({
 local module = ns:NewModule("InstantQuestText", {
 	title = L.TITLE,
 	description = L.DESC,
+	notice = L.NOTICE,
 	category = "QUESTS",
 })
 

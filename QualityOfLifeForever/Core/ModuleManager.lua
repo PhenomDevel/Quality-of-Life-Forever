@@ -201,6 +201,8 @@ ns.moduleOrder = {}
 		title           = string, shown in the options window (localized)
 		description     = string, tooltip of the module title (localized)
 		note            = optional short gray line shown below the title (localized)
+		notice          = optional hint the user should not miss, e.g. which game
+		                  settings the module changes (localized); always shown
 		status          = optional function(module) returning a hint while the module
 		                  still lacks something to work (e.g. data it records), else nil
 		category        = one of the ids in ns.categories (default "INTERFACE")
@@ -239,6 +241,7 @@ function ns:NewModule(name, info)
 		title = info.title or name,
 		description = info.description or "",
 		note = info.note,
+		notice = info.notice,
 		status = info.status,
 		category = category,
 		order = info.order or 0,
