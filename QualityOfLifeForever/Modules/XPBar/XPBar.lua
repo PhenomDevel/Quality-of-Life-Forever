@@ -94,7 +94,7 @@ local ticker
 
 -- Runs after Blizzard wrote "current / max" into the bar text.
 function module:AppendRate(bar)
-	if not self.db.rateText then
+	if not self.db.rateText or ns.blizzardXPBarHidden then
 		return
 	end
 	local perHour = XPSession.GetPerHour()
@@ -108,7 +108,11 @@ function module:AppendRate(bar)
 end
 
 -- Lets Blizzard rewrite the base text, which re-runs AppendRate via the hook.
+-- Skipped while the XP widget hides the bar.
 function module:RefreshBarText()
+	if ns.blizzardXPBarHidden then
+		return
+	end
 	for _, bar in ipairs(expBars) do
 		-- Unset until the bar's first update (e.g. at max level).
 		if bar.currXP and bar.maxBar then
@@ -133,7 +137,7 @@ function module:ApplyAlwaysText()
 end
 
 function module:UpdateTicker()
-	local wanted = self.enabled and self.db.rateText
+	local wanted = self.enabled and self.db.rateText and not ns.blizzardXPBarHidden
 	if wanted and not ticker then
 		ticker = C_Timer.NewTicker(REFRESH_SECONDS, function()
 			self:RefreshBarText()
