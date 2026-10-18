@@ -1,44 +1,46 @@
--- luacheck: read globals C_PetInfo HasPetUI InCombatLockdown PlaySound SOUNDKIT UIErrorsFrame PET_HAPPINESS1 PET_HAPPINESS2
+-- luacheck: read globals C_PetInfo HasPetUI InCombatLockdown PlaySound SOUNDKIT PET_HAPPINESS1 PET_HAPPINESS2
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Pet happiness warning",
 		NOTE = "Reminds you to feed your hunter pet",
-		DESC = "Warns you when your hunter pet's happiness drops and tells you what it eats. An unhappy pet deals less damage and loses loyalty.",
+		DESC = "Warns you with a popup when your hunter pet's happiness drops and tells you what it eats. An unhappy pet deals less damage and loses loyalty.",
 		WARN_AT = "Warn at happiness",
 		WARN_AT_DESC = "Happiness level at which the warning appears.",
 		NEUTRAL = "Content (yellow)",
 		MAD = "Unhappy (red)",
 		SECTION_WHEN = "When to warn",
 		SECTION_HOW = "How to warn",
-		SCREEN = "Also on screen",
-		SCREEN_DESC = "Shows the warning in the middle of the screen as well as in chat.",
 		SOUND = "Sound",
 		SOUND_DESC = "Plays a sound with the warning.",
 		AFTER_COMBAT = "Remind after combat",
 		AFTER_COMBAT_DESC = "Repeats the warning after each fight while the pet is still at or below the level.",
 		MESSAGE = "Your pet is %s (%d%% damage). Feed it: %s",
 		ANY_FOOD = "any food",
+		PREVIEW = "Preview",
+		PREVIEW_DESC = "Shows the warning popup, with your current pet if you have one out.",
+		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Begleiter-Zufriedenheit",
 		NOTE = "Erinnert ans Füttern deines Jäger-Begleiters",
-		DESC = "Warnt dich, wenn die Zufriedenheit deines Jäger-Begleiters sinkt, und zeigt, was er frisst. Ein unzufriedener Begleiter macht weniger Schaden und verliert Treue.",
+		DESC = "Warnt dich mit einem Popup, wenn die Zufriedenheit deines Jäger-Begleiters sinkt, und zeigt, was er frisst. Ein unzufriedener Begleiter macht weniger Schaden und verliert Treue.",
 		WARN_AT = "Warnen ab Zufriedenheit",
 		WARN_AT_DESC = "Zufriedenheitsstufe, ab der die Warnung erscheint.",
 		NEUTRAL = "Zufrieden (gelb)",
 		MAD = "Unglücklich (rot)",
 		SECTION_WHEN = "Wann warnen",
 		SECTION_HOW = "Wie warnen",
-		SCREEN = "Auch auf dem Bildschirm",
-		SCREEN_DESC = "Zeigt die Warnung zusätzlich zum Chat in der Bildschirmmitte.",
 		SOUND = "Ton",
 		SOUND_DESC = "Spielt einen Ton zur Warnung.",
 		AFTER_COMBAT = "Nach dem Kampf erinnern",
 		AFTER_COMBAT_DESC = "Wiederholt die Warnung nach jedem Kampf, solange der Begleiter auf oder unter der Stufe ist.",
 		MESSAGE = "Dein Begleiter ist %s (%d %% Schaden). Füttere ihn: %s",
 		ANY_FOOD = "beliebiges Futter",
+		PREVIEW = "Vorschau",
+		PREVIEW_DESC = "Zeigt das Warn-Popup, mit deinem aktuellen Begleiter, falls einer draußen ist.",
+		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -47,14 +49,37 @@ local L = ns.NewLocale({
 local MAD, NEUTRAL = 1, 2
 local HAPPINESS_TEXT = { [MAD] = PET_HAPPINESS1, [NEUTRAL] = PET_HAPPINESS2 }
 
+local IsSecret = ns.Utils.IsSecret
+
+-- Happiness and damage percentage of the active hunter pet, or nil.
+local function GetHappiness()
+	local _, isHunterPet = HasPetUI()
+	if not isHunterPet then
+		return nil
+	end
+	local happiness, damagePercentage = C_PetInfo.GetPetHappiness()
+	if type(happiness) ~= "number" or IsSecret(happiness) or IsSecret(damagePercentage) then
+		return nil
+	end
+	return happiness, damagePercentage or 0
+end
+
+local function GetDiet()
+	local _, isHunterPet = HasPetUI()
+	local diet = isHunterPet and C_PetInfo.GetPetFoodTypes()
+	if type(diet) == "table" and #diet > 0 then
+		return table.concat(diet, ", ")
+	end
+	return L.ANY_FOOD
+end
+
 local module = ns:NewModule("PetHappiness", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "REMINDERS",
 	defaults = {
 		warnAt = NEUTRAL,
-		screen = true,
 		sound = true,
 		afterCombat = true,
 	},
@@ -72,42 +97,26 @@ local module = ns:NewModule("PetHappiness", {
 		},
 		{ key = "afterCombat", type = "checkbox", label = L.AFTER_COMBAT, tooltip = L.AFTER_COMBAT_DESC },
 		{ type = "header", label = L.SECTION_HOW },
-		{ key = "screen", type = "checkbox", label = L.SCREEN, tooltip = L.SCREEN_DESC },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				local happiness, damagePercentage = GetHappiness()
+				-- Without a pet: a content pet deals normal damage.
+				self:Warn(happiness or NEUTRAL, damagePercentage or 100)
+			end,
+		},
 	},
 })
 
-local IsSecret = ns.Utils.IsSecret
+local ICON = "Interface\\Icons\\Ability_Hunter_BeastTraining"
 local lastHappiness
 
--- Happiness and damage percentage of the active hunter pet, or nil.
-local function GetHappiness()
-	local _, isHunterPet = HasPetUI()
-	if not isHunterPet then
-		return nil
-	end
-	local happiness, damagePercentage = C_PetInfo.GetPetHappiness()
-	if type(happiness) ~= "number" or IsSecret(happiness) or IsSecret(damagePercentage) then
-		return nil
-	end
-	return happiness, damagePercentage or 0
-end
-
-local function GetDiet()
-	local diet = C_PetInfo.GetPetFoodTypes()
-	if type(diet) == "table" and #diet > 0 then
-		return table.concat(diet, ", ")
-	end
-	return L.ANY_FOOD
-end
-
 function module:Warn(happiness, damagePercentage)
-	local message = L.MESSAGE:format(HAPPINESS_TEXT[happiness] or "", damagePercentage, GetDiet())
-	-- A warning, so not muted by the "chat messages" setting.
-	ns:Print(message)
-	if self.db.screen and UIErrorsFrame then
-		UIErrorsFrame:AddMessage(message, 1, 0.5, 0)
-	end
+	self:Notice(L.MESSAGE:format(HAPPINESS_TEXT[happiness] or "", damagePercentage, GetDiet()), ICON)
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end

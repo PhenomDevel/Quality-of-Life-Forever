@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto quests",
+		TITLE = "Auto-quests",
 		SECTION_ACTIONS = "Actions",
 		SECTION_FILTER = "Filter",
 		NOTE = "Accept and turn in quests; hold Shift to pause",
