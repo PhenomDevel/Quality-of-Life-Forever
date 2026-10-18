@@ -99,6 +99,14 @@ local function AddBorder(frame)
 	end
 end
 
+-- Shared panel look (overlays, notices): frame.Background and frame.Border.
+function ns:AddPanelBackground(frame)
+	frame.Background = frame:CreateTexture(nil, "BACKGROUND")
+	frame.Background:SetAllPoints()
+	frame.Background:SetColorTexture(unpack(BACKGROUND))
+	AddBorder(frame)
+end
+
 --[[
 	info = {
 		title    = name shown in Edit Mode (localized)
@@ -118,10 +126,7 @@ function ns:CreateOverlay(key, info)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:Hide()
 
-	frame.Background = frame:CreateTexture(nil, "BACKGROUND")
-	frame.Background:SetAllPoints()
-	frame.Background:SetColorTexture(unpack(BACKGROUND))
-	AddBorder(frame)
+	ns:AddPanelBackground(frame)
 
 	overlays[frame] = { key = key, default = info.default }
 	LibEditMode:AddFrame(frame, OnPositionChanged, info.default, info.title)

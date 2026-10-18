@@ -93,3 +93,13 @@ L.MINIMAP_HINT_DRAG = "|cffffd100Ziehen|r, um den Button zu verschieben."
 -- Overlays
 L.OVERLAY_SCALE = "Skalierung"
 L.EDIT_MODE_COMBAT = "Der Bearbeitungsmodus ist im Kampf nicht verfügbar."
+
+-- Notices
+L.SETTING_NOTICES = "Hinweise als Popup"
+L.SETTING_NOTICES_DESC = "Zeigt Hinweise und Erinnerungen (z. B. neue Fähigkeiten beim Lehrer, freie Talentpunkte) als kleine Popups statt im Chat. Sie erscheinen nur außerhalb des Kampfes; verschieben im {Bearbeitungsmodus}. Zum Schließen auf das Popup klicken."
+L.NOTICES_TEST = "Test-Popup"
+L.NOTICES_TEST_DESC = "Zeigt ein Beispiel-Popup, z. B. um seine Position zu prüfen."
+L.NOTICES_TEST_BUTTON = "Anzeigen"
+L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Hinweise"
+L.NOTICES_TEST_TITLE = "Quality of Life Forever"
+L.NOTICES_TEST_TEXT = "Hier erscheinen Hinweise und Erinnerungen. Verschieben im {Bearbeitungsmodus}; zum Schließen klicken."

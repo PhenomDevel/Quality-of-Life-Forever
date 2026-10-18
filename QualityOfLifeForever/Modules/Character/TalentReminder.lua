@@ -1,19 +1,20 @@
--- luacheck: read globals C_ClassTalents C_Timer PlaySound SOUNDKIT UIErrorsFrame TalentMicroButton
+-- luacheck: read globals C_ClassTalents C_Timer PlaySound SOUNDKIT TalentMicroButton UnitGUID time
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Talent point reminder",
 		NOTE = "Reminds you of unspent talent points",
-		DESC = "Reminds you of unspent talent points after a level-up and when you log in, and shows their number on the talent button of the micro menu.",
+		DESC = "Reminds you with a popup when you log in with unspent talent points or leave them unspent for a while after a level-up, and shows their number on the talent button of the micro menu.",
 		SECTION_WHEN = "When to remind",
 		LEVEL_UP = "After a level-up",
-		LEVEL_UP_DESC = "Reminds you when a level-up leaves you with unspent talent points.",
+		LEVEL_UP_DESC = "Reminds you when talent points from a level-up are still unspent after the time below.",
+		LEVEL_UP_DELAY = "Remind after",
+		LEVEL_UP_DELAY_DESC = "How long after a level-up the reminder appears if the points are still unspent.",
+		MINUTES = "%d min",
 		LOGIN = "On login",
 		LOGIN_DESC = "Reminds you after logging in if you have unspent talent points.",
 		SECTION_HOW = "How to remind",
-		SCREEN = "Also on screen",
-		SCREEN_DESC = "Shows the reminder in the middle of the screen as well as in chat.",
 		SOUND = "Sound",
 		SOUND_DESC = "Plays a sound with the reminder.",
 		BADGE = "Number on talent button",
@@ -24,15 +25,16 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Talentpunkt-Erinnerung",
 		NOTE = "Erinnert an freie Talentpunkte",
-		DESC = "Erinnert dich nach einem Level-up und beim Einloggen an freie Talentpunkte und zeigt ihre Anzahl auf der Talent-Taste des Mikromenüs.",
+		DESC = "Erinnert dich mit einem Popup, wenn du mit freien Talentpunkten einloggst oder sie nach einem Level-up eine Weile nicht verteilst, und zeigt ihre Anzahl auf der Talent-Taste des Mikromenüs.",
 		SECTION_WHEN = "Wann erinnern",
 		LEVEL_UP = "Nach einem Level-up",
-		LEVEL_UP_DESC = "Erinnert dich, wenn du nach einem Level-up freie Talentpunkte hast.",
+		LEVEL_UP_DESC = "Erinnert dich, wenn die Talentpunkte eines Level-ups nach der unten eingestellten Zeit noch nicht verteilt sind.",
+		LEVEL_UP_DELAY = "Erinnern nach",
+		LEVEL_UP_DELAY_DESC = "Wie lange nach einem Level-up die Erinnerung erscheint, wenn die Punkte noch nicht verteilt sind.",
+		MINUTES = "%d Min.",
 		LOGIN = "Beim Einloggen",
 		LOGIN_DESC = "Erinnert dich nach dem Einloggen, wenn du freie Talentpunkte hast.",
 		SECTION_HOW = "Wie erinnern",
-		SCREEN = "Auch auf dem Bildschirm",
-		SCREEN_DESC = "Zeigt die Erinnerung zusätzlich zum Chat in der Bildschirmmitte.",
 		SOUND = "Ton",
 		SOUND_DESC = "Spielt einen Ton zur Erinnerung.",
 		BADGE = "Anzahl auf der Talent-Taste",
@@ -42,6 +44,10 @@ local L = ns.NewLocale({
 	},
 })
 
+local function FormatMinutes(value)
+	return L.MINUTES:format(value)
+end
+
 local module = ns:NewModule("TalentReminder", {
 	title = L.TITLE,
 	description = L.DESC,
@@ -49,28 +55,31 @@ local module = ns:NewModule("TalentReminder", {
 	category = "CHARACTER",
 	defaults = {
 		levelUp = true,
+		levelUpDelay = 60,
 		login = true,
-		screen = true,
 		sound = false,
 		badge = true,
+		-- [player GUID] = time() of the level-up whose points are still unspent
+		pending = {},
 	},
 	options = {
 		{ type = "header", label = L.SECTION_WHEN },
-		{ key = "levelUp", type = "checkbox", label = L.LEVEL_UP, tooltip = L.LEVEL_UP_DESC },
 		{ key = "login", type = "checkbox", label = L.LOGIN, tooltip = L.LOGIN_DESC },
+		{ key = "levelUp", type = "checkbox", label = L.LEVEL_UP, tooltip = L.LEVEL_UP_DESC },
+		{ key = "levelUpDelay", type = "slider", label = L.LEVEL_UP_DELAY, tooltip = L.LEVEL_UP_DELAY_DESC, min = 5, max = 120, step = 5, format = FormatMinutes },
 		{ type = "header", label = L.SECTION_HOW },
-		{ key = "screen", type = "checkbox", label = L.SCREEN, tooltip = L.SCREEN_DESC },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
 		{ key = "badge", type = "checkbox", label = L.BADGE, tooltip = L.BADGE_DESC },
 	},
 })
 
 -- The new point arrives shortly after PLAYER_LEVEL_UP; the login check
--- waits until the chat is ready.
+-- waits until the chat and talent data are ready.
 local LEVEL_UP_DELAY = 1
 local LOGIN_DELAY = 5
+local ICON = "Interface\\Icons\\INV_Misc_Book_11"
 
-local badge
+local badge, timer
 
 -- Returns whether points are unspent and how many (nil if unknown).
 local function Unspent()
@@ -90,11 +99,7 @@ function module:Remind()
 	if not hasUnspent then
 		return
 	end
-	local message = count and L.MESSAGE:format(count) or L.MESSAGE_UNKNOWN
-	self:Print(message)
-	if self.db.screen and UIErrorsFrame then
-		UIErrorsFrame:AddMessage(message, 1, 0.82, 0)
-	end
+	self:Notice(count and L.MESSAGE:format(count) or L.MESSAGE_UNKNOWN, ICON)
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end
@@ -120,14 +125,49 @@ function module:UpdateBadge()
 	badge:Show()
 end
 
+function module:CancelTimer()
+	if timer then
+		timer:Cancel()
+		timer = nil
+	end
+end
+
+-- Runs the level-up reminder for the pending level-up of this character;
+-- the time is saved, so it survives a /reload.
+function module:SchedulePending()
+	self:CancelTimer()
+	local since = self.db.pending[UnitGUID("player")]
+	if not since or not self.db.levelUp then
+		return
+	end
+	local remaining = math.max(since + self.db.levelUpDelay * 60 - time(), 0)
+	timer = C_Timer.NewTimer(remaining, function()
+		timer = nil
+		self.db.pending[UnitGUID("player")] = nil
+		self:Remind()
+	end)
+end
+
+-- Points spent: nothing left to remind of.
+function module:OnTalentsChanged()
+	self:UpdateBadge()
+	if not Unspent() and self.db.pending[UnitGUID("player")] then
+		self.db.pending[UnitGUID("player")] = nil
+		self:CancelTimer()
+	end
+end
+
 function module:PLAYER_LEVEL_UP()
 	C_Timer.After(LEVEL_UP_DELAY, function()
 		if not self.enabled then
 			return
 		end
 		self:UpdateBadge()
-		if self.db.levelUp then
-			self:Remind()
+		local guid = UnitGUID("player")
+		-- The reminder counts from the oldest unspent level-up.
+		if Unspent() and not self.db.pending[guid] then
+			self.db.pending[guid] = time()
+			self:SchedulePending()
 		end
 	end)
 end
@@ -136,26 +176,35 @@ function module:PLAYER_ENTERING_WORLD(isInitialLogin)
 	self:UpdateBadge()
 	if isInitialLogin and self.db.login then
 		C_Timer.After(LOGIN_DELAY, function()
-			if self.enabled then
-				self:Remind()
+			if not self.enabled then
+				return
 			end
+			-- The login reminder covers a level-up from an earlier session.
+			self.db.pending[UnitGUID("player")] = nil
+			self:CancelTimer()
+			self:Remind()
 		end)
 	end
 end
 
-function module:OnOptionChanged()
+function module:OnOptionChanged(key)
 	self:UpdateBadge()
+	if key == "levelUp" or key == "levelUpDelay" then
+		self:SchedulePending()
+	end
 end
 
 function module:OnEnable()
 	self:RegisterEvent("PLAYER_LEVEL_UP")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	for _, event in ipairs({ "PLAYER_TALENT_UPDATE", "TRAIT_CONFIG_UPDATED", "CHARACTER_POINTS_CHANGED" }) do
-		self:RegisterEvent(event, self.UpdateBadge)
+		self:RegisterEvent(event, self.OnTalentsChanged)
 	end
 	self:UpdateBadge()
+	self:SchedulePending()
 end
 
 function module:OnDisable()
+	self:CancelTimer()
 	self:UpdateBadge()
 end
