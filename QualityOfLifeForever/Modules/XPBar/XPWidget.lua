@@ -1,38 +1,50 @@
--- luacheck: read globals C_Timer UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals C_Timer C_QuestLog GetQuestLogRewardXP GetTime UnitGUID UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "XP widget",
 		NOTE = "Small movable XP display",
-		DESC = "A compact XP bar with level, progress, rested XP, XP per hour and time to level. Move and scale it in Edit Mode (Esc > Edit Mode, or right-click the minimap button). Hidden at max level.",
+		DESC = "A compact XP bar with level, progress, rested XP, XP from completed quests, XP per hour, time to level and how long the last level took. Move and scale it in Edit Mode (Esc > Edit Mode, or right-click the minimap button). Hidden at max level.",
 		EDIT_MODE_NAME = "QoL Forever: XP",
 		SHOW_RATE = "XP per hour and time to level",
 		SHOW_RATE_DESC = "Shows XP per hour and the time to the next level on the right. Counts from login or the last reset in the XP bar options; appears after the first minute with XP.",
 		SHOW_RESTED = "Rested XP",
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
+		SHOW_QUESTS = "XP from completed quests",
+		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		SHOW_LAST_LEVEL = "Time of the last level",
+		SHOW_LAST_LEVEL_DESC = "Shows how long the last level took in played time. Measured by the widget itself, so it is only known for levels it tracked from start to end.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
 		HIDE_BLIZZARD_DESC = "Makes the game's XP bar invisible while the widget is on. Its place stays free, so the action bars don't move; a reputation bar is not affected. The XP bar module then stops updating its text.",
 		LEVEL = "Level %d  ·  %.1f%%",
 		RATE = "%s/h  ·  %s",
 		VALUES = "%s / %s",
 		RESTED = "+%s rested",
+		QUESTS = "+%s from %d |4quest:quests;",
+		LAST_LEVEL = "Last level: %s",
 	},
 	deDE = {
 		TITLE = "EP-Widget",
 		NOTE = "Kleine verschiebbare EP-Anzeige",
-		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP pro Stunde und Zeit bis Level-up. Verschieben und skalieren im Bearbeitungsmodus (Esc > Bearbeitungsmodus oder Rechtsklick auf den Minimap-Knopf). Auf Maximalstufe ausgeblendet.",
+		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP aus abgeschlossenen Quests, EP pro Stunde, Zeit bis Level-up und Dauer der letzten Stufe. Verschieben und skalieren im Bearbeitungsmodus (Esc > Bearbeitungsmodus oder Rechtsklick auf den Minimap-Knopf). Auf Maximalstufe ausgeblendet.",
 		EDIT_MODE_NAME = "QoL Forever: EP",
 		SHOW_RATE = "EP pro Stunde und Zeit bis Level-up",
 		SHOW_RATE_DESC = "Zeigt rechts EP pro Stunde und die Zeit bis zur nächsten Stufe. Zählt ab dem Einloggen oder dem letzten Zurücksetzen in den Optionen der Erfahrungsleiste; erscheint nach der ersten Minute mit EP.",
 		SHOW_RESTED = "Erholungsbonus",
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
+		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
+		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		SHOW_LAST_LEVEL = "Dauer der letzten Stufe",
+		SHOW_LAST_LEVEL_DESC = "Zeigt, wie lange die letzte Stufe in Spielzeit gedauert hat. Das Widget misst selbst, daher ist die Dauer nur für Stufen bekannt, die es vom Anfang bis zum Ende mitgezählt hat.",
 		HIDE_BLIZZARD = "Standard-EP-Leiste ausblenden",
 		HIDE_BLIZZARD_DESC = "Macht die EP-Leiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine Rufleiste bleibt sichtbar. Das Modul Erfahrungsleiste aktualisiert ihren Text dann nicht mehr.",
 		LEVEL = "Stufe %d  ·  %.1f %%",
 		RATE = "%s/h  ·  %s",
 		VALUES = "%s / %s",
 		RESTED = "+%s erholt",
+		QUESTS = "+%s aus %d |4Quest:Quests;",
+		LAST_LEVEL = "Letzte Stufe: %s",
 	},
 })
 
@@ -44,22 +56,30 @@ local module = ns:NewModule("XPWidget", {
 	defaults = {
 		showRate = true,
 		showRested = true,
+		showQuestXP = true,
+		showLastLevel = true,
 		hideBlizzardBar = false,
+		-- [player GUID] = { level, seconds, complete, lastSeconds }
+		characters = {},
 	},
 	options = {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
+		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ key = "showLastLevel", type = "checkbox", label = L.SHOW_LAST_LEVEL, tooltip = L.SHOW_LAST_LEVEL_DESC },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 	},
 })
 
 local XPSession = ns.XPSession
-local WIDTH, HEIGHT = 260, 44
+local WIDTH, HEIGHT, HEIGHT_EXTRA_LINE = 260, 44, 60
 local PADDING = 7
 local BAR_HEIGHT = 6
 local REFRESH_SECONDS = 15
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
 local RESTED_COLOR = { 0.4, 0.6, 1, 0.6 }
+local QUEST_COLOR = { 1, 0.78, 0.25, 0.8 }
+local QUEST_SCAN_DELAY = 0.5
 
 local frame, ticker
 
@@ -94,40 +114,142 @@ local function CreateWidget()
 	local track = bar:CreateTexture(nil, "BACKGROUND")
 	track:SetAllPoints()
 	track:SetColorTexture(0.22, 0.22, 0.24, 1)
-	-- Rested XP: from the end of the current XP up to current + rested.
-	bar.Rested = bar:CreateTexture(nil, "ARTWORK", nil, -1)
+	-- Segments after the current XP: completed quests on top of rested XP.
+	bar.Rested = bar:CreateTexture(nil, "ARTWORK", nil, -2)
 	bar.Rested:SetColorTexture(unpack(RESTED_COLOR))
-	bar.Rested:SetPoint("TOP")
-	bar.Rested:SetPoint("BOTTOM")
+	bar.Quests = bar:CreateTexture(nil, "ARTWORK", nil, -1)
+	bar.Quests:SetColorTexture(unpack(QUEST_COLOR))
+	for _, segment in ipairs({ bar.Rested, bar.Quests }) do
+		segment:SetPoint("TOP")
+		segment:SetPoint("BOTTOM")
+	end
 	frame.Bar = bar
 
 	frame.Values = CreateText(frame, "LEFT")
-	frame.Values:SetPoint("BOTTOMLEFT", PADDING, PADDING - 2)
+	frame.Values:SetPoint("TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
 	frame.Values:SetTextColor(0.72, 0.72, 0.74)
 	frame.Rested = CreateText(frame, "RIGHT")
-	frame.Rested:SetPoint("BOTTOMRIGHT", -PADDING, PADDING - 2)
+	frame.Rested:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
+
+	frame.LastLevel = CreateText(frame, "LEFT")
+	frame.LastLevel:SetPoint("TOPLEFT", frame.Values, "BOTTOMLEFT", 0, -3)
+	frame.LastLevel:SetTextColor(0.72, 0.72, 0.74)
+	frame.Quests = CreateText(frame, "RIGHT")
+	frame.Quests:SetPoint("TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -3)
+	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
 end
 
 local function AtMaxLevel()
 	return IsPlayerAtEffectiveMaxLevel and IsPlayerAtEffectiveMaxLevel()
 end
 
-function module:UpdateRested(xp, maxXP)
-	local bar = frame.Bar
-	local rested = self.db.showRested and GetXPExhaustion()
-	if not rested or ns.Utils.IsSecret(rested) or rested <= 0 then
-		bar.Rested:Hide()
-		frame.Rested:SetText("")
+-- Shows `segment` from the current XP over `amount` more XP, clipped at the bar end.
+local function SetSegment(segment, xp, amount, maxXP)
+	if not amount or amount <= 0 then
+		segment:Hide()
 		return
 	end
-	local width = bar:GetWidth()
+	local width = frame.Bar:GetWidth()
 	local from = xp / maxXP * width
-	local to = math.min(1, (xp + rested) / maxXP) * width
-	bar.Rested:SetPoint("LEFT", bar, "LEFT", from, 0)
-	bar.Rested:SetWidth(math.max(1, to - from))
-	bar.Rested:Show()
-	frame.Rested:SetText(L.RESTED:format(BreakUpLargeNumbers(rested)))
+	local to = math.min(1, (xp + amount) / maxXP) * width
+	segment:SetPoint("LEFT", frame.Bar, "LEFT", from, 0)
+	segment:SetWidth(math.max(1, to - from))
+	segment:Show()
+end
+
+function module:UpdateRested(xp, maxXP)
+	local rested = self.db.showRested and GetXPExhaustion()
+	if not rested or ns.Utils.IsSecret(rested) or rested <= 0 then
+		rested = nil
+	end
+	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
+	frame.Rested:SetText(rested and L.RESTED:format(BreakUpLargeNumbers(rested)) or "")
+end
+
+-- Completed quests -------------------------------------------------------------
+-- The quest log changes often (QUEST_LOG_UPDATE), so scans are batched.
+
+local questXP, questCount = 0, 0
+local questScan
+
+local function IsDone(questID)
+	return C_QuestLog.ReadyForTurnIn(questID) or C_QuestLog.IsComplete(questID)
+end
+
+local function ScanQuests()
+	local total, count = 0, 0
+	for index = 1, C_QuestLog.GetNumQuestLogEntries() do
+		local info = C_QuestLog.GetInfo(index)
+		if info and not info.isHeader and info.questID and IsDone(info.questID) then
+			local reward = GetQuestLogRewardXP(info.questID)
+			if type(reward) == "number" and not ns.Utils.IsSecret(reward) and reward > 0 then
+				total, count = total + reward, count + 1
+			end
+		end
+	end
+	questXP, questCount = total, count
+end
+
+function module:QueueQuestScan()
+	if questScan or not self.db.showQuestXP then
+		return
+	end
+	questScan = C_Timer.NewTimer(QUEST_SCAN_DELAY, function()
+		questScan = nil
+		if self.enabled then
+			ScanQuests()
+			self:Update()
+		end
+	end)
+end
+
+function module:UpdateQuests(xp, maxXP)
+	local amount = self.db.showQuestXP and questXP > 0 and questXP or nil
+	SetSegment(frame.Bar.Quests, xp, amount, maxXP)
+	frame.Quests:SetText(amount and L.QUESTS:format(BreakUpLargeNumbers(amount), questCount) or "")
+end
+
+-- Time per level -----------------------------------------------------------------
+-- Played time at the current level, counted while the widget is on. A level
+-- is only "complete" (and its time shown later) if it was counted from its
+-- start; turning the widget off or a missing record makes it incomplete.
+
+local countingSince
+
+function module:LoadCharacter()
+	local guid, level = UnitGUID("player"), UnitLevel("player")
+	local character = self.db.characters[guid]
+	if not character or character.level ~= level then
+		-- With 0 XP the level has just started (e.g. a new character).
+		character = { level = level, seconds = 0, complete = XPSession.Read() == 0 }
+		self.db.characters[guid] = character
+	end
+	self.character = character
+	countingSince = GetTime()
+end
+
+function module:CountTime()
+	if countingSince and self.character then
+		local now = GetTime()
+		self.character.seconds = self.character.seconds + (now - countingSince)
+		countingSince = now
+	end
+end
+
+function module:OnLevelUp(level)
+	self:CountTime()
+	local character = self.character
+	character.lastSeconds = character.complete and character.seconds or nil
+	character.level, character.seconds, character.complete = level, 0, true
+	C_Timer.After(0, function()
+		self:Update()
+	end)
+end
+
+function module:UpdateLastLevel()
+	local seconds = self.db.showLastLevel and self.character and self.character.lastSeconds
+	frame.LastLevel:SetText(seconds and L.LAST_LEVEL:format(SecondsToTime(seconds, true)) or "")
 end
 
 function module:Update()
@@ -148,6 +270,9 @@ function module:Update()
 	frame.Bar:SetValue(xp)
 	frame.Values:SetText(L.VALUES:format(BreakUpLargeNumbers(xp), BreakUpLargeNumbers(maxXP)))
 	self:UpdateRested(xp, maxXP)
+	self:UpdateQuests(xp, maxXP)
+	self:UpdateLastLevel()
+	frame:SetHeight((self.db.showQuestXP or self.db.showLastLevel) and HEIGHT_EXTRA_LINE or HEIGHT)
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
@@ -233,6 +358,9 @@ function module:OnOptionChanged(key)
 		self:UpdateBlizzardBar()
 		return
 	end
+	if key == "showQuestXP" then
+		self:QueueQuestScan()
+	end
 	self:UpdateTicker()
 	self:Update()
 end
@@ -248,12 +376,13 @@ function module:OnEnable()
 	end)
 	-- XPSession only reports gains; these cover level-ups, rested and resets.
 	self:RegisterEvent("PLAYER_XP_UPDATE", self.Update)
-	self:RegisterEvent("PLAYER_LEVEL_UP", function()
-		C_Timer.After(0, function()
-			self:Update()
-		end)
-	end)
+	self:RegisterEvent("PLAYER_LEVEL_UP", self.OnLevelUp)
+	self:RegisterEvent("PLAYER_LOGOUT", self.CountTime)
 	self:RegisterEvent("UPDATE_EXHAUSTION", self.Update)
+	self:RegisterEvent("QUEST_LOG_UPDATE", self.QueueQuestScan)
+	self:RegisterEvent("QUEST_TURNED_IN", self.QueueQuestScan)
+	self:LoadCharacter()
+	self:QueueQuestScan()
 	self:UpdateTicker()
 	self:Update()
 	self:HookContainers()
@@ -261,6 +390,10 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
+	-- Time while off isn't counted, so the current level can't be complete.
+	self:CountTime()
+	self.character.complete = false
+	countingSince = nil
 	XPSession.RegisterListener(self, nil)
 	self:UpdateTicker()
 	self:UpdateBlizzardBar()
