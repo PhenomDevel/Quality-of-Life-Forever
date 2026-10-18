@@ -9,7 +9,7 @@ local L = ns.NewLocale({
 		NOTE = "Scale and position of the windowed map",
 		DESC = "Scales the windowed world map (map and quest log) and lets you move it by dragging its title bar. The position is saved. The fullscreen map stays unchanged.",
 		SCALE = "Scale",
-		SCALE_DESC = "Size of the windowed map.",
+		SCALE_DESC = "Size of the windowed map, 50 to 150 %. Above 100 % the map is kept inside the screen.",
 		MOVABLE = "Movable",
 		MOVABLE_DESC = "Drag the title bar of the windowed map to move it.",
 		RESET = "Saved position",
@@ -23,7 +23,7 @@ local L = ns.NewLocale({
 		NOTE = "Größe und Position der Fensterkarte",
 		DESC = "Skaliert die Weltkarte im Fenstermodus (Karte und Questlog) und lässt sie sich an der Titelleiste verschieben. Die Position wird gespeichert. Die Vollbildkarte bleibt unverändert.",
 		SCALE = "Skalierung",
-		SCALE_DESC = "Größe der Karte im Fenstermodus.",
+		SCALE_DESC = "Größe der Karte im Fenstermodus, 50 bis 150 %. Über 100 % wird die Karte innerhalb des Bildschirms gehalten.",
 		MOVABLE = "Verschiebbar",
 		MOVABLE_DESC = "Die Titelleiste der Fensterkarte ziehen, um sie zu verschieben.",
 		RESET = "Gespeicherte Position",
@@ -47,7 +47,7 @@ local module = ns:NewModule("WorldMapWindow", {
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SIZE },
-		{ key = "scale", type = "slider", label = L.SCALE, tooltip = L.SCALE_DESC, min = 0.5, max = 1, step = 0.05, format = FormatPercent },
+		{ key = "scale", type = "slider", label = L.SCALE, tooltip = L.SCALE_DESC, min = 0.5, max = 1.5, step = 0.05, format = FormatPercent },
 		{ type = "header", label = L.SECTION_POSITION },
 		{ key = "movable", type = "checkbox", label = L.MOVABLE, tooltip = L.MOVABLE_DESC },
 		{
@@ -84,6 +84,26 @@ local function SetScaleKeepingCorner(scale)
 	end
 end
 
+-- Moves the map back inside the screen if it sticks out (larger scales grow
+-- it to the right and down from its top left corner).
+local function KeepOnScreen()
+	local scale = WorldMapFrame:GetScale()
+	local left, top = WorldMapFrame:GetLeft(), WorldMapFrame:GetTop()
+	if not (left and top) then
+		return
+	end
+	-- UIParent coordinates.
+	left, top = left * scale, top * scale
+	local width, height = WorldMapFrame:GetWidth() * scale, WorldMapFrame:GetHeight() * scale
+	local screenWidth, screenHeight = UIParent:GetWidth(), UIParent:GetHeight()
+	local newLeft = math.max(0, math.min(left, screenWidth - width))
+	local newTop = math.min(screenHeight, math.max(top, height))
+	if newLeft ~= left or newTop ~= top then
+		WorldMapFrame:ClearAllPoints()
+		WorldMapFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", newLeft / scale, newTop / scale)
+	end
+end
+
 -- Runs after Blizzard positioned the map (show, minimize/maximize, other
 -- panels opening).
 function module:Apply()
@@ -109,6 +129,7 @@ function module:Apply()
 		WorldMapFrame:ClearAllPoints()
 		WorldMapFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", self.db.x / scale, self.db.y / scale)
 	end
+	KeepOnScreen()
 end
 
 function module:StartDrag()
