@@ -3,20 +3,14 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Mana & energy tick widget",
-		NOTE = "When the next mana or energy tick comes",
-		DESC = "A small movable bar that fills up until your next mana or energy tick. After you spend mana it first counts down the five seconds without mana regeneration. Syncs to the ticks it sees, so it is in step after the first tick. Drag it to move it; scale it in {Edit Mode}.",
-		EDIT_MODE_NAME = "QoL Forever: Mana & energy tick",
+		TITLE = "Energy tick widget",
+		NOTE = "When the next energy tick comes",
+		DESC = "A small movable bar that fills up until your next energy tick while your power is energy (rogues, druids in cat form). Syncs to the ticks it sees, so it is in step after the first tick. Drag it to move it; scale it in {Edit Mode}.",
+		EDIT_MODE_NAME = "QoL Forever: Energy tick",
 		SECTION_SHOW = "Show",
 		SECTION_LOOK = "Appearance",
-		MANA = "Mana",
-		MANA_DESC = "Shows the bar while your power is mana.",
-		ENERGY = "Energy",
-		ENERGY_DESC = "Shows the bar while your power is energy.",
-		FIVE_SECOND = "Five second rule",
-		FIVE_SECOND_DESC = "After spending mana, counts down the five seconds until mana regenerates again.",
 		HIDE_FULL = "Hide when full",
-		HIDE_FULL_DESC = "Hides the bar while your mana or energy is full.",
+		HIDE_FULL_DESC = "Hides the bar while your energy is full.",
 		COMBAT_ONLY = "Only in combat",
 		COMBAT_ONLY_DESC = "Hides the bar out of combat.",
 		WIDTH = "Width",
@@ -27,20 +21,14 @@ local L = ns.NewLocale({
 		BG_OPACITY_DESC = "Opacity of the widget's background and border, 0 % (transparent) to 100 %.",
 	},
 	deDE = {
-		TITLE = "Mana- & Energie-Tick-Widget",
-		NOTE = "Wann der nächste Mana- oder Energie-Tick kommt",
-		DESC = "Ein kleiner verschiebbarer Balken, der sich bis zum nächsten Mana- oder Energie-Tick füllt. Nachdem du Mana ausgegeben hast, zählt er zuerst die fünf Sekunden ohne Manaregeneration herunter. Richtet sich nach den Ticks, die er sieht, und ist ab dem ersten Tick im Takt. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
-		EDIT_MODE_NAME = "QoL Forever: Mana- & Energie-Tick",
+		TITLE = "Energie-Tick-Widget",
+		NOTE = "Wann der nächste Energie-Tick kommt",
+		DESC = "Ein kleiner verschiebbarer Balken, der sich bis zum nächsten Energie-Tick füllt, solange deine Ressource Energie ist (Schurken, Druiden in Katzengestalt). Richtet sich nach den Ticks, die er sieht, und ist ab dem ersten Tick im Takt. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
+		EDIT_MODE_NAME = "QoL Forever: Energie-Tick",
 		SECTION_SHOW = "Anzeigen",
 		SECTION_LOOK = "Darstellung",
-		MANA = "Mana",
-		MANA_DESC = "Zeigt den Balken, solange deine Ressource Mana ist.",
-		ENERGY = "Energie",
-		ENERGY_DESC = "Zeigt den Balken, solange deine Ressource Energie ist.",
-		FIVE_SECOND = "Fünf-Sekunden-Regel",
-		FIVE_SECOND_DESC = "Zählt nach dem Ausgeben von Mana die fünf Sekunden herunter, bis Mana wieder regeneriert.",
-		HIDE_FULL = "Bei voller Ressource ausblenden",
-		HIDE_FULL_DESC = "Blendet den Balken aus, solange Mana oder Energie voll ist.",
+		HIDE_FULL = "Bei voller Energie ausblenden",
+		HIDE_FULL_DESC = "Blendet den Balken aus, solange die Energie voll ist.",
 		COMBAT_ONLY = "Nur im Kampf",
 		COMBAT_ONLY_DESC = "Blendet den Balken außerhalb des Kampfes aus.",
 		WIDTH = "Breite",
@@ -66,9 +54,6 @@ local module = ns:NewModule("PowerTickWidget", {
 	note = L.NOTE,
 	category = "WIDGETS",
 	defaults = {
-		mana = true,
-		energy = true,
-		fiveSecond = true,
 		hideFull = true,
 		combatOnly = false,
 		width = 140,
@@ -77,9 +62,6 @@ local module = ns:NewModule("PowerTickWidget", {
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
-		{ key = "mana", type = "checkbox", label = L.MANA, tooltip = L.MANA_DESC },
-		{ key = "energy", type = "checkbox", label = L.ENERGY, tooltip = L.ENERGY_DESC },
-		{ key = "fiveSecond", type = "checkbox", label = L.FIVE_SECOND, tooltip = L.FIVE_SECOND_DESC },
 		{ key = "hideFull", type = "checkbox", label = L.HIDE_FULL, tooltip = L.HIDE_FULL_DESC },
 		{ key = "combatOnly", type = "checkbox", label = L.COMBAT_ONLY, tooltip = L.COMBAT_ONLY_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
@@ -89,37 +71,25 @@ local module = ns:NewModule("PowerTickWidget", {
 	},
 })
 
--- Mana and energy regenerate every 2 seconds; spending mana pauses mana
--- regeneration for 5 seconds (https://warcraft.wiki.gg/wiki/Five_second_rule).
+-- Energy regenerates every 2 seconds (https://warcraft.wiki.gg/wiki/Energy).
 local TICK_SECONDS = 2
-local FIVE_SECONDS = 5
--- Gains closer than this to the last tick come from potions, talents etc.
+-- Gains closer than this to the last tick come from talents, items etc.
 local MIN_TICK_GAP = 1.5
 local INSET = 2
-
-local COLORS = {
-	MANA = { 0.25, 0.55, 1 },
-	ENERGY = { 1, 0.85, 0.1 },
-	FIVE_SECOND = { 0.65, 0.4, 1 },
-}
+local COLOR = { 1, 0.85, 0.1 }
 
 local IsSecret = ns.Utils.IsSecret
 
 local frame
--- powerKey: "MANA"/"ENERGY" while tracked, nil otherwise.
-local state = { powerKey = nil, last = nil, lastTick = nil, spentAt = nil }
+-- tracked: power is energy; last: last read energy; lastTick: GetTime() of it.
+local state = { tracked = false, last = nil, lastTick = nil }
 
-local function TrackedPower()
-	local powerType = UnitPowerType("player")
-	if powerType == Enum.PowerType.Mana and module.db.mana then
-		return "MANA", powerType
-	elseif powerType == Enum.PowerType.Energy and module.db.energy then
-		return "ENERGY", powerType
-	end
+local function IsEnergy()
+	return UnitPowerType("player") == Enum.PowerType.Energy
 end
 
-local function ReadPower(powerType)
-	local power, max = UnitPower("player", powerType), UnitPowerMax("player", powerType)
+local function ReadEnergy()
+	local power, max = UnitPower("player", Enum.PowerType.Energy), UnitPowerMax("player", Enum.PowerType.Energy)
 	if IsSecret(power) or IsSecret(max) then
 		return nil
 	end
@@ -127,15 +97,8 @@ local function ReadPower(powerType)
 end
 
 local function OnUpdate(self)
-	local now = GetTime()
-	if state.spentAt and module.db.fiveSecond and now - state.spentAt < FIVE_SECONDS then
-		self.Bar:SetStatusBarColor(unpack(COLORS.FIVE_SECOND))
-		self.Bar:SetValue(1 - (now - state.spentAt) / FIVE_SECONDS)
-		return
-	end
-	self.Bar:SetStatusBarColor(unpack(COLORS[state.powerKey]))
 	if state.lastTick then
-		self.Bar:SetValue(((now - state.lastTick) % TICK_SECONDS) / TICK_SECONDS)
+		self.Bar:SetValue(((GetTime() - state.lastTick) % TICK_SECONDS) / TICK_SECONDS)
 	else
 		self.Bar:SetValue(0)
 	end
@@ -152,6 +115,7 @@ local function CreateWidget()
 	frame.Bar:SetPoint("TOPLEFT", INSET, -INSET)
 	frame.Bar:SetPoint("BOTTOMRIGHT", -INSET, INSET)
 	frame.Bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+	frame.Bar:SetStatusBarColor(unpack(COLOR))
 	frame.Bar:SetMinMaxValues(0, 1)
 	frame.Bar:SetValue(0)
 	frame:SetScript("OnUpdate", OnUpdate)
@@ -161,46 +125,36 @@ function module:UpdateShown()
 	if not frame then
 		return
 	end
-	local shown = self.enabled and state.powerKey ~= nil
+	local shown = self.enabled and state.tracked
 	if shown and self.db.combatOnly and not InCombatLockdown() then
 		shown = false
 	end
 	if shown and self.db.hideFull then
-		local _, powerType = TrackedPower()
-		local power, max = ReadPower(powerType)
-		local waiting = state.spentAt and GetTime() - state.spentAt < FIVE_SECONDS
-		shown = not (power and power >= max and not waiting)
+		local power, max = ReadEnergy()
+		shown = not (power and power >= max)
 	end
 	frame:SetShown(shown)
 end
 
 -- Power type changed (shapeshift, login): start over.
 function module:ResetPower()
-	local key, powerType = TrackedPower()
-	state.powerKey = key
-	state.last = key and ReadPower(powerType)
-	state.lastTick, state.spentAt = nil, nil
+	state.tracked = IsEnergy()
+	state.last = state.tracked and ReadEnergy() or nil
+	state.lastTick = nil
 	self:UpdateShown()
 end
 
 function module:UNIT_POWER_FREQUENT(unit)
-	if unit ~= "player" or not state.powerKey then
+	if unit ~= "player" or not state.tracked then
 		return
 	end
-	local _, powerType = TrackedPower()
-	local power = ReadPower(powerType)
+	local power = ReadEnergy()
 	if not power then
 		return
 	end
 	local now = GetTime()
-	if state.last then
-		if power > state.last then
-			if not state.lastTick or now - state.lastTick >= MIN_TICK_GAP then
-				state.lastTick = now
-			end
-		elseif power < state.last and state.powerKey == "MANA" then
-			state.spentAt = now
-		end
+	if state.last and power > state.last and (not state.lastTick or now - state.lastTick >= MIN_TICK_GAP) then
+		state.lastTick = now
 	end
 	state.last = power
 	self:UpdateShown()
