@@ -8,6 +8,12 @@ local L = ns.NewLocale({
 		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a popup lists them with their cost. Needs one visit at your class trainer with the {Unavailable} filter turned on; without that nothing is announced.",
 		NEW = "Level %d – new at your class trainer for %s:",
 		WAITING = "%d more skill(s) from earlier levels are still waiting at your trainer.",
+		NOTHING_NEW = "Level %d – nothing new at your class trainer.",
+		NEXT = "Next: level %d (%d |4skill:skills;).",
+		NO_RECORD = "Level %d – your class trainer's skills are not known yet: visit your class trainer once with the {Unavailable} filter turned on.",
+		PREVIEW = "Preview",
+		PREVIEW_DESC = "Shows the popup for the next level with new skills.",
+		PREVIEW_BUTTON = "Show",
 		FILTER_OFF = "Trainer reminder: turn on the {Unavailable} filter in the trainer window so upcoming skills can be remembered.",
 		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the {Unavailable} filter turned on.",
 	},
@@ -17,6 +23,12 @@ local L = ns.NewLocale({
 		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet ein Popup sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}; ohne das wird nichts gemeldet.",
 		NEW = "Stufe %d – neu bei deinem Klassenlehrer für %s:",
 		WAITING = "%d weitere Fähigkeit(en) früherer Stufen warten noch bei deinem Lehrer.",
+		NOTHING_NEW = "Stufe %d – nichts Neues bei deinem Klassenlehrer.",
+		NEXT = "Als Nächstes: Stufe %d (%d |4Fähigkeit:Fähigkeiten;).",
+		NO_RECORD = "Stufe %d – die Fähigkeiten deines Klassenlehrers sind noch unbekannt: Besuche ihn einmal mit aktiviertem Filter {Nicht verfügbar}.",
+		PREVIEW = "Vorschau",
+		PREVIEW_DESC = "Zeigt das Popup für die nächste Stufe mit neuen Fähigkeiten.",
+		PREVIEW_BUTTON = "Anzeigen",
 		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter {Nicht verfügbar}, damit kommende Fähigkeiten gemerkt werden können.",
 		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}.",
 	},
@@ -30,6 +42,17 @@ local module = ns:NewModule("TrainerReminder", {
 	defaults = {
 		-- [player GUID] = { { name, rank, level, cost, icon }, ... }
 		characters = {},
+	},
+	options = {
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				self:Preview()
+			end,
+		},
 	},
 	status = function(self)
 		if not self.db.characters[UnitGUID("player")] then
@@ -101,10 +124,25 @@ local function WithIcon(icon, text)
 	return icon and ("|T%s:0|t %s"):format(icon, text) or text
 end
 
-function module:OnLevelUp(level)
+-- Lowest recorded level above `level` and the number of skills there.
+local function NextLevel(upcoming, level)
+	local next, count = nil, 0
+	for _, skill in ipairs(upcoming) do
+		if skill.level > level and (not next or skill.level < next) then
+			next, count = skill.level, 0
+		end
+		if skill.level == next then
+			count = count + 1
+		end
+	end
+	return next, count
+end
+
+-- Popup text for reaching `level`: its new skills, or what comes next.
+function module:BuildNotice(level)
 	local upcoming = self.db.characters[UnitGUID("player")]
-	if not upcoming or type(level) ~= "number" then
-		return
+	if not upcoming then
+		return L.NO_RECORD:format(level)
 	end
 	local names, total, waiting, firstIcon = {}, 0, 0, nil
 	for _, skill in ipairs(upcoming) do
@@ -118,17 +156,36 @@ function module:OnLevelUp(level)
 			waiting = waiting + 1
 		end
 	end
-	if #names == 0 then
-		return
-	end
-	local lines = { L.NEW:format(level, FormatMoney(total)) }
-	for _, name in ipairs(names) do
-		lines[#lines + 1] = name
+	local lines = {}
+	if #names > 0 then
+		lines[1] = L.NEW:format(level, FormatMoney(total))
+		for _, name in ipairs(names) do
+			lines[#lines + 1] = name
+		end
+	else
+		lines[1] = L.NOTHING_NEW:format(level)
+		local next, count = NextLevel(upcoming, level)
+		if next then
+			lines[2] = L.NEXT:format(next, count)
+		end
 	end
 	if waiting > 0 then
 		lines[#lines + 1] = L.WAITING:format(waiting)
 	end
-	self:Notice(table.concat(lines, "\n"), firstIcon)
+	return table.concat(lines, "\n"), firstIcon
+end
+
+function module:OnLevelUp(level)
+	if type(level) == "number" then
+		self:Notice(self:BuildNotice(level))
+	end
+end
+
+function module:Preview()
+	local level = UnitLevel("player")
+	local upcoming = self.db.characters[UnitGUID("player")]
+	local next = upcoming and NextLevel(upcoming, level)
+	self:Notice(self:BuildNotice(next or level + 1))
 end
 
 function module:OnEnable()
