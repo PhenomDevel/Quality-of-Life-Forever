@@ -21,7 +21,7 @@ local module = ns:NewModule("BagFreeSlots", {
 	description = L.DESC,
 	note = L.NOTE,
 	notice = L.NOTICE,
-	category = "INTERFACE",
+	category = "BAGS",
 })
 
 local text

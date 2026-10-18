@@ -16,6 +16,7 @@ L.UNKNOWN_VERSION = "dev"
 
 -- Categories
 L.CATEGORY_INTERFACE = "Interface"
+L.CATEGORY_BAGS = "Bags"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Merchant & Trainer"
 L.CATEGORY_LOOT = "Loot"

@@ -36,14 +36,16 @@ Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
-Modules\Interface\AutoSortBags.lua
-Modules\Interface\BagFreeSlots.lua
 Modules\Interface\CombatHideTracker.lua
 Modules\Interface\ItemLevel.lua
 Modules\Interface\RepairCosts.lua
 Modules\Interface\ShowDurability.lua
 Modules\Interface\SkipCinematics.lua
 Modules\Interface\UIDeclutter.lua
+
+# Bags
+Modules\Bags\AutoSortBags.lua
+Modules\Bags\BagFreeSlots.lua
 
 # Cooldown manager
 Modules\CooldownManager\CooldownKeybinds.lua
