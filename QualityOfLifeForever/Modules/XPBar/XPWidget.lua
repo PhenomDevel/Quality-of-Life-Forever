@@ -1,4 +1,4 @@
--- luacheck: read globals C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -13,6 +13,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		FONT_SIZE = "Text size",
+		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
 		HIDE_BLIZZARD_DESC = "Makes the game's XP bar invisible while the widget is on. Its place stays free, so the action bars don't move; a reputation bar is not affected. The XP bar module then stops updating its text.",
 		LEVEL = "Level %d  ·  %.1f%%",
@@ -32,6 +34,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		FONT_SIZE = "Textgröße",
+		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
 		HIDE_BLIZZARD = "Standard-EP-Leiste ausblenden",
 		HIDE_BLIZZARD_DESC = "Macht die EP-Leiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine Rufleiste bleibt sichtbar. Das Modul Erfahrungsleiste aktualisiert ihren Text dann nicht mehr.",
 		LEVEL = "Stufe %d  ·  %.1f %%",
@@ -51,18 +55,21 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
+		fontSize = 11,
 		hideBlizzardBar = false,
 	},
 	options = {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 	},
 })
 
 local XPSession = ns.XPSession
-local WIDTH, HEIGHT, HEIGHT_EXTRA_LINE = 260, 44, 60
+-- Width at the default text size of 11; it scales with the text size.
+local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
 local PADDING = 7
 local BAR_HEIGHT = 6
 local REFRESH_SECONDS = 3
@@ -75,7 +82,7 @@ local frame, ticker
 
 local function CreateText(parent, justify)
 	local text = parent:CreateFontString(nil, "OVERLAY")
-	text:SetFontObject(ns.overlayFont)
+	text:SetFontObject(module.font)
 	text:SetJustifyH(justify)
 	text:SetWordWrap(false)
 	return text
@@ -84,8 +91,8 @@ end
 local function CreateWidget()
 	frame = ns:CreateOverlay("XPWidget", {
 		title = L.EDIT_MODE_NAME,
-		width = WIDTH,
-		height = HEIGHT,
+		width = BASE_WIDTH,
+		height = 44,
 		default = { point = "TOP", x = 0, y = -120 },
 	})
 
@@ -96,8 +103,6 @@ local function CreateWidget()
 	frame.Rate:SetTextColor(0.72, 0.72, 0.74)
 
 	local bar = CreateFrame("StatusBar", nil, frame)
-	bar:SetPoint("TOPLEFT", PADDING, -(PADDING + 14))
-	bar:SetPoint("TOPRIGHT", -PADDING, -(PADDING + 14))
 	bar:SetHeight(BAR_HEIGHT)
 	bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
 	bar:SetStatusBarColor(ACCENT:GetRGB())
@@ -216,7 +221,6 @@ function module:Update()
 	frame.Values:SetText(L.VALUES:format(BreakUpLargeNumbers(xp), BreakUpLargeNumbers(maxXP)))
 	self:UpdateRested(xp, maxXP)
 	self:UpdateQuests(xp, maxXP)
-	frame:SetHeight(self.db.showQuestXP and HEIGHT_EXTRA_LINE or HEIGHT)
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
@@ -297,7 +301,26 @@ function module:HookContainers()
 	end
 end
 
+-- Font, size and bar position follow the text size and the shown lines.
+function module:ApplyLayout()
+	local size = self.db.fontSize
+	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
+	local lineHeight = size + 2
+	local barTop = PADDING + lineHeight + 2
+	frame.Bar:ClearAllPoints()
+	frame.Bar:SetPoint("TOPLEFT", PADDING, -barTop)
+	frame.Bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
+	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
+	if self.db.showQuestXP then
+		height = height + lineHeight + 3
+	end
+	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+end
+
 function module:OnOptionChanged(key)
+	if key == "fontSize" or key == "showQuestXP" then
+		self:ApplyLayout()
+	end
 	if key == "hideBlizzardBar" then
 		self:UpdateBlizzardBar()
 		return
@@ -309,10 +332,18 @@ function module:OnOptionChanged(key)
 	self:Update()
 end
 
+function module:OnInitialize()
+	self.font = CreateFont("QualityOfLifeForeverXPWidgetFont")
+	self.font:SetFont(STANDARD_TEXT_FONT, BASE_FONT_SIZE, "")
+	self.font:SetShadowOffset(1, -1)
+	self.font:SetShadowColor(0, 0, 0, 0.8)
+end
+
 function module:OnEnable()
 	if not frame then
 		CreateWidget()
 	end
+	self:ApplyLayout()
 	XPSession.RegisterListener(self, function()
 		if self.enabled then
 			self:Update()
