@@ -1,7 +1,8 @@
 # Writing modules
 
 Every feature is a self-contained **module** that can be toggled individually
-in the settings panel (*Options → AddOns → Quality of Life Forever*) or via
+in the options window (`/qol`, the minimap or *Options → AddOns → Quality of
+Life Forever → Open options*) or via
 `/qol enable|disable|toggle <module>`.
 
 ## New module
@@ -21,15 +22,15 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 
 | Field             | Type    | Description |
 |-------------------|---------|-------------|
-| `title`           | string  | Name in the settings panel (localized) |
-| `description`     | string  | Tooltip of the enable checkbox (localized) |
+| `title`           | string  | Name in the options window (localized) |
+| `description`     | string  | Tooltip of the module title (localized) |
 | `note`            | string  | Optional gray line below the title (localized); keep titles short (~28 chars) and put details here |
 | `status`          | function | Optional `function(module)` returning a hint (localized) while the module can't work yet, else `nil`; shown in the options window |
 | `category`        | string  | `INTERFACE` (default), `CAMERA`, `CHARACTER`, `CHAT`, `COOLDOWN_MANAGER`, `GRAPHICS`, `LOOT`, `MAP`, `MERCHANT`, `QUESTS`, `SOCIAL`, `STATISTICS`, `TOOLTIP`, `XP_BAR` |
 | `order`           | number  | Position within the category; lower comes first, ties sorted by title (default 0) |
 | `defaultEnabled`  | boolean | Initial state for new users (default `false`) |
 | `defaults`        | table   | Option defaults, merged into `self.db` |
-| `options`         | table   | Option descriptors for the settings panel (see below) |
+| `options`         | table   | Option descriptors for the options window (see below) |
 | `combatProtected` | boolean | Enable/disable is deferred until combat ends (protected frames) |
 | `requiresReload`  | boolean | Offer a `/reload` after disabling |
 
@@ -43,6 +44,8 @@ without a migration in `Core/Database.lua`.
 { key = "amount", type = "slider", label = L.X, tooltip = L.X_DESC, min = 1, max = 10, step = 1 }
 { key = "mode", type = "dropdown", label = L.X, tooltip = L.X_DESC,
   values = { { value = "a", label = L.A }, { value = "b", label = L.B } } }
+{ key = "keywords", type = "text", label = L.X, tooltip = L.X_DESC,
+  multiline = true, placeholder = L.X_HINT, maxLetters = 1000 }   -- saved on Enter / focus loss
 { type = "header", label = L.X }   -- section title inside the module's options
 { type = "button", label = L.X, buttonText = L.APPLY, tooltip = L.X_DESC,
   onClick = function(module) ... end }   -- no key/default; only runs while enabled
@@ -73,12 +76,35 @@ doesn't take others down.
 | `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript` that only fires while enabled |
 | `self:Print(...)`                         | Chat output (respects the global "Show chat messages" option) |
 | `self:Debug(...)`                         | Output only in debug mode (`/qol debug`) |
-| `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the settings panel in sync) |
+| `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the options window in sync) |
 | `self:SetCVar(name, value)`               | Set a CVar; the original value is persisted in the module DB and restored on disable. Returns `false` for unknown CVars. |
 | `self:RestoreCVars()`                     | Restore saved CVars now |
 | `self.db`                                 | The module's saved data (account-wide) |
 | `ns.Utils.FormatMoney(copper)`            | Money string with coin icons |
 | `ns.Utils.IsSecret(value)`                | Checks for secret values (see below) |
+
+## Overlays (2.0)
+
+Small frames the player drags directly or moves and scales in Blizzard's Edit
+Mode (via the embedded LibEditMode). Position and scale are stored
+account-wide per Edit Mode layout.
+
+```lua
+local frame = ns:CreateOverlay("MyWidget", {
+	title = L.EDIT_MODE_NAME,                     -- name in Edit Mode
+	width = 200, height = 40,
+	default = { point = "TOP", x = 0, y = -120 }, -- relative to UIParent
+	settings = { ... },                           -- optional extra LibEditMode settings
+})
+```
+
+- Create the overlay once (first `OnEnable`); show it in `OnEnable`, hide it in
+  `OnDisable`. Frames can't be unregistered from Edit Mode; hidden ones don't
+  appear there.
+- The frame comes with the shared flat background and border; use
+  `ns.overlayFont` for text.
+- `ns:OpenEditMode()` opens Edit Mode (not in combat), also bound to
+  right-clicking the minimap button.
 
 ## WoW Forever specifics
 

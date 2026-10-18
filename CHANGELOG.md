@@ -1,10 +1,41 @@
 # Changelog
 
-## Unreleased
+## v0.5.0 (2026-10-18)
+
+### Options and look
+- New options window of its own (`/qol`, minimap button or addon menu):
+  search, categories in a sidebar, option cards in up to three columns,
+  resizable via the corner grip; the size is saved
+- Keywords and names (spam filter, guild recruitment tab, chat highlight,
+  custom player name) are edited in text fields directly in the options
+- Hints in the options when a module still needs something from you
+- New minimap button: click opens the options, right-click opens Edit Mode;
+  drag it around the minimap, hide it with `/qol minimap`
+- New accent color (blue) and logo; higher contrast throughout
+- The Blizzard settings page now only opens the options window
 
 ### Character
 - New: pet happiness warning – chat, screen message and sound when your
   hunter pet becomes unhappy, with the food it eats
+
+### Merchant & Trainer
+- Trainer reminder: skill icons in the chat message; the options tell you to
+  visit your class trainer once while no skill data is known yet
+
+### Quests
+- Auto accept/turn in quests: pauses after a game error (e.g. full bags)
+  until you close the conversation
+
+### World map
+- Movable world map: scale up to 150 %
+
+### XP Bar
+- New: XP widget – a small movable XP display with level, progress, rested
+  XP, XP of quests ready to turn in, XP per hour and time to level; drag it
+  directly, scale it in Edit Mode, adjustable text size, optionally hides the
+  standard XP bar
+- XP per hour keeps counting through combat and after a /reload, refreshes
+  every 3 seconds and shows "< 1 Min" just before a level-up
 
 ## v0.4.0 (2026-10-17)
 

@@ -1,4 +1,4 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter StaticPopup_Show GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer Constants NUM_CHAT_WINDOWS ACCEPT CANCEL strtrim
+-- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer Constants NUM_CHAT_WINDOWS strtrim
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -8,12 +8,11 @@ local L = ns.NewLocale({
 		DESC = "Channel, say and yell messages containing one of your keywords (guild ads, recruitment) are shown only in a separate \"Guilds\" chat tab instead of your other tabs. Nothing is deleted. Without the tab nothing is moved.",
 		TAB = "Guilds",
 		KEYWORDS = "Keywords",
-		KEYWORDS_DESC = "Edit the comma-separated keyword list (case-insensitive, matched anywhere in the message).\n\nDefault: %s",
-		EDIT = "Edit",
+		KEYWORDS_DESC = "Separated by commas, case-insensitive, matched anywhere in the message. Saved with Enter.\n\nDefault: %s",
+		KEYWORDS_HINT = "Words, separated by commas",
 		CREATE_TAB = "Guilds tab",
 		CREATE_TAB_DESC = "Creates the \"Guilds\" chat tab if it doesn't exist. Enabling the module also creates it.",
 		CREATE = "Create",
-		DIALOG = "Keywords, separated by commas:",
 		TAB_CREATED = "Created the \"Guilds\" chat tab.",
 		TAB_EXISTS = "The \"Guilds\" chat tab already exists.",
 		NO_FREE_WINDOW = "No free chat window left to create the \"Guilds\" tab.",
@@ -25,12 +24,11 @@ local L = ns.NewLocale({
 		DESC = "Kanal-, Sagen- und Schreien-Nachrichten mit einem deiner Stichwörter (Gildenwerbung, Rekrutierung) erscheinen nur in einem eigenen Chat-Tab „Gilden“ statt in deinen anderen Tabs. Es wird nichts gelöscht. Ohne den Tab wird nichts verschoben.",
 		TAB = "Gilden",
 		KEYWORDS = "Stichwörter",
-		KEYWORDS_DESC = "Bearbeitet die kommagetrennte Stichwortliste (ohne Groß-/Kleinschreibung, irgendwo in der Nachricht).\n\nStandard: %s",
-		EDIT = "Bearbeiten",
+		KEYWORDS_DESC = "Durch Kommas getrennt, ohne Groß-/Kleinschreibung, irgendwo in der Nachricht. Wird mit Enter gespeichert.\n\nStandard: %s",
+		KEYWORDS_HINT = "Wörter, durch Kommas getrennt",
 		CREATE_TAB = "Gilden-Tab",
 		CREATE_TAB_DESC = "Erstellt den Chat-Tab „Gilden“, falls er fehlt. Auch das Aktivieren des Moduls erstellt ihn.",
 		CREATE = "Erstellen",
-		DIALOG = "Stichwörter, durch Kommas getrennt:",
 		TAB_CREATED = "Chat-Tab „Gilden“ erstellt.",
 		TAB_EXISTS = "Der Chat-Tab „Gilden“ existiert bereits.",
 		NO_FREE_WINDOW = "Kein freies Chatfenster mehr für den Tab „Gilden“.",
@@ -40,7 +38,6 @@ local L = ns.NewLocale({
 
 local DEFAULT_KEYWORDS = "recruit, guild, gilde, rekrut"
 local EVENTS = { "CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL" }
-local DIALOG = "QUALITYOFLIFEFOREVER_GUILD_RECRUIT_KEYWORDS"
 
 local module = ns:NewModule("GuildRecruitTab", {
 	title = L.TITLE,
@@ -53,13 +50,13 @@ local module = ns:NewModule("GuildRecruitTab", {
 	},
 	options = {
 		{
-			type = "button",
+			key = "keywords",
+			type = "text",
+			multiline = true,
 			label = L.KEYWORDS,
-			buttonText = L.EDIT,
 			tooltip = L.KEYWORDS_DESC:format(DEFAULT_KEYWORDS),
-			onClick = function()
-				StaticPopup_Show(DIALOG)
-			end,
+			placeholder = L.KEYWORDS_HINT,
+			maxLetters = 1000,
 		},
 		{
 			type = "button",
@@ -164,32 +161,6 @@ local function Filter(chatFrame, _, text)
 	return match and not IsSpamTab(chatFrame)
 end
 
-function module:OnInitialize()
-	StaticPopupDialogs[DIALOG] = {
-		text = L.DIALOG,
-		button1 = ACCEPT,
-		button2 = CANCEL,
-		hasEditBox = 1,
-		editBoxWidth = 350,
-		maxLetters = 1000,
-		OnShow = function(dialog)
-			local editBox = dialog:GetEditBox()
-			editBox:SetText(self.db.keywords)
-			editBox:HighlightText()
-		end,
-		OnAccept = function(dialog)
-			self.db.keywords = dialog:GetEditBox():GetText()
-			self:ParseKeywords()
-		end,
-		EditBoxOnEnterPressed = function(editBox)
-			editBox:GetParent():GetButton1():Click()
-		end,
-		timeout = 0,
-		whileDead = 1,
-		hideOnEscape = 1,
-	}
-end
-
 -- Same lifecycle as the spam filter: a tab that was closed since the last
 -- session turns the module off instead of being recreated at login.
 function module:CheckTabFrame()
@@ -200,6 +171,12 @@ function module:CheckTabFrame()
 		ns:SetModuleEnabled(self, false)
 	elseif self:CreateTabFrame() then
 		self.db.tabCreated = true
+	end
+end
+
+function module:OnOptionChanged(key)
+	if key == "keywords" then
+		self:ParseKeywords()
 	end
 end
 

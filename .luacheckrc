@@ -3,6 +3,8 @@ max_line_length = false
 codes = true
 exclude_files = {
 	".release/",
+	-- Third-party libraries, kept unmodified.
+	"QualityOfLifeForever/Libs/",
 }
 
 -- Ignore unused `self` and unused arguments starting with an underscore.
@@ -14,8 +16,6 @@ ignore = { "212/_.*" }
 globals = {
 	"QualityOfLifeForever",
 	"QualityOfLifeForeverDB",
-	"QualityOfLifeForeverSettingsNoteMixin",
-	"QualityOfLifeForeverSettingsDividerMixin",
 	"QualityOfLifeForever_OnAddonCompartmentClick",
 	"QualityOfLifeForever_OnAddonCompartmentEnter",
 	"QualityOfLifeForever_OnAddonCompartmentLeave",
@@ -46,9 +46,6 @@ read_globals = {
 
 	-- Settings
 	"Settings",
-	"CreateSettingsButtonInitializer",
-	"CreateSettingsListSectionHeaderInitializer",
-	"MinimalSliderWithSteppersMixin",
 
 	-- General API
 	"C_AddOns",

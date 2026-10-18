@@ -1,5 +1,5 @@
 ## Interface: 16001
-## Title: Quality of Life |cff33ff99Forever|r
+## Title: Quality of Life |cff3a8ee6Forever|r
 ## Notes: Many small quality-of-life improvements that can be toggled individually.
 ## Notes-deDE: Viele kleine Komfortverbesserungen, die einzeln ein- und ausgeschaltet werden können.
 ## Author: PhenomDevel
@@ -13,6 +13,10 @@
 ## AddonCompartmentFuncOnEnter: QualityOfLifeForever_OnAddonCompartmentEnter
 ## AddonCompartmentFuncOnLeave: QualityOfLifeForever_OnAddonCompartmentLeave
 
+# Libraries (third-party, unmodified; see docs/DEVELOPMENT.md)
+Libs\LibEditMode\namespaced.lua
+Libs\LibEditMode\embed.xml
+
 # Locales (enUS must be loaded first, it defines the fallback table)
 Locales\enUS.lua
 Locales\deDE.lua
@@ -22,9 +26,12 @@ Core\Init.lua
 Core\Utils.lua
 Core\Database.lua
 Core\ModuleManager.lua
+Core\OptionsWidgets.lua
+Core\OptionsWindow.lua
 Core\Settings.lua
-Core\SettingsTemplates.xml
 Core\SlashCommands.lua
+Core\MinimapButton.lua
+Core\Overlays.lua
 Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
@@ -98,6 +105,7 @@ Modules\Map\ZoneLevels.lua
 
 # XP Bar
 Modules\XPBar\XPBar.lua
+Modules\XPBar\XPWidget.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua

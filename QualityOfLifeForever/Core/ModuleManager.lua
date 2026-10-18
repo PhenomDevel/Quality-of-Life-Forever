@@ -6,8 +6,8 @@ local Utils = ns.Utils
 --------------------------------------------------------------------------------
 -- Categories
 --------------------------------------------------------------------------------
--- Every module belongs to exactly one category. The sub pages in the settings
--- panel are sorted by localized name. Empty categories are not shown.
+-- Every module belongs to exactly one category. The pages in the options
+-- window are sorted by localized name. Empty categories are not shown.
 
 ns.categories = {
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
@@ -60,16 +60,11 @@ function Module:GetOption(key)
 end
 
 -- Changes an option and notifies the module. Prefer this over writing to
--- self.db directly so the settings panel and OnOptionChanged stay in sync.
+-- self.db directly so the options window and OnOptionChanged stay in sync.
 function Module:SetOption(key, value)
-	local setting = self.settings and self.settings[key]
-	if setting then
-		-- The setting writes into self.db and calls back into OnOptionChanged.
-		setting:SetValue(value)
-		return
-	end
 	self.db[key] = value
 	ns:NotifyOptionChanged(self, key, value)
+	ns:RefreshOptionValues()
 end
 
 -- Events ----------------------------------------------------------------------
@@ -203,8 +198,8 @@ ns.moduleOrder = {}
 	Creates and registers a new module.
 
 	info = {
-		title           = string, shown in the settings panel (localized)
-		description     = string, tooltip of the enable checkbox (localized)
+		title           = string, shown in the options window (localized)
+		description     = string, tooltip of the module title (localized)
 		note            = optional short gray line shown below the title (localized)
 		status          = optional function(module) returning a hint while the module
 		                  still lacks something to work (e.g. data it records), else nil
@@ -213,9 +208,10 @@ ns.moduleOrder = {}
 		                  equal values are sorted by title (default 0)
 		defaultEnabled  = boolean (default false)
 		defaults        = table of option defaults, stored in module.db
-		options         = list of option descriptors for the settings panel
+		options         = list of option descriptors for the options window
 		                  { key, type = "checkbox" | "slider" | "dropdown", label, tooltip,
 		                    min, max, step, format (slider), values (dropdown) }
+		                  { key, type = "text", label, tooltip, multiline, placeholder, maxLetters }
 		                  { type = "button", label, buttonText, tooltip, onClick(module) }
 		                  { type = "header", label } (section title, no value)
 		                  Every option may have a `note` (gray line below it).
@@ -367,18 +363,12 @@ ns:RegisterEvent("PLAYER_REGEN_ENABLED", function()
 	end
 end)
 
--- Single entry point for turning a module on or off (settings panel, slash
--- commands, ...). Keeps the settings panel checkbox in sync.
+-- Single entry point for turning a module on or off (options window, slash
+-- commands, ...). Rebuilds the options window, whose layout depends on it.
 function ns:SetModuleEnabled(module, enabled)
-	enabled = not not enabled
-	local setting = module.settings and module.settings.enabled
-	if setting and setting:GetValue() ~= enabled then
-		-- Writes module.db.enabled and calls back into ApplyModuleState.
-		setting:SetValue(enabled)
-	else
-		module.db.enabled = enabled
-		ns:ApplyModuleState(module)
-	end
+	module.db.enabled = not not enabled
+	ns:ApplyModuleState(module)
+	ns:RefreshOptions()
 end
 
 function ns:NotifyOptionChanged(module, key, value)

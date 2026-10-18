@@ -20,6 +20,7 @@ local function OnPlayerLogin(event)
 	ns:UnregisterEvent(event, OnPlayerLogin)
 
 	ns:EnableModules()
+	Utils.SafeCall(ns.UpdateMinimapButton, ns)
 	ns:Debug(L.ADDON_LOADED:format(ns.version))
 end
 
@@ -31,7 +32,7 @@ ns:RegisterEvent("PLAYER_LOGIN", OnPlayerLogin)
 --------------------------------------------------------------------------------
 
 function QualityOfLifeForever_OnAddonCompartmentClick()
-	ns:OpenSettings()
+	ns:ToggleSettings()
 end
 
 function QualityOfLifeForever_OnAddonCompartmentEnter(_, menuButtonFrame)

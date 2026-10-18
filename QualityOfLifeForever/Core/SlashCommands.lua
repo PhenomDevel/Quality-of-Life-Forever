@@ -11,6 +11,7 @@ local function PrintHelp()
 	ns:Print(L.SLASH_HELP_ENABLE)
 	ns:Print(L.SLASH_HELP_DISABLE)
 	ns:Print(L.SLASH_HELP_TOGGLE)
+	ns:Print(L.SLASH_HELP_MINIMAP)
 	ns:Print(L.SLASH_HELP_DEBUG)
 	ns:Print(L.SLASH_HELP_RESET)
 	ns:Print(L.SLASH_HELP_CVARINFO)
@@ -30,7 +31,7 @@ end
 commands.help = PrintHelp
 
 commands.config = function()
-	ns:OpenSettings()
+	ns:ToggleSettings()
 end
 
 commands.list = function()
@@ -59,13 +60,18 @@ commands.toggle = function(argument)
 	end)
 end
 
+commands.minimap = function()
+	local shown = not ns.db.global.minimapButton
+	ns.db.global.minimapButton = shown
+	ns:UpdateMinimapButton()
+	ns:RefreshOptionValues()
+	ns:Print(shown and L.MINIMAP_SHOWN or L.MINIMAP_HIDDEN)
+end
+
 commands.debug = function()
 	local enabled = not ns.db.global.debug
-	if ns.debugSetting then
-		ns.debugSetting:SetValue(enabled)
-	else
-		ns.db.global.debug = enabled
-	end
+	ns.db.global.debug = enabled
+	ns:RefreshOptionValues()
 	ns:Print(enabled and L.DEBUG_ON or L.DEBUG_OFF)
 end
 
@@ -152,7 +158,7 @@ commands.cvarinfo = function(argument)
 	ns:Print(L.CVARINFO_SAVED)
 end
 
-commands.reset = function()
+function ns:ConfirmReset()
 	StaticPopupDialogs.QOLFOREVER_RESET = StaticPopupDialogs.QOLFOREVER_RESET or {
 		text = L.RESET_CONFIRM,
 		button1 = ACCEPT,
@@ -166,6 +172,10 @@ commands.reset = function()
 		showAlert = true,
 	}
 	StaticPopup_Show("QOLFOREVER_RESET")
+end
+
+commands.reset = function()
+	ns:ConfirmReset()
 end
 
 function ns:HandleSlashCommand(input)

@@ -9,6 +9,7 @@ ignore:
   - README.md
   - CLAUDE.md
   - docs
+  - tools
 
 manual-changelog:
   filename: CHANGELOG.md
