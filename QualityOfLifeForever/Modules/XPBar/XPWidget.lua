@@ -53,7 +53,7 @@ local PADDING = 7
 local BAR_HEIGHT = 6
 local REFRESH_SECONDS = 15
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
-local RESTED_COLOR = { 0.35, 0.55, 1, 0.55 }
+local RESTED_COLOR = { 0.4, 0.6, 1, 0.6 }
 
 local frame, ticker
 
@@ -77,7 +77,7 @@ local function CreateWidget()
 	frame.Level:SetPoint("TOPLEFT", PADDING, -PADDING)
 	frame.Rate = CreateText(frame, "RIGHT")
 	frame.Rate:SetPoint("TOPRIGHT", -PADDING, -PADDING)
-	frame.Rate:SetTextColor(0.62, 0.62, 0.64)
+	frame.Rate:SetTextColor(0.72, 0.72, 0.74)
 
 	local bar = CreateFrame("StatusBar", nil, frame)
 	bar:SetPoint("TOPLEFT", PADDING, -(PADDING + 14))
@@ -87,7 +87,7 @@ local function CreateWidget()
 	bar:SetStatusBarColor(ACCENT:GetRGB())
 	local track = bar:CreateTexture(nil, "BACKGROUND")
 	track:SetAllPoints()
-	track:SetColorTexture(0.20, 0.20, 0.22, 1)
+	track:SetColorTexture(0.22, 0.22, 0.24, 1)
 	-- Rested XP: from the end of the current XP up to current + rested.
 	bar.Rested = bar:CreateTexture(nil, "ARTWORK", nil, -1)
 	bar.Rested:SetColorTexture(unpack(RESTED_COLOR))
@@ -97,7 +97,7 @@ local function CreateWidget()
 
 	frame.Values = CreateText(frame, "LEFT")
 	frame.Values:SetPoint("BOTTOMLEFT", PADDING, PADDING - 2)
-	frame.Values:SetTextColor(0.62, 0.62, 0.64)
+	frame.Values:SetTextColor(0.72, 0.72, 0.74)
 	frame.Rested = CreateText(frame, "RIGHT")
 	frame.Rested:SetPoint("BOTTOMRIGHT", -PADDING, PADDING - 2)
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])

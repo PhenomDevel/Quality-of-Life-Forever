@@ -18,8 +18,8 @@ local LibEditMode = ns.LibEditMode
 local overlays = {}
 
 -- Shared look: flat dark panel with a 1 px border, like the options window.
-local BACKGROUND = { 0.07, 0.07, 0.08, 0.8 }
-local BORDER = { 1, 1, 1, 0.08 }
+local BACKGROUND = { 0.07, 0.07, 0.08, 0.92 }
+local BORDER = { 1, 1, 1, 0.15 }
 
 ns.overlayFont = CreateFont("QualityOfLifeForeverOverlayFont")
 ns.overlayFont:SetFont(STANDARD_TEXT_FONT, 11, "")
