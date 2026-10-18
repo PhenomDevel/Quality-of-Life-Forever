@@ -1,4 +1,4 @@
--- luacheck: read globals UnitXP UnitXPMax UnitGUID GetTime CreateFrame SecondsToTime
+-- luacheck: read globals UnitXP UnitXPMax UnitGUID UnitLevel GetTime CreateFrame SecondsToTime
 local _, ns = ...
 
 --[[
@@ -112,7 +112,76 @@ local function OnXPUpdate()
 	end
 end
 
+-- Level times ------------------------------------------------------------------
+-- Played time per level, counted while logged in. A level only counts once
+-- it was tracked from its start; /played (TIME_PLAYED_MSG) sets the exact
+-- time of the current level and so completes it.
+--
+--	ns.db.global.levelTimes[guid] = {
+--		current = { level, seconds, complete },
+--		history = { { level, seconds }, ... }, -- newest first
+--	}
+
+local MAX_LEVEL_TIMES = 10
+local levelRecord, levelMark
+
+local function AccumulateLevelTime()
+	if levelRecord then
+		local now = GetTime()
+		levelRecord.current.seconds = levelRecord.current.seconds + now - levelMark
+		levelMark = now
+	end
+end
+
+local function LoadLevelRecord()
+	local store = ns.db.global.levelTimes or {}
+	ns.db.global.levelTimes = store
+	local guid = UnitGUID("player")
+	levelRecord = store[guid] or { history = {} }
+	store[guid] = levelRecord
+	local level = UnitLevel("player")
+	if not levelRecord.current or levelRecord.current.level ~= level then
+		levelRecord.current = { level = level, seconds = 0, complete = false }
+	end
+	levelMark = GetTime()
+end
+
+local function OnLevelUp(level)
+	if not levelRecord then
+		return
+	end
+	AccumulateLevelTime()
+	local current = levelRecord.current
+	if current.complete and current.level == level - 1 then
+		table.insert(levelRecord.history, 1, { level = current.level, seconds = current.seconds })
+		for i = #levelRecord.history, MAX_LEVEL_TIMES + 1, -1 do
+			levelRecord.history[i] = nil
+		end
+	end
+	levelRecord.current = { level = level, seconds = 0, complete = true }
+end
+
+local function OnTimePlayed(levelSeconds)
+	if levelRecord and type(levelSeconds) == "number" and not ns.Utils.IsSecret(levelSeconds) then
+		levelRecord.current.seconds = levelSeconds
+		levelRecord.current.complete = true
+		levelMark = GetTime()
+	end
+end
+
+-- Up to `count` finished levels, newest first: { { level, seconds }, ... }.
+function XPSession.GetLevelTimes(count)
+	local result = {}
+	if levelRecord then
+		for i = 1, math.min(count, #levelRecord.history) do
+			result[i] = levelRecord.history[i]
+		end
+	end
+	return result
+end
+
 local function Save()
+	AccumulateLevelTime()
 	ns.db.global.xpSession = {
 		guid = UnitGUID("player"),
 		savedAt = GetTime(),
@@ -138,11 +207,18 @@ frame:RegisterEvent("PLAYER_LOGOUT")
 -- Picks up gains made while XP was secret.
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 frame:RegisterUnitEvent("PLAYER_XP_UPDATE", "player")
-frame:SetScript("OnEvent", function(_, event)
+frame:RegisterEvent("PLAYER_LEVEL_UP")
+frame:RegisterEvent("TIME_PLAYED_MSG")
+frame:SetScript("OnEvent", function(_, event, ...)
 	if event == "PLAYER_LOGIN" then
 		Resume()
+		LoadLevelRecord()
 	elseif event == "PLAYER_LOGOUT" then
 		Save()
+	elseif event == "PLAYER_LEVEL_UP" then
+		OnLevelUp(...)
+	elseif event == "TIME_PLAYED_MSG" then
+		OnTimePlayed(select(2, ...))
 	else
 		OnXPUpdate()
 	end
