@@ -114,6 +114,7 @@ Modules\XPBar\XPWidget.lua
 
 # Widgets
 Modules\Widgets\GoldWidget.lua
+Modules\Widgets\PowerTickWidget.lua
 
 # Bootstrap (must be last)
 Core\Bootstrap.lua
