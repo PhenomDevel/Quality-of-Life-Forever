@@ -5,20 +5,20 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Trainer reminder",
 		NOTE = "Tells you on level-up what your class trainer has",
-		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a chat message lists them with their cost. Needs one visit at your class trainer with the \"Unavailable\" filter turned on; without that nothing is announced.",
+		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a chat message lists them with their cost. Needs one visit at your class trainer with the {Unavailable} filter turned on; without that nothing is announced.",
 		NEW = "Level %d – new at your class trainer: %s (%s)",
 		WAITING = "%d more skill(s) from earlier levels are still waiting at your trainer.",
-		FILTER_OFF = "Trainer reminder: turn on the \"Unavailable\" filter in the trainer window so upcoming skills can be remembered.",
-		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the \"Unavailable\" filter turned on.",
+		FILTER_OFF = "Trainer reminder: turn on the {Unavailable} filter in the trainer window so upcoming skills can be remembered.",
+		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the {Unavailable} filter turned on.",
 	},
 	deDE = {
 		TITLE = "Lehrer-Erinnerung",
 		NOTE = "Meldet beim Level-up, was dein Klassenlehrer hat",
-		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet eine Chatnachricht sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter „Nicht verfügbar“; ohne das wird nichts gemeldet.",
+		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet eine Chatnachricht sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}; ohne das wird nichts gemeldet.",
 		NEW = "Stufe %d – neu bei deinem Klassenlehrer: %s (%s)",
 		WAITING = "%d weitere Fähigkeit(en) früherer Stufen warten noch bei deinem Lehrer.",
-		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter „Nicht verfügbar“, damit kommende Fähigkeiten gemerkt werden können.",
-		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter „Nicht verfügbar“.",
+		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter {Nicht verfügbar}, damit kommende Fähigkeiten gemerkt werden können.",
+		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}.",
 	},
 })
 

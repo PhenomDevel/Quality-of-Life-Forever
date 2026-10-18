@@ -4,14 +4,14 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Instant quest text",
 		DESC = "Shows quest text at once instead of fading it in.",
-		NOTICE = "Changes the game setting instantQuestText. Disabling restores your previous setting.",
-		UNSUPPORTED = "Instant quest text is not supported by this client (CVar instantQuestText missing).",
+		NOTICE = "Changes the game setting `instantQuestText`. Disabling restores your previous setting.",
+		UNSUPPORTED = "Instant quest text is not supported by this client (CVar `instantQuestText` missing).",
 	},
 	deDE = {
 		TITLE = "Questtext sofort anzeigen",
 		DESC = "Zeigt Questtexte sofort statt sie einzublenden.",
-		NOTICE = "Ändert die Spieleinstellung instantQuestText. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
-		UNSUPPORTED = "Sofortiger Questtext wird von diesem Client nicht unterstützt (CVar instantQuestText fehlt).",
+		NOTICE = "Ändert die Spieleinstellung `instantQuestText`. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
+		UNSUPPORTED = "Sofortiger Questtext wird von diesem Client nicht unterstützt (CVar `instantQuestText` fehlt).",
 	},
 })
 

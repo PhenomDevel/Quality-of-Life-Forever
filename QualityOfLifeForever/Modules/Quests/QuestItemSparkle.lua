@@ -6,13 +6,13 @@ local L = ns.NewLocale({
 		TITLE = "Quest item sparkle",
 		NOTE = "Quest objects in the world sparkle again",
 		DESC = "Turns on the sparkle on quest items and objects you still need and keeps it on, also after you pick a graphics preset. Outlines stay as they are.",
-		NOTICE = "Changes the game setting outlineModeShowLootEffectWhenDisabled. Applies to objects that appear afterwards; objects already in view keep their state. Disabling restores your previous setting.",
+		NOTICE = "Changes the game setting `outlineModeShowLootEffectWhenDisabled`. Applies to objects that appear afterwards; objects already in view keep their state. Disabling restores your previous setting.",
 	},
 	deDE = {
 		TITLE = "Questgegenstände funkeln",
 		NOTE = "Quest-Objekte in der Welt funkeln wieder",
 		DESC = "Schaltet das Funkeln an Questgegenständen und -objekten ein, die du noch brauchst, und hält es eingeschaltet, auch nachdem du eine Grafikvoreinstellung wählst. Umrisse bleiben unverändert.",
-		NOTICE = "Ändert die Spieleinstellung outlineModeShowLootEffectWhenDisabled. Gilt für Objekte, die danach erscheinen; bereits sichtbare Objekte behalten ihren Zustand. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
+		NOTICE = "Ändert die Spieleinstellung `outlineModeShowLootEffectWhenDisabled`. Gilt für Objekte, die danach erscheinen; bereits sichtbare Objekte behalten ihren Zustand. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 	},
 })
 

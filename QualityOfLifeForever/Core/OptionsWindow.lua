@@ -4,6 +4,7 @@ local _, ns = ...
 local L = ns.L
 local Widgets = ns.OptionsWidgets
 local colors, fonts = Widgets.colors, Widgets.fonts
+local Markup = ns.Utils.Markup
 
 --[[
 	Standalone options window (/qol, minimap button, addon compartment).
@@ -73,7 +74,7 @@ local function SetupRow(row, spec, controlWidth, baseHeight)
 	local height = baseHeight
 	if spec.note then
 		row.Note:SetWidth(rowWidth - controlWidth - 16)
-		row.Note:SetText(spec.note)
+		row.Note:SetText(Markup(spec.note))
 		row.Note:Show()
 		height = height + row.Note:GetStringHeight() + 2
 	else
@@ -271,7 +272,7 @@ rowTypes.notice = {
 	end,
 	setup = function(row, spec)
 		row.Label:SetWidth(rowWidth - NOTICE_INDENT)
-		row.Label:SetText(spec.label)
+		row.Label:SetText(Markup(spec.label))
 		local height = row.Label:GetStringHeight() + 14
 		row:SetSize(rowWidth, height)
 		return height
@@ -359,7 +360,7 @@ local function AddCard(spec, left, top)
 		card.Title:Show()
 		y = CARD_PADDING + card.Title:GetStringHeight()
 		if spec.note and spec.note ~= "" then
-			card.Note:SetText(spec.note)
+			card.Note:SetText(Markup(spec.note))
 			card.Note:Show()
 			y = y + 4 + card.Note:GetStringHeight()
 		else

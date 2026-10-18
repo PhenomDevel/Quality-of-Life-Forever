@@ -13,7 +13,10 @@ luacheck globals, so parallel module PRs don't collide in shared files.
 1. Copy `docs/ModuleTemplate.lua` to `QualityOfLifeForever/Modules/<Category>/<Name>.lua`.
 2. Add it to its category section in the `.toc` (alphabetical).
 3. Strings via `ns.NewLocale({ enUS = {...}, deDE = {...} })` in the module file
-   (lookup: client locale → enUS → key).
+   (lookup: client locale → enUS → key). Mark references in user-facing
+   texts so they are highlighted: `` `cvarName` `` for game settings (CVars)
+   and `{Label}` for options and buttons of this addon or the game (rendered
+   by `ns.Utils.Markup` in the options window and chat output).
 4. Declare used WoW API in the first line:
    `-- luacheck: read globals SomeApi C_Something`
 5. Run `luacheck .`, test in-game.
