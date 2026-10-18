@@ -18,7 +18,7 @@ local module = ns:NewModule("RepairCosts", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "INTERFACE",
+	category = "BAGS",
 })
 
 local IsSecret = ns.Utils.IsSecret

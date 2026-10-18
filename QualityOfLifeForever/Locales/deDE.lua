@@ -11,7 +11,7 @@ L.ADDON_LOADED = "Version %s geladen. Gib |cffffd100/qol|r für die Optionen ein
 
 -- Categories
 L.CATEGORY_INTERFACE = "Oberfläche"
-L.CATEGORY_BAGS = "Taschen"
+L.CATEGORY_BAGS = "Taschen & Gegenstände"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Händler & Lehrer"
 L.CATEGORY_LOOT = "Beute"
@@ -20,11 +20,9 @@ L.CATEGORY_QUESTS = "Quests"
 L.CATEGORY_CHAT = "Chat"
 L.CATEGORY_MAP = "Weltkarte"
 L.CATEGORY_CHARACTER = "Charakter"
-L.CATEGORY_STATISTICS = "Statistiken"
 L.CATEGORY_TOOLTIP = "Tooltip"
-L.CATEGORY_CAMERA = "Kamera"
-L.CATEGORY_GRAPHICS = "Grafik"
-L.CATEGORY_XP_BAR = "EP-Leiste"
+L.CATEGORY_GRAPHICS = "Kamera & Grafik"
+L.CATEGORY_REMINDERS = "Erinnerungen"
 L.CATEGORY_WIDGETS = "Widgets"
 
 -- Options window

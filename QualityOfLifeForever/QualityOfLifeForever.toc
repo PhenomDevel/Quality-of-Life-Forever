@@ -39,16 +39,17 @@ Core\XPSession.lua
 # Interface
 Modules\Interface\CombatHideTracker.lua
 Modules\Interface\CombatText.lua
-Modules\Interface\DurabilityWarning.lua
-Modules\Interface\ItemLevel.lua
-Modules\Interface\RepairCosts.lua
-Modules\Interface\ShowDurability.lua
 Modules\Interface\SkipCinematics.lua
+Modules\Interface\StatisticsSearch.lua
 Modules\Interface\UIDeclutter.lua
+Modules\Interface\XPBar.lua
 
-# Bags
+# Bags & items
 Modules\Bags\AutoSortBags.lua
 Modules\Bags\BagFreeSlots.lua
+Modules\Bags\ItemLevel.lua
+Modules\Bags\RepairCosts.lua
+Modules\Bags\ShowDurability.lua
 
 # Cooldown manager
 Modules\CooldownManager\CooldownKeybinds.lua
@@ -56,28 +57,26 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
-Modules\Character\PetHappiness.lua
-Modules\Character\TalentReminder.lua
 
-# Statistics
-Modules\Statistics\StatisticsSearch.lua
+# Reminders
+Modules\Reminders\DurabilityWarning.lua
+Modules\Reminders\PetHappiness.lua
+Modules\Reminders\TalentReminder.lua
+Modules\Reminders\TrainerReminder.lua
 
 # Tooltip
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
 Modules\Tooltip\TooltipIDs.lua
 
-# Camera
-Modules\Camera\CameraZoom.lua
-
-# Graphics
+# Camera & graphics
+Modules\Graphics\CameraZoom.lua
 Modules\Graphics\GraphicsTweaks.lua
 
-# Merchant & Trainer
+# Merchant & trainer
 Modules\Merchant\AutoRepair.lua
 Modules\Merchant\AutoSellJunk.lua
 Modules\Merchant\TrainAll.lua
-Modules\Merchant\TrainerReminder.lua
 
 # Loot
 Modules\Loot\AutoConfirmBindOnPickup.lua
@@ -111,9 +110,6 @@ Modules\Chat\SpamFilter.lua
 # Map
 Modules\Map\WorldMapWindow.lua
 Modules\Map\ZoneLevels.lua
-
-# XP Bar
-Modules\XPBar\XPBar.lua
 
 # Widgets
 Modules\Widgets\GoldWidget.lua

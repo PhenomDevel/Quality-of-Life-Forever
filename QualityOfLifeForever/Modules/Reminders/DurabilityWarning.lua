@@ -12,6 +12,9 @@ local L = ns.NewLocale({
 		SOUND = "Sound",
 		SOUND_DESC = "Plays a sound with the warning.",
 		MESSAGE = "Durability low: %s at %d%%. Time to repair.",
+		PREVIEW = "Preview",
+		PREVIEW_DESC = "Shows the warning popup with your most worn item.",
+		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Haltbarkeits-Warnung",
@@ -23,6 +26,9 @@ local L = ns.NewLocale({
 		SOUND = "Ton",
 		SOUND_DESC = "Spielt einen Ton zur Warnung.",
 		MESSAGE = "Haltbarkeit niedrig: %s bei %d %%. Zeit zum Reparieren.",
+		PREVIEW = "Vorschau",
+		PREVIEW_DESC = "Zeigt das Warn-Popup mit deinem am stärksten abgenutzten Gegenstand.",
+		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -34,7 +40,7 @@ local module = ns:NewModule("DurabilityWarning", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "INTERFACE",
+	category = "REMINDERS",
 	defaults = {
 		threshold = 20,
 		sound = true,
@@ -43,6 +49,15 @@ local module = ns:NewModule("DurabilityWarning", {
 		{ key = "threshold", type = "slider", label = L.THRESHOLD, tooltip = L.THRESHOLD_DESC, min = 5, max = 50, step = 5, format = FormatPercent },
 		{ type = "header", label = L.SECTION_HOW },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				self:Preview()
+			end,
+		},
 	},
 })
 
@@ -75,10 +90,21 @@ function module:Check()
 		return
 	end
 	warned = true
-	local message = L.MESSAGE:format(GetInventoryItemLink("player", slot) or "?", math.floor(lowest))
+	self:Warn(lowest, slot)
+end
+
+function module:Warn(percent, slot)
+	local message = L.MESSAGE:format(GetInventoryItemLink("player", slot) or "?", math.floor(percent))
 	self:Notice(message, GetInventoryItemTexture("player", slot))
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
+	end
+end
+
+function module:Preview()
+	local lowest, slot = FindMostWorn()
+	if slot then
+		self:Warn(lowest, slot)
 	end
 end
 

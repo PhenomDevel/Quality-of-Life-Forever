@@ -2,7 +2,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto loot",
+		TITLE = "Auto-loot",
 		DESC = "Turns on the game's auto loot setting.",
 		NOTICE = "Changes the game setting `autoLootDefault`. Disabling restores your previous setting.",
 	},

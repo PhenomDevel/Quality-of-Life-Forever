@@ -21,6 +21,9 @@ local L = ns.NewLocale({
 		BADGE_DESC = "Shows the number of unspent talent points on the talent button of the micro menu.",
 		MESSAGE = "You have %d unspent talent point(s).",
 		MESSAGE_UNKNOWN = "You have unspent talent points.",
+		PREVIEW = "Preview",
+		PREVIEW_DESC = "Shows the reminder popup, with your current number of unspent points.",
+		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Talentpunkt-Erinnerung",
@@ -41,6 +44,9 @@ local L = ns.NewLocale({
 		BADGE_DESC = "Zeigt die Anzahl freier Talentpunkte auf der Talent-Taste des Mikromenüs.",
 		MESSAGE = "Du hast %d freie(n) Talentpunkt(e).",
 		MESSAGE_UNKNOWN = "Du hast freie Talentpunkte.",
+		PREVIEW = "Vorschau",
+		PREVIEW_DESC = "Zeigt das Erinnerungs-Popup mit deiner aktuellen Anzahl freier Punkte.",
+		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -52,7 +58,7 @@ local module = ns:NewModule("TalentReminder", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
-	category = "CHARACTER",
+	category = "REMINDERS",
 	defaults = {
 		levelUp = true,
 		levelUpDelay = 60,
@@ -70,6 +76,15 @@ local module = ns:NewModule("TalentReminder", {
 		{ type = "header", label = L.SECTION_HOW },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
 		{ key = "badge", type = "checkbox", label = L.BADGE, tooltip = L.BADGE_DESC },
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				self:Remind(true)
+			end,
+		},
 	},
 })
 
@@ -94,10 +109,14 @@ local function Unspent()
 	return true, count > 0 and count or nil
 end
 
-function module:Remind()
+-- `preview` shows the popup even without unspent points.
+function module:Remind(preview)
 	local hasUnspent, count = Unspent()
-	if not hasUnspent then
+	if not hasUnspent and not preview then
 		return
+	end
+	if not hasUnspent then
+		count = 1
 	end
 	self:Notice(count and L.MESSAGE:format(count) or L.MESSAGE_UNKNOWN, ICON)
 	if self.db.sound then

@@ -3,7 +3,7 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Auto greed",
+		TITLE = "Auto-greed",
 		NOTE = "Greed on green items in group loot",
 		DESC = "Rolls {Greed} for you on green items in group loot. {Bind on Pickup} items are always left to you.",
 		MAX_QUALITY = "Items up to",
@@ -17,7 +17,7 @@ local L = ns.NewLocale({
 		ROLLED = "Greed: %s",
 	},
 	deDE = {
-		TITLE = "Automatisch Gier",
+		TITLE = "Automatisch Gier würfeln",
 		NOTE = "Gier auf grüne Gegenstände beim Gruppenplündern",
 		DESC = "Würfelt beim Gruppenplündern für dich {Gier} auf grüne Gegenstände. Gegenstände, die {Beim Aufheben gebunden} werden, bleiben immer dir überlassen.",
 		MAX_QUALITY = "Gegenstände bis",
