@@ -34,7 +34,8 @@ scale widgets like the XP widget; drag them anytime to move them.
 | **Statistics** | Search on the statistics page |
 | **Tooltip** | Position, scale and background opacity · guild rank, target, class color · item/spell IDs |
 | **World map** | Movable, scalable map · zone level ranges |
-| **XP Bar** | XP text always visible · XP per hour and time to level · movable XP widget with rested and quest XP, adjustable text size and background opacity, optionally replacing the standard XP bar |
+| **Widgets** | Movable overlays with adjustable text size and background opacity: XP (rested and quest XP, XP per hour, optionally replacing the standard XP bar) · gold (session gain/loss, gold per hour) |
+| **XP Bar** | XP text always visible · XP per hour and time to level |
 
 \* on by default
 
