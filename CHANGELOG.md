@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.8.0 (2026-10-18)
+
+### Options
+- The addon version is shown in the options window header and in the
+  minimap button tooltip
+
+### XP Bar
+- XP widget: new layout option – horizontal (as before) or vertical, with
+  the bar on the left filling from bottom to top and the texts stacked next
+  to it
+
 ## v0.7.0 (2026-10-18)
 
 ### Options
