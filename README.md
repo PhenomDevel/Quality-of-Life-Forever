@@ -4,8 +4,12 @@ Small quality-of-life improvements for World of Warcraft **Forever** in one
 addon. Every feature can be switched on and off on its own; almost all are off
 until you turn them on.
 
-**Open the options:** `/qol`, the addon button at the minimap, or
-*Esc → Options → AddOns*.
+**Open the options:** `/qol`, the button at the minimap, or the addon menu
+next to the minimap. The options have their own window with search; drag its
+corner to resize it.
+
+**Move widgets:** right-click the minimap button (or *Esc → Edit Mode*) to
+scale widgets like the XP widget; drag them anytime to move them.
 
 **Missing a feature?**
 [Request it on GitHub](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues/new).
@@ -27,7 +31,7 @@ until you turn them on.
 | **Statistics** | Search on the statistics page |
 | **Tooltip** | Position and scale · guild rank, target, class color · item/spell IDs |
 | **World map** | Movable, scalable map · zone level ranges |
-| **XP Bar** | XP text always visible · XP per hour and time to level |
+| **XP Bar** | XP text always visible · XP per hour and time to level · movable XP widget with rested and quest XP |
 
 \* on by default
 
@@ -38,6 +42,7 @@ until you turn them on.
 | `/qol` | Open options |
 | `/qol list` | Show all features and their state |
 | `/qol toggle <feature>` | Turn a feature on/off (also `enable`, `disable`) |
+| `/qol minimap` | Show/hide the minimap button |
 | `/qol reset` | Reset all settings |
 
 ## Bugs
