@@ -53,6 +53,11 @@ L.COMBAT_QUEUED = "%s wird nach dem Kampf aktualisiert."
 
 -- XP session
 L.XP_UNDER_A_MINUTE = "< 1 Min."
+L.SESSION_RESET = "Neue Sitzung"
+L.SESSION_RESET_DESC = "Wann neu gezählt wird. Beim Einloggen: bei jedem Login, ein /reload zählt weiter. Täglich: nach dem täglichen Server-Reset, über Logins hinweg. Manuell: nur mit {Zurücksetzen}. Täglich und manuell zählen nur die Online-Zeit."
+L.SESSION_RESET_LOGIN = "Beim Einloggen"
+L.SESSION_RESET_DAILY = "Täglich"
+L.SESSION_RESET_MANUAL = "Manuell"
 
 -- Slash commands
 L.SLASH_HELP_HEADER = "Befehle:"

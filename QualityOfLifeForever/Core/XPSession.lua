@@ -1,14 +1,14 @@
--- luacheck: read globals UnitXP UnitXPMax UnitGUID UnitLevel GetTime CreateFrame SecondsToTime
+-- luacheck: read globals UnitXP UnitXPMax UnitGUID UnitLevel GetTime CreateFrame SecondsToTime time
 local _, ns = ...
 
 --[[
-	XP gained since login (or the last reset), used by the XPBar module.
+	XP gained in the current session, used by the XPBar and XPWidget modules.
 	Costs one subtraction per PLAYER_XP_UPDATE; rates are computed on demand.
 	Listeners are called after every XP gain with (owner, gain).
 
-	A /reload (or a relog within RESUME_SECONDS) continues the session: it is
-	saved on logout and restored on login if GetTime() - which keeps running
-	until the client is closed - shows it was just saved.
+	The session is saved per character on logout. When a new one starts
+	depends on the XP widget's reset mode (see Utils.IsSessionExpired); the
+	rate counts online time only.
 ]]
 
 local XPSession = {}
@@ -16,11 +16,20 @@ ns.XPSession = XPSession
 
 -- Below this the rate is too noisy to show.
 local MIN_SESSION_SECONDS = 60
-local RESUME_SECONDS = 600
 
 -- Started at load so getters work before PLAYER_LOGIN resets it.
-local sessionStart, sessionXP = GetTime(), 0
+-- elapsed: online seconds before `mark` (GetTime() of this login).
+local elapsed, mark, sessionXP, nextReset = 0, GetTime(), 0, nil
 local lastXP, lastMaxXP, lastGain
+
+local function ResetMode()
+	local widget = ns.modules.XPWidget
+	return widget and widget.db and widget.db.sessionReset or "LOGIN"
+end
+
+local function Elapsed()
+	return elapsed + GetTime() - mark
+end
 local listeners = {}
 
 -- Current and max XP, or nil while they are secret.
@@ -33,13 +42,22 @@ function XPSession.Read()
 end
 
 function XPSession.Reset()
-	sessionStart = GetTime()
+	elapsed, mark = 0, GetTime()
+	nextReset = ns.Utils.NextDailyReset()
 	sessionXP = 0
 	lastGain = nil
 	lastXP, lastMaxXP = XPSession.Read()
 end
 
+-- A daily session ends at the reset even while logged in.
+local function CheckDailyReset()
+	if ResetMode() == "DAILY" and nextReset and time() >= nextReset then
+		XPSession.Reset()
+	end
+end
+
 function XPSession.GetSessionXP()
+	CheckDailyReset()
 	return sessionXP
 end
 
@@ -49,11 +67,12 @@ end
 
 -- XP per hour, or nil while the session is too short to tell.
 function XPSession.GetPerHour()
-	local elapsed = GetTime() - sessionStart
-	if sessionXP <= 0 or elapsed < MIN_SESSION_SECONDS then
+	CheckDailyReset()
+	local seconds = Elapsed()
+	if sessionXP <= 0 or seconds < MIN_SESSION_SECONDS then
 		return nil
 	end
-	return sessionXP / elapsed * 3600
+	return sessionXP / seconds * 3600
 end
 
 -- Seconds to the next level at the current rate, or nil.
@@ -182,22 +201,22 @@ end
 
 local function Save()
 	AccumulateLevelTime()
-	ns.db.global.xpSession = {
-		guid = UnitGUID("player"),
+	ns.db.global.xpSessions = ns.db.global.xpSessions or {}
+	ns.db.global.xpSessions[UnitGUID("player")] = {
 		savedAt = GetTime(),
-		start = sessionStart,
+		elapsed = Elapsed(),
 		xp = sessionXP,
 		lastGain = lastGain,
+		nextReset = nextReset,
 	}
 end
 
 local function Resume()
-	local saved = ns.db.global.xpSession
-	ns.db.global.xpSession = nil
+	ns.db.global.xpSession = nil -- layout before the reset modes
+	local saved = ns.db.global.xpSessions and ns.db.global.xpSessions[UnitGUID("player")]
 	XPSession.Reset()
-	local age = saved and GetTime() - saved.savedAt
-	if age and age >= 0 and age < RESUME_SECONDS and saved.guid == UnitGUID("player") then
-		sessionStart, sessionXP, lastGain = saved.start, saved.xp, saved.lastGain
+	if saved and saved.xp and not ns.Utils.IsSessionExpired(saved, ResetMode()) then
+		elapsed, sessionXP, lastGain, nextReset = saved.elapsed or 0, saved.xp, saved.lastGain, saved.nextReset
 	end
 end
 

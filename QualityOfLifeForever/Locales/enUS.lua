@@ -58,6 +58,11 @@ L.COMBAT_QUEUED = "%s will be updated after combat."
 
 -- XP session
 L.XP_UNDER_A_MINUTE = "< 1 Min"
+L.SESSION_RESET = "New session"
+L.SESSION_RESET_DESC = "When counting starts over. On login: every login, a /reload continues. Daily: after the daily server reset, across logins. Manually: only with {Reset}. Daily and manual count online time only."
+L.SESSION_RESET_LOGIN = "On login"
+L.SESSION_RESET_DAILY = "Daily"
+L.SESSION_RESET_MANUAL = "Manually"
 
 -- Slash commands
 L.SLASH_HELP_HEADER = "Commands:"

@@ -1,4 +1,4 @@
--- luacheck: read globals GameRulesUtil GetMaxPlayerLevel UnitLevel
+-- luacheck: read globals GameRulesUtil GetMaxPlayerLevel UnitLevel C_DateAndTime GetTime time
 local _, ns = ...
 
 local Utils = {}
@@ -158,4 +158,46 @@ function Utils.IsAtMaxLevel()
 		return GameRulesUtil.IsPlayerAtEffectiveMaxLevel()
 	end
 	return GetMaxPlayerLevel ~= nil and UnitLevel("player") >= GetMaxPlayerLevel()
+end
+
+--------------------------------------------------------------------------------
+-- Sessions (gold and XP per hour)
+--------------------------------------------------------------------------------
+-- A session counts online time only, so it can span logins:
+--   LOGIN   new session on every login; a /reload continues it
+--   DAILY   new session after the daily server reset
+--   MANUAL  only the {Reset} button starts a new one
+-- Saved form: { savedAt = GetTime(), elapsed = online seconds, nextReset = time() }
+
+-- A /reload is a login within this many seconds of the save (GetTime keeps
+-- running until the client is closed).
+local RELOAD_SECONDS = 600
+
+function Utils.NextDailyReset()
+	local seconds = C_DateAndTime and C_DateAndTime.GetSecondsUntilDailyReset and C_DateAndTime.GetSecondsUntilDailyReset()
+	if type(seconds) ~= "number" or Utils.IsSecret(seconds) then
+		-- Unknown: treat the session as one day long.
+		seconds = 86400
+	end
+	return time() + seconds
+end
+
+function Utils.IsSessionExpired(saved, mode)
+	if mode == "MANUAL" then
+		return false
+	elseif mode == "DAILY" then
+		return not saved.nextReset or time() >= saved.nextReset
+	end
+	local age = saved.savedAt and GetTime() - saved.savedAt
+	return not age or age < 0 or age >= RELOAD_SECONDS
+end
+
+-- Option values for a module's session reset dropdown.
+function Utils.SessionResetValues()
+	local L = ns.L
+	return {
+		{ value = "LOGIN", label = L.SESSION_RESET_LOGIN },
+		{ value = "DAILY", label = L.SESSION_RESET_DAILY },
+		{ value = "MANUAL", label = L.SESSION_RESET_MANUAL },
+	}
 end
