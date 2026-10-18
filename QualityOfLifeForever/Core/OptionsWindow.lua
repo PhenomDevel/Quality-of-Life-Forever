@@ -511,6 +511,9 @@ local function GeneralPage()
 			rows = {
 				GlobalToggle("printMessages", L.SETTING_PRINT_MESSAGES, L.SETTING_PRINT_MESSAGES_DESC),
 				GlobalToggle("notices", L.SETTING_NOTICES, L.SETTING_NOTICES_DESC),
+				GlobalToggle("stackWidgets", L.SETTING_STACK_WIDGETS, L.SETTING_STACK_WIDGETS_DESC, function()
+					ns:UpdateWidgetStack()
+				end),
 				{
 					type = "button",
 					label = L.NOTICES_TEST,

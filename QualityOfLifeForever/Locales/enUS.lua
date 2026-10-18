@@ -108,3 +108,8 @@ L.NOTICES_TEST_BUTTON = "Show"
 L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Notices"
 L.NOTICES_TEST_TITLE = "Quality of Life Forever"
 L.NOTICES_TEST_TEXT = "Hints and reminders appear here. Move them in {Edit Mode}; click to close."
+
+-- Widget stack
+L.SETTING_STACK_WIDGETS = "Combine widgets"
+L.SETTING_STACK_WIDGETS_DESC = "Stacks all shown widgets (XP, reputation, gold, …) on top of each other in one column. Drag any of them, or move \"QoL Forever: Widgets\" in {Edit Mode}, to move the whole stack. Turned off, every widget goes back to its own position."
+L.WIDGET_STACK_EDIT_MODE_NAME = "QoL Forever: Widgets"

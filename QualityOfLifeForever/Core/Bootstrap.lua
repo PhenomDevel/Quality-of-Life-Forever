@@ -20,6 +20,7 @@ local function OnPlayerLogin(event)
 	ns:UnregisterEvent(event, OnPlayerLogin)
 
 	Utils.SafeCall(ns.InitializeNotices, ns)
+	Utils.SafeCall(ns.InitializeWidgetStack, ns)
 	ns:EnableModules()
 	Utils.SafeCall(ns.UpdateMinimapButton, ns)
 	ns:Debug(L.ADDON_LOADED:format(ns.version))
