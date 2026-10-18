@@ -7,6 +7,7 @@ local L = ns.NewLocale({
 		NOTE = "Next energy tick, mana regeneration in combat",
 		DESC = "A small movable bar. With energy (rogues, druids in cat form) it fills up until your next energy tick; it syncs to the ticks it sees, so it is in step after the first tick. With mana it counts down the five seconds after you spend mana in combat, until mana regenerates again. Drag it to move it; scale it in {Edit Mode}.",
 		EDIT_MODE_NAME = "QoL Forever: Energy tick & 5 s rule",
+		NOTICE = "Only shown when relevant: with energy, and with mana in combat for 5 seconds after you spend mana. While this window or {Edit Mode} is open, a preview is shown so you can place it.",
 		SECTION_ENERGY = "Energy",
 		SECTION_MANA = "Mana",
 		SECTION_LOOK = "Appearance",
@@ -28,6 +29,7 @@ local L = ns.NewLocale({
 		NOTE = "Nächster Energie-Tick, Manaregeneration im Kampf",
 		DESC = "Ein kleiner verschiebbarer Balken. Mit Energie (Schurken, Druiden in Katzengestalt) füllt er sich bis zum nächsten Energie-Tick; er richtet sich nach den Ticks, die er sieht, und ist ab dem ersten Tick im Takt. Mit Mana zählt er die fünf Sekunden herunter, nachdem du im Kampf Mana ausgegeben hast, bis Mana wieder regeneriert. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
 		EDIT_MODE_NAME = "QoL Forever: Energie-Tick & 5-Sek.-Regel",
+		NOTICE = "Erscheint nur, wenn relevant: mit Energie, und mit Mana im Kampf für 5 Sekunden, nachdem du Mana ausgegeben hast. Solange dieses Fenster oder der {Bearbeitungsmodus} offen ist, wird eine Vorschau angezeigt, damit du es platzieren kannst.",
 		SECTION_ENERGY = "Energie",
 		SECTION_MANA = "Mana",
 		SECTION_LOOK = "Darstellung",
@@ -58,6 +60,7 @@ local module = ns:NewModule("PowerTickWidget", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
+	notice = L.NOTICE,
 	category = "WIDGETS",
 	defaults = {
 		hideFull = true,
@@ -95,8 +98,13 @@ local COLORS = {
 
 local IsSecret = ns.Utils.IsSecret
 local LibEditMode = ns.LibEditMode
--- Shown as a preview while Edit Mode is open, so it can be found and moved.
-local editing = false
+-- Shown as a preview while Edit Mode or the options window is open, so it can
+-- be found and moved.
+local editing, optionsShown = false, false
+
+local function IsPreview()
+	return editing or optionsShown
+end
 
 local frame
 -- mode: "ENERGY", "MANA" or nil; last: last read power; lastTick: GetTime()
@@ -126,7 +134,7 @@ local function FiveSecondsLeft()
 end
 
 local function OnUpdate(self)
-	if editing then
+	if IsPreview() then
 		return
 	end
 	if state.mode == "MANA" then
@@ -163,7 +171,7 @@ function module:UpdateShown()
 	if not frame then
 		return
 	end
-	if editing and self.enabled then
+	if IsPreview() and self.enabled then
 		frame.Bar:SetStatusBarColor(unpack(COLORS[state.mode or "ENERGY"]))
 		frame.Bar:SetValue(0.6)
 		frame:Show()
@@ -264,6 +272,7 @@ function module:OnEnable()
 	self:ApplyLayout()
 	self:RegisterEvent("UNIT_POWER_FREQUENT")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	optionsShown = ns:IsOptionsShown()
 	if not self.editModeHooked then
 		self.editModeHooked = true
 		LibEditMode:RegisterCallback("enter", function()
@@ -285,6 +294,11 @@ function module:OnEnable()
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", self.UpdateShown)
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", self.OnCombatEnd)
 	self:ResetPower()
+end
+
+function module:OnOptionsShown(shown)
+	optionsShown = shown
+	self:UpdateShown()
 end
 
 function module:OnDisable()

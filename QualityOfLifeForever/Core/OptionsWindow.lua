@@ -978,6 +978,16 @@ local function Clamp(value, min, max)
 	return math.max(min, math.min(max, value))
 end
 
+-- Modules can react to the window, e.g. show a preview of a widget that is
+-- otherwise only visible in certain situations.
+local function NotifyModules(shown)
+	for _, module in ipairs(ns.moduleOrder) do
+		if module.enabled and module.OnOptionsShown then
+			ns.Utils.SafeCall(module.OnOptionsShown, module, shown)
+		end
+	end
+end
+
 local function CreateWindow()
 	frame = CreateFrame("Frame", "QualityOfLifeForeverOptionsFrame", UIParent)
 	frame:SetPoint("CENTER")
@@ -1012,11 +1022,13 @@ local function CreateWindow()
 	frame:SetScript("OnShow", function()
 		PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN)
 		Render()
+		NotifyModules(true)
 	end)
 	frame:SetScript("OnHide", function()
 		PlaySound(SOUNDKIT.IG_CHARACTER_INFO_CLOSE)
 		Widgets.HideTooltip()
 		searchBox:ClearFocus()
+		NotifyModules(false)
 	end)
 end
 
@@ -1043,6 +1055,10 @@ function ns:ToggleSettings()
 	else
 		ns:OpenSettings()
 	end
+end
+
+function ns:IsOptionsShown()
+	return frame ~= nil and frame:IsShown()
 end
 
 -- Layout changed (module turned on/off): rebuild the visible page.
