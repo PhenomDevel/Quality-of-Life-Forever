@@ -4,8 +4,8 @@ local _, ns = ...
 local L = ns.L
 
 --[[
-	Flat round button on the minimap rim: left-click opens the options, drag
-	moves it around the rim. The angle (degrees, 0 = right, counterclockwise)
+	Flat round button on the minimap rim: left-click opens the options,
+	right-click Edit Mode (to move overlays), drag moves it around the rim. The angle (degrees, 0 = right, counterclockwise)
 	and visibility are stored account-wide in ns.db.global.
 ]]
 
@@ -71,6 +71,7 @@ local function ShowTooltip(self)
 	GameTooltip:SetText(ns.title, 1, 1, 1)
 	GameTooltip:AddLine(ns.version, 0.6, 0.6, 0.6)
 	GameTooltip:AddLine(L.MINIMAP_HINT_OPTIONS)
+	GameTooltip:AddLine(L.MINIMAP_HINT_EDIT_MODE)
 	GameTooltip:AddLine(L.MINIMAP_HINT_DRAG)
 	GameTooltip:Show()
 end
@@ -91,7 +92,7 @@ local function CreateButton()
 	button:SetSize(SIZE, SIZE)
 	button:SetFrameStrata("MEDIUM")
 	button:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-	button:RegisterForClicks("LeftButtonUp")
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	button:RegisterForDrag("LeftButton")
 
 	-- Accent ring = accent circle with a slightly smaller dark circle on top.
@@ -102,8 +103,12 @@ local function CreateButton()
 	button.Icon = AddCircle("ARTWORK", 0, ICON_SIZE)
 	button.Icon:SetTexture("Interface\\AddOns\\QualityOfLifeForever\\Media\\Logo")
 
-	button:SetScript("OnClick", function()
-		ns:OpenSettings()
+	button:SetScript("OnClick", function(_, mouseButton)
+		if mouseButton == "RightButton" then
+			ns:OpenEditMode()
+		else
+			ns:OpenSettings()
+		end
 	end)
 	button:SetScript("OnEnter", function(self)
 		SetHovered(true)

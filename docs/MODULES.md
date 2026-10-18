@@ -79,6 +79,28 @@ doesn't take others down.
 | `ns.Utils.FormatMoney(copper)`            | Money string with coin icons |
 | `ns.Utils.IsSecret(value)`                | Checks for secret values (see below) |
 
+## Overlays (2.0)
+
+Small frames the player moves in Blizzard's Edit Mode (via the embedded
+LibEditMode). Position and scale are stored account-wide per Edit Mode layout.
+
+```lua
+local frame = ns:CreateOverlay("MyWidget", {
+	title = L.EDIT_MODE_NAME,                     -- name in Edit Mode
+	width = 200, height = 40,
+	default = { point = "TOP", x = 0, y = -120 }, -- relative to UIParent
+	settings = { ... },                           -- optional extra LibEditMode settings
+})
+```
+
+- Create the overlay once (first `OnEnable`); show it in `OnEnable`, hide it in
+  `OnDisable`. Frames can't be unregistered from Edit Mode; hidden ones don't
+  appear there.
+- The frame comes with the shared flat background and border; use
+  `ns.overlayFont` for text.
+- `ns:OpenEditMode()` opens Edit Mode (not in combat), also bound to
+  right-clicking the minimap button.
+
 ## WoW Forever specifics
 
 * Forever runs on the **modern mainline API** (Midnight base, `C_*` namespaces),

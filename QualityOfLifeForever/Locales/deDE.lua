@@ -70,4 +70,9 @@ L.COMPARTMENT_HINT = "|cffffd100Klicken|r, um die Optionen zu öffnen."
 
 -- Minimap button
 L.MINIMAP_HINT_OPTIONS = "|cffffd100Klicken|r, um die Optionen zu öffnen."
+L.MINIMAP_HINT_EDIT_MODE = "|cffffd100Rechtsklick|r öffnet den Bearbeitungsmodus, um Widgets zu verschieben."
 L.MINIMAP_HINT_DRAG = "|cffffd100Ziehen|r, um den Knopf zu verschieben."
+
+-- Overlays
+L.OVERLAY_SCALE = "Skalierung"
+L.EDIT_MODE_COMBAT = "Der Bearbeitungsmodus ist im Kampf nicht verfügbar."
