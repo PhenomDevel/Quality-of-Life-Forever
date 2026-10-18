@@ -112,4 +112,5 @@ L.NOTICES_TEST_TEXT = "Hints and reminders appear here. Move them in {Edit Mode}
 -- Widget stack
 L.SETTING_STACK_WIDGETS = "Combine widgets"
 L.SETTING_STACK_WIDGETS_DESC = "Stacks all shown widgets (XP, reputation, gold, …) on top of each other in one column. Drag any of them, or move \"QoL Forever: Widgets\" in {Edit Mode}, to move the whole stack. Turned off, every widget goes back to its own position."
+L.SETTING_STACK_WIDGETS_NOTE = "All widgets in one column, moved together"
 L.WIDGET_STACK_EDIT_MODE_NAME = "QoL Forever: Widgets"

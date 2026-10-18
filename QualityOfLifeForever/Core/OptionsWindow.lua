@@ -511,9 +511,6 @@ local function GeneralPage()
 			rows = {
 				GlobalToggle("printMessages", L.SETTING_PRINT_MESSAGES, L.SETTING_PRINT_MESSAGES_DESC),
 				GlobalToggle("notices", L.SETTING_NOTICES, L.SETTING_NOTICES_DESC),
-				GlobalToggle("stackWidgets", L.SETTING_STACK_WIDGETS, L.SETTING_STACK_WIDGETS_DESC, function()
-					ns:UpdateWidgetStack()
-				end),
 				{
 					type = "button",
 					label = L.NOTICES_TEST,
@@ -551,9 +548,32 @@ local function CountEnabled(modules)
 	return count
 end
 
+-- Widgets page: the stack setting sits above the widget modules it affects.
+local function WidgetStackCard()
+	return {
+		title = L.SETTING_STACK_WIDGETS,
+		note = L.SETTING_STACK_WIDGETS_NOTE,
+		tooltip = L.SETTING_STACK_WIDGETS_DESC,
+		toggle = {
+			get = function()
+				return ns.db.global.stackWidgets
+			end,
+			set = function(value)
+				ns.db.global.stackWidgets = value
+				ns:UpdateWidgetStack()
+				ns:RefreshOptions()
+			end,
+		},
+		rows = {},
+	}
+end
+
 local function CategoryPage(category)
 	local modules = ns:GetSortedModules(category.id)
 	local cards = {}
+	if category.id == "WIDGETS" then
+		cards[1] = WidgetStackCard()
+	end
 	for _, module in ipairs(modules) do
 		cards[#cards + 1] = ModuleCard(module)
 	end

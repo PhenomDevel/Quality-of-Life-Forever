@@ -107,4 +107,5 @@ L.NOTICES_TEST_TEXT = "Hier erscheinen Hinweise und Erinnerungen. Verschieben im
 -- Widget stack
 L.SETTING_STACK_WIDGETS = "Widgets kombinieren"
 L.SETTING_STACK_WIDGETS_DESC = "Stapelt alle angezeigten Widgets (EP, Ruf, Gold, …) in einer Spalte untereinander. Eines davon ziehen oder „QoL Forever: Widgets“ im {Bearbeitungsmodus} verschieben bewegt den ganzen Stapel. Ausgeschaltet kehrt jedes Widget an seine eigene Position zurück."
+L.SETTING_STACK_WIDGETS_NOTE = "Alle Widgets in einer Spalte, gemeinsam verschiebbar"
 L.WIDGET_STACK_EDIT_MODE_NAME = "QoL Forever: Widgets"
