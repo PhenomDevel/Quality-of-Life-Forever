@@ -1,4 +1,4 @@
--- luacheck: read globals C_Trainer Enum UnitGUID UnitLevel IsTradeskillTrainer GetNumTrainerServices GetTrainerServiceInfo GetTrainerServiceCost GetTrainerServiceTypeFilter
+-- luacheck: read globals C_Spell C_Trainer Enum UnitGUID UnitLevel IsTradeskillTrainer GetNumTrainerServices GetTrainerServiceInfo GetTrainerServiceCost GetTrainerServiceTypeFilter
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -83,6 +83,20 @@ function module:Record()
 	self.db.characters[UnitGUID("player")] = upcoming
 end
 
+-- Records from before icons were stored, or skills the trainer listed without
+-- one, fall back to the spell's icon by name (works for new ranks of spells
+-- the character already knows).
+local function WithIcon(skill, text)
+	local icon = skill.icon
+	if not icon and C_Spell and C_Spell.GetSpellTexture then
+		icon = C_Spell.GetSpellTexture(skill.name)
+		if IsSecret(icon) then
+			icon = nil
+		end
+	end
+	return icon and ("|T%s:0|t %s"):format(icon, text) or text
+end
+
 function module:OnLevelUp(level)
 	local upcoming = self.db.characters[UnitGUID("player")]
 	if not upcoming or type(level) ~= "number" then
@@ -92,8 +106,7 @@ function module:OnLevelUp(level)
 	for _, skill in ipairs(upcoming) do
 		if skill.level == level then
 			local text = skill.rank and ("%s (%s)"):format(skill.name, skill.rank) or skill.name
-			-- Records from before icons were stored have none.
-			names[#names + 1] = skill.icon and ("|T%s:0|t %s"):format(skill.icon, text) or text
+			names[#names + 1] = WithIcon(skill, text)
 			total = total + skill.cost
 		elseif skill.level < level then
 			waiting = waiting + 1
