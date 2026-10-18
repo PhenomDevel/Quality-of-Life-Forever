@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.0 (2026-10-18)
+
+### Options
+- Game settings (CVars) and option names in descriptions, notices and chat
+  messages are highlighted, so you can tell what a text refers to
+
+### XP Bar
+- XP widget: background opacity 0–100 %, the border fades along
+
 ## v0.6.0 (2026-10-18)
 
 ### Bags
@@ -12,6 +21,9 @@
 ### Options
 - Notices in the module cards highlight game settings a module changes and
   things it does on its own, also while the module is off
+- Labels, notes and sub-headers of all modules reviewed: clearer names,
+  consistent wording, notices for auto-repair, auto-sell junk and the
+  experience bar
 
 ### Quests
 - Quest item sparkle works now: it turns on the game's sparkle effect and
