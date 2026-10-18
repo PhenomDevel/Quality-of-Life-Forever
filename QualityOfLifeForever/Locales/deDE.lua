@@ -11,6 +11,7 @@ L.ADDON_LOADED = "Version %s geladen. Gib |cffffd100/qol|r für die Optionen ein
 
 -- Categories
 L.CATEGORY_INTERFACE = "Oberfläche"
+L.CATEGORY_BAGS = "Taschen"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Händler & Lehrer"
 L.CATEGORY_LOOT = "Beute"

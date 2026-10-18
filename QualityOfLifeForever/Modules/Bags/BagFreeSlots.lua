@@ -21,7 +21,7 @@ local module = ns:NewModule("BagFreeSlots", {
 	-- Blizzard's own label, so the option name matches the client language.
 	description = L.DESC:format(DISPLAY_FREE_BAG_SLOTS or ""),
 	note = L.NOTE,
-	category = "INTERFACE",
+	category = "BAGS",
 })
 
 -- Container frames are reused for any bag, so a label stays with its frame
