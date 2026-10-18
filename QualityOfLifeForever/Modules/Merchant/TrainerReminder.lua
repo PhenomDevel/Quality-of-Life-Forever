@@ -8,6 +8,10 @@ local L = ns.NewLocale({
 		DESC = "Remembers which skills your class trainer will teach at higher levels. When you reach such a level, a popup lists them with their cost. Needs one visit at your class trainer with the {Unavailable} filter turned on; without that nothing is announced.",
 		NEW = "Level %d – new at your class trainer for %s:",
 		WAITING = "%d more skill(s) from earlier levels are still waiting at your trainer.",
+		PREVIEW = "Preview",
+		PREVIEW_DESC = "Shows the popup for the next level with new skills.",
+		PREVIEW_NONE = "No upcoming skills recorded. Visit your class trainer once with the {Unavailable} filter turned on.",
+		PREVIEW_BUTTON = "Show",
 		FILTER_OFF = "Trainer reminder: turn on the {Unavailable} filter in the trainer window so upcoming skills can be remembered.",
 		STATUS_NO_RECORD = "Not ready for this character yet: visit your class trainer once with the {Unavailable} filter turned on.",
 	},
@@ -17,6 +21,10 @@ local L = ns.NewLocale({
 		DESC = "Merkt sich, welche Fähigkeiten dein Klassenlehrer auf höheren Stufen lehrt. Erreichst du eine solche Stufe, listet ein Popup sie mit ihren Kosten auf. Benötigt einen Besuch beim Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}; ohne das wird nichts gemeldet.",
 		NEW = "Stufe %d – neu bei deinem Klassenlehrer für %s:",
 		WAITING = "%d weitere Fähigkeit(en) früherer Stufen warten noch bei deinem Lehrer.",
+		PREVIEW = "Vorschau",
+		PREVIEW_DESC = "Zeigt das Popup für die nächste Stufe mit neuen Fähigkeiten.",
+		PREVIEW_NONE = "Keine kommenden Fähigkeiten gespeichert. Besuche einmal deinen Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}.",
+		PREVIEW_BUTTON = "Anzeigen",
 		FILTER_OFF = "Lehrer-Erinnerung: Aktiviere im Lehrerfenster den Filter {Nicht verfügbar}, damit kommende Fähigkeiten gemerkt werden können.",
 		STATUS_NO_RECORD = "Für diesen Charakter noch nicht bereit: Besuche einmal deinen Klassenlehrer mit aktiviertem Filter {Nicht verfügbar}.",
 	},
@@ -30,6 +38,17 @@ local module = ns:NewModule("TrainerReminder", {
 	defaults = {
 		-- [player GUID] = { { name, rank, level, cost, icon }, ... }
 		characters = {},
+	},
+	options = {
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				self:Preview()
+			end,
+		},
 	},
 	status = function(self)
 		if not self.db.characters[UnitGUID("player")] then
@@ -101,10 +120,22 @@ local function WithIcon(icon, text)
 	return icon and ("|T%s:0|t %s"):format(icon, text) or text
 end
 
-function module:OnLevelUp(level)
+-- Lowest recorded level above `level`, or nil.
+local function NextLevel(upcoming, level)
+	local next
+	for _, skill in ipairs(upcoming) do
+		if skill.level > level and (not next or skill.level < next) then
+			next = skill.level
+		end
+	end
+	return next
+end
+
+-- Popup text and icon for reaching `level`, or nil without new skills.
+function module:BuildNotice(level)
 	local upcoming = self.db.characters[UnitGUID("player")]
-	if not upcoming or type(level) ~= "number" then
-		return
+	if not upcoming then
+		return nil
 	end
 	local names, total, waiting, firstIcon = {}, 0, 0, nil
 	for _, skill in ipairs(upcoming) do
@@ -119,7 +150,7 @@ function module:OnLevelUp(level)
 		end
 	end
 	if #names == 0 then
-		return
+		return nil
 	end
 	local lines = { L.NEW:format(level, FormatMoney(total)) }
 	for _, name in ipairs(names) do
@@ -128,7 +159,24 @@ function module:OnLevelUp(level)
 	if waiting > 0 then
 		lines[#lines + 1] = L.WAITING:format(waiting)
 	end
-	self:Notice(table.concat(lines, "\n"), firstIcon)
+	return table.concat(lines, "\n"), firstIcon
+end
+
+function module:OnLevelUp(level)
+	if type(level) ~= "number" then
+		return
+	end
+	local text, icon = self:BuildNotice(level)
+	if text then
+		self:Notice(text, icon)
+	end
+end
+
+function module:Preview()
+	local upcoming = self.db.characters[UnitGUID("player")]
+	local next = upcoming and NextLevel(upcoming, UnitLevel("player"))
+	local text, icon = self:BuildNotice(next or 0)
+	self:Notice(text or L.PREVIEW_NONE, icon)
 end
 
 function module:OnEnable()
