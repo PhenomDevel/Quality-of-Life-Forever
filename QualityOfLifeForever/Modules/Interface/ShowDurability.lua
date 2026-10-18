@@ -3,18 +3,18 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Show durability",
+		TITLE = "Durability",
 		NOTE = "In percent on the character frame",
 		DESC = "Shows the durability of each equipped item in percent on the character frame.",
 		HIDE_FULL = "Hide at 100%",
-		HIDE_FULL_DESC = "Only show items that are damaged.",
+		HIDE_FULL_DESC = "Shows only damaged items.",
 	},
 	deDE = {
-		TITLE = "Haltbarkeit anzeigen",
+		TITLE = "Haltbarkeit",
 		NOTE = "In Prozent im Charakterfenster",
 		DESC = "Zeigt die Haltbarkeit jedes angelegten Gegenstands in Prozent im Charakterfenster an.",
 		HIDE_FULL = "Bei 100 % ausblenden",
-		HIDE_FULL_DESC = "Nur beschädigte Gegenstände anzeigen.",
+		HIDE_FULL_DESC = "Zeigt nur beschädigte Gegenstände.",
 	},
 })
 

@@ -4,6 +4,7 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Tooltip tweaks",
+		NOTE = "Position, scale and opacity",
 		SECTION_POSITION = "Position",
 		SECTION_APPEARANCE = "Appearance",
 		DESC = "Position, scale and background transparency of tooltips.",
@@ -20,6 +21,7 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Tooltip-Anpassungen",
+		NOTE = "Position, Größe und Deckkraft",
 		SECTION_POSITION = "Position",
 		SECTION_APPEARANCE = "Darstellung",
 		DESC = "Position, Größe und Hintergrund-Transparenz von Tooltips.",
@@ -46,6 +48,7 @@ end
 local module = ns:NewModule("TooltipAnchor", {
 	title = L.TITLE,
 	description = L.DESC,
+	note = L.NOTE,
 	category = "TOOLTIP",
 	defaults = {
 		anchor = "ANCHOR_CURSOR",

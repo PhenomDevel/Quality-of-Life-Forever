@@ -4,7 +4,7 @@ local _, ns = ...
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Declutter interface",
-		NOTE = "Hide error messages and pop-ups",
+		NOTE = "Error messages, zone names, event banners",
 		DESC = "Hides on-screen messages and frames you don't need. Every part can be switched on separately.",
 		SECTION_MESSAGES = "Hide messages",
 		ERRORS = "Red error messages",
@@ -16,7 +16,7 @@ local L = ns.NewLocale({
 	},
 	deDE = {
 		TITLE = "Oberfläche aufräumen",
-		NOTE = "Fehlermeldungen und Einblendungen ausblenden",
+		NOTE = "Fehlermeldungen, Zonennamen, Ereignis-Banner",
 		DESC = "Blendet Bildschirmmeldungen und Fenster aus, die du nicht brauchst. Jeder Teil lässt sich einzeln einschalten.",
 		SECTION_MESSAGES = "Meldungen ausblenden",
 		ERRORS = "Rote Fehlermeldungen",
