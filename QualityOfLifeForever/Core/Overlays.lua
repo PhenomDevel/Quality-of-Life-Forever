@@ -43,13 +43,74 @@ local function GetLayoutData(key, layoutName, create)
 	return layouts[layoutName]
 end
 
+-- Widget stack ------------------------------------------------------------------
+-- With ns.db.global.stackWidgets the shown widgets are stacked top to bottom,
+-- left-aligned, below one shared anchor (its own overlay, so it is moved like
+-- any widget). Their own positions stay saved for when stacking is off.
+
+local STACK_ORDER = {
+	XPWidget = 1,
+	ReputationWidget = 2,
+	GoldWidget = 3,
+	ReagentWidget = 4,
+	PerformanceWidget = 5,
+	-- Last: it shows and hides often and would move the others.
+	PowerTickWidget = 6,
+}
+local STACK_GAP = 2
+local stackAnchor
+
+local function IsStacked(frame)
+	local overlay = overlays[frame]
+	return overlay ~= nil and STACK_ORDER[overlay.key] ~= nil and ns.db.global.stackWidgets
+end
+
+local function Restack()
+	if not stackAnchor then
+		return
+	end
+	if not ns.db.global.stackWidgets then
+		stackAnchor:Hide()
+		return
+	end
+	local shown = {}
+	for frame, overlay in pairs(overlays) do
+		if STACK_ORDER[overlay.key] and frame:IsShown() then
+			shown[#shown + 1] = frame
+		end
+	end
+	table.sort(shown, function(a, b)
+		return STACK_ORDER[overlays[a].key] < STACK_ORDER[overlays[b].key]
+	end)
+	-- Sizes in the anchor's coordinates; each widget keeps its own scale.
+	local anchorScale = stackAnchor:GetEffectiveScale()
+	local width, height = 0, 0
+	for i, frame in ipairs(shown) do
+		frame:ClearAllPoints()
+		if i == 1 then
+			frame:SetPoint("TOPLEFT", stackAnchor, "TOPLEFT")
+		else
+			frame:SetPoint("TOPLEFT", shown[i - 1], "BOTTOMLEFT", 0, -STACK_GAP)
+		end
+		local scale = frame:GetEffectiveScale() / anchorScale
+		width = math.max(width, frame:GetWidth() * scale)
+		height = height + frame:GetHeight() * scale + (i > 1 and STACK_GAP or 0)
+	end
+	stackAnchor:SetSize(math.max(width, 60), math.max(height, 20))
+	stackAnchor:Show()
+end
+
 local function Apply(frame, layoutName)
 	local overlay = overlays[frame]
 	local data = layoutName and GetLayoutData(overlay.key, layoutName) or {}
+	frame:SetScale(data.scale or 1)
+	if IsStacked(frame) then
+		Restack()
+		return
+	end
 	local position = data.point and data or overlay.default
 	frame:ClearAllPoints()
 	frame:SetPoint(position.point, UIParent, position.point, position.x, position.y)
-	frame:SetScale(data.scale or 1)
 end
 
 local function OnPositionChanged(frame, layoutName, point, x, y)
@@ -60,13 +121,20 @@ end
 
 -- Dragging outside Edit Mode stores the position the same way, as a CENTER
 -- offset in the frame's own (scaled) coordinates.
+-- A stacked widget drags the whole stack.
+local function DragTarget(frame)
+	return IsStacked(frame) and stackAnchor or frame
+end
+
 local function OnDragStart(frame)
+	frame = DragTarget(frame)
 	-- LibEditMode turns movable off again after editing a frame.
 	frame:SetMovable(true)
 	frame:StartMoving()
 end
 
 local function OnDragStop(frame)
+	frame = DragTarget(frame)
 	frame:StopMovingOrSizing()
 	frame:SetUserPlaced(false)
 	local layoutName = LibEditMode:GetActiveLayoutName()
@@ -157,8 +225,37 @@ function ns:CreateOverlay(key, info)
 	end
 	LibEditMode:AddFrameSettings(frame, settings)
 
+	if STACK_ORDER[key] then
+		for _, script in ipairs({ "OnShow", "OnHide", "OnSizeChanged" }) do
+			frame:HookScript(script, Restack)
+		end
+	end
+
 	Apply(frame, LibEditMode:GetActiveLayoutName())
 	return frame
+end
+
+-- Called once on login, before the modules create their widgets.
+function ns:InitializeWidgetStack()
+	-- Invisible and click-through; only Edit Mode's selection shows it.
+	stackAnchor = ns:CreateOverlay("WidgetStack", {
+		title = L.WIDGET_STACK_EDIT_MODE_NAME,
+		width = 260,
+		height = 40,
+		default = { point = "TOP", x = 0, y = -60 },
+	})
+	ns:SetOverlayBackgroundAlpha(stackAnchor, 0)
+	stackAnchor:EnableMouse(false)
+	Restack()
+end
+
+-- The stackWidgets setting changed: re-place every widget.
+function ns:UpdateWidgetStack()
+	local layoutName = LibEditMode:GetActiveLayoutName()
+	for frame in pairs(overlays) do
+		Apply(frame, layoutName)
+	end
+	Restack()
 end
 
 -- Opacity of the shared background (0–1). The border fades along, relative
