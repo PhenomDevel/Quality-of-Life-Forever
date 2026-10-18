@@ -5,9 +5,10 @@ local L = ns.L
 local LibEditMode = ns.LibEditMode
 
 --[[
-	Overlays: small frames owned by a module (e.g. the XP widget) that the
-	player moves in Blizzard's Edit Mode via LibEditMode. Position and scale
-	are stored account-wide per Edit Mode layout:
+	Overlays: small frames owned by a module (e.g. the XP widget). The player
+	drags them directly or moves and scales them in Blizzard's Edit Mode via
+	LibEditMode. Position and scale are stored account-wide per Edit Mode
+	layout:
 
 		ns.db.global.overlays[key][layoutName] = { point, x, y, scale }
 
@@ -57,6 +58,29 @@ local function OnPositionChanged(frame, layoutName, point, x, y)
 	Apply(frame, layoutName)
 end
 
+-- Dragging outside Edit Mode stores the position the same way, as a CENTER
+-- offset in the frame's own (scaled) coordinates.
+local function OnDragStart(frame)
+	-- LibEditMode turns movable off again after editing a frame.
+	frame:SetMovable(true)
+	frame:StartMoving()
+end
+
+local function OnDragStop(frame)
+	frame:StopMovingOrSizing()
+	frame:SetUserPlaced(false)
+	local layoutName = LibEditMode:GetActiveLayoutName()
+	if not layoutName then
+		-- Layouts not loaded yet: nothing to store under, snap back.
+		Apply(frame, nil)
+		return
+	end
+	local scale = frame:GetScale()
+	local x, y = frame:GetCenter()
+	local parentX, parentY = UIParent:GetCenter()
+	OnPositionChanged(frame, layoutName, "CENTER", x - parentX / scale, y - parentY / scale)
+end
+
 local function AddBorder(frame)
 	for _, side in ipairs({ "TOP", "BOTTOM", "LEFT", "RIGHT" }) do
 		local line = frame:CreateTexture(nil, "BORDER")
@@ -86,6 +110,10 @@ function ns:CreateOverlay(key, info)
 	local frame = CreateFrame("Frame", "QualityOfLifeForeverOverlay" .. key, UIParent)
 	frame:SetSize(info.width, info.height)
 	frame:SetClampedToScreen(true)
+	frame:EnableMouse(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", OnDragStart)
+	frame:SetScript("OnDragStop", OnDragStop)
 	frame:Hide()
 
 	local background = frame:CreateTexture(nil, "BACKGROUND")
