@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFrame GetTime UnitPower UnitPowerMax UnitPowerType UnitAffectingCombat InCombatLockdown Enum C_Spell
+-- luacheck: read globals STANDARD_TEXT_FONT CreateFrame GetTime UnitPower UnitPowerMax UnitPowerType UnitAffectingCombat InCombatLockdown Enum C_Spell
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -17,6 +17,10 @@ local L = ns.NewLocale({
 		COMBAT_ONLY_DESC = "Hides the energy bar out of combat.",
 		FIVE_SECOND = "Five second rule",
 		FIVE_SECOND_DESC = "In combat, counts down the five seconds after you spend mana until mana regenerates again. The bar only shows during the countdown.",
+		COUNTDOWN = "Countdown",
+		COUNTDOWN_DESC = "Shows the seconds left in the middle of the bar.",
+		COUNTDOWN_SIZE = "Countdown size",
+		COUNTDOWN_SIZE_DESC = "Text size of the countdown in pixels.",
 		WIDTH = "Width",
 		WIDTH_DESC = "Width of the bar in pixels.",
 		HEIGHT = "Height",
@@ -39,6 +43,10 @@ local L = ns.NewLocale({
 		COMBAT_ONLY_DESC = "Blendet den Energie-Balken außerhalb des Kampfes aus.",
 		FIVE_SECOND = "Fünf-Sekunden-Regel",
 		FIVE_SECOND_DESC = "Zählt im Kampf die fünf Sekunden herunter, nachdem du Mana ausgegeben hast, bis Mana wieder regeneriert. Der Balken erscheint nur während des Countdowns.",
+		COUNTDOWN = "Countdown",
+		COUNTDOWN_DESC = "Zeigt die verbleibenden Sekunden mittig auf dem Balken.",
+		COUNTDOWN_SIZE = "Countdown-Größe",
+		COUNTDOWN_SIZE_DESC = "Textgröße des Countdowns in Pixeln.",
 		WIDTH = "Breite",
 		WIDTH_DESC = "Breite des Balkens in Pixeln.",
 		HEIGHT = "Höhe",
@@ -66,6 +74,8 @@ local module = ns:NewModule("PowerTickWidget", {
 		hideFull = true,
 		combatOnly = false,
 		fiveSecond = true,
+		countdown = true,
+		countdownSize = 12,
 		width = 140,
 		height = 8,
 		backgroundOpacity = 92,
@@ -76,6 +86,8 @@ local module = ns:NewModule("PowerTickWidget", {
 		{ key = "combatOnly", type = "checkbox", label = L.COMBAT_ONLY, tooltip = L.COMBAT_ONLY_DESC },
 		{ type = "header", label = L.SECTION_MANA },
 		{ key = "fiveSecond", type = "checkbox", label = L.FIVE_SECOND, tooltip = L.FIVE_SECOND_DESC },
+		{ key = "countdown", type = "checkbox", label = L.COUNTDOWN, tooltip = L.COUNTDOWN_DESC },
+		{ key = "countdownSize", type = "slider", label = L.COUNTDOWN_SIZE, tooltip = L.COUNTDOWN_SIZE_DESC, min = 8, max = 24, step = 1, format = FormatPixels },
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "width", type = "slider", label = L.WIDTH, tooltip = L.WIDTH_DESC, min = 60, max = 300, step = 10, format = FormatPixels },
 		{ key = "height", type = "slider", label = L.HEIGHT, tooltip = L.HEIGHT_DESC, min = 4, max = 24, step = 1, format = FormatPixels },
@@ -144,6 +156,7 @@ local function OnUpdate(self)
 			return
 		end
 		self.Bar:SetValue(left / FIVE_SECONDS)
+		self.Countdown:SetFormattedText("%.1f", left)
 	elseif state.lastTick then
 		self.Bar:SetValue(((GetTime() - state.lastTick) % TICK_SECONDS) / TICK_SECONDS)
 	else
@@ -164,6 +177,9 @@ local function CreateWidget()
 	frame.Bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
 	frame.Bar:SetMinMaxValues(0, 1)
 	frame.Bar:SetValue(0)
+	-- Above the bar fill; may be taller than a thin bar.
+	frame.Countdown = frame.Bar:CreateFontString(nil, "OVERLAY")
+	frame.Countdown:SetPoint("CENTER", frame, "CENTER")
 	frame:SetScript("OnUpdate", OnUpdate)
 end
 
@@ -171,9 +187,11 @@ function module:UpdateShown()
 	if not frame then
 		return
 	end
+	frame.Countdown:SetShown(state.mode == "MANA" and self.db.countdown)
 	if IsPreview() and self.enabled then
 		frame.Bar:SetStatusBarColor(unpack(COLORS[state.mode or "ENERGY"]))
 		frame.Bar:SetValue(0.6)
+		frame.Countdown:SetFormattedText("%.1f", FIVE_SECONDS * 0.6)
 		frame:Show()
 		return
 	end
@@ -257,6 +275,7 @@ end
 
 function module:ApplyLayout()
 	frame:SetSize(self.db.width, self.db.height + INSET * 2)
+	frame.Countdown:SetFont(STANDARD_TEXT_FONT, self.db.countdownSize, "OUTLINE")
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
