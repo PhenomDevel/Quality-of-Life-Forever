@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel AbbreviateNumbers BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -80,6 +80,9 @@ local QUEST_SCAN_DELAY = 0.5
 
 local frame, ticker
 
+-- The game's own short notation (e.g. 8.9K), as used in Blizzard's UI.
+local Short = AbbreviateNumbers or BreakUpLargeNumbers
+
 local function CreateText(parent, justify)
 	local text = parent:CreateFontString(nil, "OVERLAY")
 	text:SetFontObject(module.font)
@@ -127,8 +130,8 @@ local function CreateWidget()
 	frame.Rested:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
 
+	-- Anchored in UpdateQuests: next to the values, or below rested XP.
 	frame.Quests = CreateText(frame, "RIGHT")
-	frame.Quests:SetPoint("TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -3)
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
 end
 
@@ -156,7 +159,7 @@ function module:UpdateRested(xp, maxXP)
 		rested = nil
 	end
 	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
-	frame.Rested:SetText(rested and L.RESTED:format(BreakUpLargeNumbers(rested)) or "")
+	frame.Rested:SetText(rested and L.RESTED:format(Short(rested)) or "")
 end
 
 -- Completed quests -------------------------------------------------------------
@@ -199,8 +202,16 @@ end
 function module:UpdateQuests(xp, maxXP)
 	local amount = self.db.showQuestXP and questXP > 0 and questXP or nil
 	SetSegment(frame.Bar.Quests, xp, amount, maxXP)
-	frame.Quests:SetText(amount and L.QUESTS:format(BreakUpLargeNumbers(amount), questCount) or "")
-	return amount ~= nil
+	frame.Quests:SetText(amount and L.QUESTS:format(Short(amount), questCount) or "")
+	-- Shares the values row with rested XP; only both together need a 4th row.
+	local belowRested = amount ~= nil and (frame.Rested:GetText() or "") ~= ""
+	frame.Quests:ClearAllPoints()
+	if belowRested then
+		frame.Quests:SetPoint("TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -3)
+	else
+		frame.Quests:SetPoint("TOPRIGHT", frame.Bar, "BOTTOMRIGHT", 0, -4)
+	end
+	return belowRested
 end
 
 function module:Update()
@@ -219,18 +230,18 @@ function module:Update()
 	frame.Level:SetText(L.LEVEL:format(UnitLevel("player"), xp / maxXP * 100))
 	frame.Bar:SetMinMaxValues(0, maxXP)
 	frame.Bar:SetValue(xp)
-	frame.Values:SetText(L.VALUES:format(BreakUpLargeNumbers(xp), BreakUpLargeNumbers(maxXP)))
+	frame.Values:SetText(L.VALUES:format(Short(xp), Short(maxXP)))
 	self:UpdateRested(xp, maxXP)
-	local questLineShown = self:UpdateQuests(xp, maxXP)
-	if questLineShown ~= self.questLineShown then
-		self.questLineShown = questLineShown
+	local extraRow = self:UpdateQuests(xp, maxXP)
+	if extraRow ~= self.extraRow then
+		self.extraRow = extraRow
 		self:ApplyLayout()
 	end
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
 		local timeToLevel = SecondsToTime(XPSession.GetTimeToLevel() or 0, true)
-		frame.Rate:SetText(L.RATE:format(BreakUpLargeNumbers(math.floor(perHour)), timeToLevel))
+		frame.Rate:SetText(L.RATE:format(Short(math.floor(perHour)), timeToLevel))
 	else
 		frame.Rate:SetText("")
 	end
@@ -306,8 +317,8 @@ function module:HookContainers()
 	end
 end
 
--- Font, size and bar position follow the text size. The quest line only
--- takes space while it shows something.
+-- Font, size and bar position follow the text size. A 4th row is only added
+-- while rested XP and quest XP are both shown.
 function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
@@ -317,7 +328,7 @@ function module:ApplyLayout()
 	frame.Bar:SetPoint("TOPLEFT", PADDING, -barTop)
 	frame.Bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
 	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
-	if self.questLineShown then
+	if self.extraRow then
 		height = height + lineHeight + 3
 	end
 	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
