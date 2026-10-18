@@ -15,7 +15,7 @@ until you turn them on.
 | Category | Features |
 |----------|----------|
 | **Camera** | Larger max camera distance |
-| **Character** | Custom or hidden player name |
+| **Character** | Custom or hidden player name · pet happiness warning |
 | **Chat** | Longer history · highlight your name and keywords · class colors · clickable URLs · short channel names · hide chat buttons · spam filter tab · guild ads in their own tab |
 | **Cooldown Manager** | Keybinds on the cooldown icons |
 | **Graphics** | Extra graphics settings |

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Character
+- New: pet happiness warning – chat, screen message and sound when your
+  hunter pet becomes unhappy, with the food it eats
+
 ## v0.4.0 (2026-10-17)
 
 ### Camera
