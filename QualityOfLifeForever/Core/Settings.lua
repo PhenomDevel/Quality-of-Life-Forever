@@ -236,6 +236,16 @@ local function AddGeneralSettings(category, layout)
 	)
 	Settings.CreateCheckbox(category, printSetting, L.SETTING_PRINT_MESSAGES_DESC)
 
+	local minimapSetting = RegisterSetting(
+		category, "minimapButton", "minimapButton", ns.db.global,
+		L.SETTING_MINIMAP_BUTTON, true,
+		function()
+			ns:UpdateMinimapButton()
+		end
+	)
+	Settings.CreateCheckbox(category, minimapSetting, L.SETTING_MINIMAP_BUTTON_DESC)
+	ns.minimapSetting = minimapSetting
+
 	local debugSetting = RegisterSetting(
 		category, "debug", "debug", ns.db.global,
 		L.SETTING_DEBUG, false

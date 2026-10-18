@@ -29,6 +29,7 @@ Core\ModuleManager.lua
 Core\Settings.lua
 Core\SettingsTemplates.xml
 Core\SlashCommands.lua
+Core\MinimapButton.lua
 Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
