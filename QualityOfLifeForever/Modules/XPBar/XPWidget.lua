@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel AbbreviateNumbers BreakUpLargeNumbers SecondsToTime CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion IsPlayerAtEffectiveMaxLevel AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -240,7 +240,7 @@ function module:Update()
 
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
-		local timeToLevel = SecondsToTime(XPSession.GetTimeToLevel() or 0, true)
+		local timeToLevel = XPSession.FormatTimeToLevel() or ""
 		frame.Rate:SetText(L.RATE:format(Short(math.floor(perHour)), timeToLevel))
 	else
 		frame.Rate:SetText("")
