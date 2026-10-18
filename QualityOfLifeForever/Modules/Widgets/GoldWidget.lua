@@ -18,6 +18,10 @@ local L = ns.NewLocale({
 		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
 		BG_OPACITY = "Background opacity",
 		BG_OPACITY_DESC = "Opacity of the widget's background and border, 0 % (transparent) to 100 %.",
+		LAYOUT = "Layout",
+		LAYOUT_DESC = "Horizontal: everything in one line. Vertical: gold, session and gold per hour stacked.",
+		LAYOUT_HORIZONTAL = "Horizontal",
+		LAYOUT_VERTICAL = "Vertical",
 		RESET = "Gold this session",
 		RESET_DESC = "Starts counting gold this session and gold per hour from now.",
 		RESET_BUTTON = "Reset",
@@ -41,6 +45,10 @@ local L = ns.NewLocale({
 		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
 		BG_OPACITY_DESC = "Deckkraft von Hintergrund und Rahmen des Widgets, von 0 % (durchsichtig) bis 100 %.",
+		LAYOUT = "Ausrichtung",
+		LAYOUT_DESC = "Horizontal: alles in einer Zeile. Vertikal: Gold, Sitzung und Gold pro Stunde untereinander.",
+		LAYOUT_HORIZONTAL = "Horizontal",
+		LAYOUT_VERTICAL = "Vertikal",
 		RESET = "Gold dieser Sitzung",
 		RESET_DESC = "Zählt Gold dieser Sitzung und Gold pro Stunde ab jetzt neu.",
 		RESET_BUTTON = "Zurücksetzen",
@@ -62,6 +70,7 @@ local module = ns:NewModule("GoldWidget", {
 	defaults = {
 		showSession = true,
 		showRate = true,
+		layout = "HORIZONTAL",
 		fontSize = 11,
 		backgroundOpacity = 92,
 	},
@@ -70,6 +79,16 @@ local module = ns:NewModule("GoldWidget", {
 		{ key = "showSession", type = "checkbox", label = L.SHOW_SESSION, tooltip = L.SHOW_SESSION_DESC },
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
+		{
+			key = "layout",
+			type = "dropdown",
+			label = L.LAYOUT,
+			tooltip = L.LAYOUT_DESC,
+			values = {
+				{ value = "HORIZONTAL", label = L.LAYOUT_HORIZONTAL },
+				{ value = "VERTICAL", label = L.LAYOUT_VERTICAL },
+			},
+		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		{ type = "header", label = L.SECTION_SESSION },
@@ -87,10 +106,11 @@ local module = ns:NewModule("GoldWidget", {
 	},
 })
 
--- Width at the default text size of 11; it scales with the text size.
+-- Sizes at the default text size of 11; they scale with the text size.
 local BASE_WIDTH, BASE_FONT_SIZE = 200, 11
 local PADDING = 7
 local ROW_GAP = 3
+local COLUMN_GAP = 12
 local REFRESH_SECONDS = 5
 -- A /reload keeps the session if the character comes back within this time.
 local RESUME_SECONDS = 600
@@ -156,23 +176,79 @@ local function CreateWidget()
 		height = 40,
 		default = { point = "TOP", x = 0, y = -180 },
 	})
+	-- Positions are set by ApplyLayout.
 	frame.Money = CreateText(frame, "LEFT")
-	frame.Money:SetPoint("TOPLEFT", PADDING, -PADDING)
-	frame.Rate = CreateText(frame, "RIGHT")
-	frame.Rate:SetPoint("TOPRIGHT", -PADDING, -PADDING)
-	frame.Rate:SetTextColor(unpack(NEUTRAL_COLOR))
 	frame.Session = CreateText(frame, "LEFT")
-	frame.Session:SetPoint("TOPLEFT", frame.Money, "BOTTOMLEFT", 0, -ROW_GAP)
+	frame.Rate = CreateText(frame, "LEFT")
+	frame.Rate:SetTextColor(unpack(NEUTRAL_COLOR))
 end
 
--- Font and size follow the text size; the session row only takes space while shown.
+local function IsVertical()
+	return module.db.layout == "VERTICAL"
+end
+
+-- Shown texts in display order.
+local function ShownTexts()
+	local texts = { frame.Money }
+	if module.db.showSession then
+		texts[#texts + 1] = frame.Session
+	end
+	if module.db.showRate then
+		texts[#texts + 1] = frame.Rate
+	end
+	return texts
+end
+
+local function Scaled(value)
+	return math.floor(value * module.db.fontSize / BASE_FONT_SIZE + 0.5)
+end
+
+-- The width follows the texts but only grows until the next ApplyLayout, so
+-- the widget doesn't twitch with every coin.
+function module:FitWidth()
+	local texts, vertical = ShownTexts(), IsVertical()
+	local width = vertical and 0 or Scaled(COLUMN_GAP) * (#texts - 1)
+	for _, text in ipairs(texts) do
+		local textWidth = text:GetUnboundedStringWidth()
+		width = vertical and math.max(width, textWidth) or width + textWidth
+	end
+	width = math.max(math.ceil(width) + PADDING * 2, Scaled(BASE_WIDTH / 2))
+	if width > (frame.fitWidth or 0) then
+		frame.fitWidth = width
+		frame:SetWidth(width)
+	end
+end
+
+-- Font, positions and height follow the text size, layout and shown texts.
 function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
-	local lineHeight = size + 2
-	local rows = self.db.showSession and 2 or 1
-	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), PADDING * 2 + rows * lineHeight + (rows - 1) * ROW_GAP)
+	frame.Session:SetShown(self.db.showSession)
+	frame.Rate:SetShown(self.db.showRate)
+
+	local texts, vertical = ShownTexts(), IsVertical()
+	for i, text in ipairs(texts) do
+		text:ClearAllPoints()
+		if i == 1 then
+			text:SetPoint("TOPLEFT", PADDING, -PADDING)
+		elseif vertical then
+			text:SetPoint("TOPLEFT", texts[i - 1], "BOTTOMLEFT", 0, -ROW_GAP)
+		else
+			text:SetPoint("LEFT", texts[i - 1], "RIGHT", Scaled(COLUMN_GAP), 0)
+		end
+	end
+	local rows = vertical and #texts or 1
+	frame:SetHeight(PADDING * 2 + rows * (size + 2) + (rows - 1) * ROW_GAP)
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
+
+	frame.fitWidth = 0
+	self:FitWidth()
+	-- String widths pick up the new font size only on the next frame.
+	C_Timer.After(0, function()
+		if self.enabled then
+			self:FitWidth()
+		end
+	end)
 end
 
 function module:Update()
@@ -191,9 +267,6 @@ function module:Update()
 		local color = delta > 0 and GAIN_COLOR or delta < 0 and LOSS_COLOR or NEUTRAL_COLOR
 		frame.Session:SetText(L.SESSION:format(delta == 0 and "0" or FormatSigned(delta)))
 		frame.Session:SetTextColor(unpack(color))
-		frame.Session:Show()
-	else
-		frame.Session:Hide()
 	end
 
 	local elapsed = GetTime() - session.start
@@ -202,6 +275,7 @@ function module:Update()
 	else
 		frame.Rate:SetText("")
 	end
+	self:FitWidth()
 end
 
 function module:UpdateTicker()
@@ -217,7 +291,7 @@ function module:UpdateTicker()
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "showSession" or key == "backgroundOpacity" then
+	if key == "fontSize" or key == "showSession" or key == "showRate" or key == "backgroundOpacity" or key == "layout" then
 		self:ApplyLayout()
 	end
 	self:UpdateTicker()
