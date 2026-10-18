@@ -1,4 +1,4 @@
--- luacheck: read globals C_Item C_AddOns ItemLocation Enum ITEM_QUALITY_COLORS InspectFrame GetInventoryItemLink GetInventoryItemQuality INVSLOT_BODY INVSLOT_TABARD
+-- luacheck: read globals C_Item C_AddOns ItemLocation Enum ITEM_QUALITY_COLORS InspectFrame GetInventoryItemLink GetInventoryItemQuality INVSLOT_BODY INVSLOT_TABARD INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -98,9 +98,11 @@ local function UpdateLocation(button, location, enabled)
 	end
 end
 
+-- The bag bar's slot buttons pass through PaperDollItemSlotButton_Update as
+-- well; only equipment slots count.
 local function UpdateCharacterButton(button)
 	local slot = button:GetID()
-	if SKIPPED_SLOTS[slot] then
+	if SKIPPED_SLOTS[slot] or slot < INVSLOT_FIRST_EQUIPPED or slot > INVSLOT_LAST_EQUIPPED then
 		return
 	end
 	updaters[button] = UpdateCharacterButton
