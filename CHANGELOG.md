@@ -1,5 +1,53 @@
 # Changelog
 
+## v0.9.0 (2026-10-18)
+
+### Options
+- Categories reorganized: new **Reminders** category; Bags become **Bags &
+  items** (item level, durability, repair costs); Camera and Graphics merged;
+  statistics search and experience bar moved to Interface
+- Hints and reminders appear as small popups (bottom right, movable in Edit
+  Mode) and only out of combat; click to close. Turn them off under General
+  to get chat messages instead; a test button shows a sample popup
+- Every reminder has a preview button
+
+### Widgets
+- New category for movable overlays; the XP widget moved here
+- New: gold widget – gold, gain/loss this session and gold per hour,
+  horizontal or vertical
+- New: reputation widget
+- New: FPS & latency widget
+- New: ammo & reagents widget – ammo while a bow, gun or crossbow is
+  equipped, and your class reagents; turns red when running low
+- New: energy tick & five second rule – bar to the next energy tick, and in
+  combat a 5 second countdown after you spend mana; preview while the
+  options or Edit Mode are open
+- Combine widgets: all widgets in one column, moved together (switch at the
+  top of the Widgets page)
+- Gold and XP sessions start over on login, daily (server reset) or only
+  manually; per character, counting online time only
+- XP widget: last 1–5 level times; hidden at max level
+
+### Reminders
+- New: talent point reminder – on login and when points from a level-up are
+  still unspent after a while (default 60 min); count on the talent button
+- New: durability warning when an item drops below a threshold
+- Trainer reminder lists new skills in a popup, with icons
+- Pet happiness warning as a popup
+
+### Interface
+- New: combat text on/off (damage, healing, scrolling text)
+- Cooldown manager: icons light up while their key is held
+
+### Loot
+- New: auto-greed on green items (optionally blue), skips BoP items
+
+### Map
+- Zone level range on the minimap can be moved and resized
+
+### Bags & items
+- Item level only on items inside bag windows, no longer on the bag bar
+
 ## v0.8.0 (2026-10-18)
 
 ### Options
