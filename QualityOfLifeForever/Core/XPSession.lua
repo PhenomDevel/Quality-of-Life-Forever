@@ -1,4 +1,4 @@
--- luacheck: read globals UnitXP UnitXPMax UnitGUID GetTime CreateFrame
+-- luacheck: read globals UnitXP UnitXPMax UnitGUID GetTime CreateFrame SecondsToTime
 local _, ns = ...
 
 --[[
@@ -64,6 +64,19 @@ function XPSession.GetTimeToLevel()
 		return nil
 	end
 	return (maxXP - xp) / perHour * 3600
+end
+
+-- Time to level as text. SecondsToTime without seconds returns "" below one
+-- minute, so that case gets its own text.
+function XPSession.FormatTimeToLevel()
+	local seconds = XPSession.GetTimeToLevel()
+	if not seconds then
+		return nil
+	end
+	if seconds < 60 then
+		return ns.L.XP_UNDER_A_MINUTE
+	end
+	return SecondsToTime(seconds, true)
 end
 
 function XPSession.RegisterListener(owner, callback)
