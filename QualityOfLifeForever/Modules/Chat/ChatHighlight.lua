@@ -80,6 +80,9 @@ local Chat = ns.Chat
 local words = {}
 local playerName
 local lastSoundLine
+-- Last input and result: a line reaches the filter once per chat frame
+-- showing it.
+local lastLineID, lastText, lastAuthor, lastResult
 
 function module:UpdateWords()
 	wipe(words)
@@ -88,6 +91,7 @@ function module:UpdateWords()
 		words[#words + 1] = playerName:lower()
 	end
 	Chat.ParseList(self.db.keywords, words)
+	lastLineID = nil
 end
 
 -- Wraps every case-insensitive occurrence of word in the highlight color.
@@ -106,18 +110,15 @@ local function Colorize(text, word)
 	return table.concat(result)
 end
 
--- Runs once per chat frame showing the message; lineID keeps the sound to one.
-local function Filter(_, _, text, author, ...)
-	if type(text) ~= "string" or #words == 0 then
-		return false
-	end
+-- The highlighted text, or false to leave the message as it is. lineID keeps
+-- the sound to one per line.
+local function Highlight(text, author, lineID)
 	if type(author) == "string" and Ambiguate(author, "short") == playerName then
 		return false
 	end
 	if not Chat.ContainsAny(text, words) then
 		return false
 	end
-	local lineID = select(9, ...)
 	if module.db.sound and lineID ~= lastSoundLine then
 		lastSoundLine = lineID
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
@@ -129,7 +130,22 @@ local function Filter(_, _, text, author, ...)
 	for _, word in ipairs(words) do
 		text = Colorize(text, word)
 	end
-	return false, text, author, ...
+	return text
+end
+
+local function Filter(_, _, text, author, ...)
+	if type(text) ~= "string" or #words == 0 then
+		return false
+	end
+	local lineID = select(9, ...)
+	if lineID == nil or lineID ~= lastLineID or text ~= lastText or author ~= lastAuthor then
+		lastLineID, lastText, lastAuthor = lineID, text, author
+		lastResult = Highlight(text, author, lineID)
+	end
+	if not lastResult then
+		return false
+	end
+	return false, lastResult, author, ...
 end
 
 function module:CHAT_MSG_WHISPER()

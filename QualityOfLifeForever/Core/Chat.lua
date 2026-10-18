@@ -88,22 +88,41 @@ end
 function Chat.NewTabFilter(module, spec)
 	local L = spec.L
 	local keywords = {}
+	-- The same message reaches the filter once per chat frame showing it.
+	local lastText, lastMatch
+	-- Window index of the tab found last.
+	local tabIndex
 
 	tabFilters[#tabFilters + 1] = module
 
 	function module:ParseKeywords()
 		wipe(keywords)
 		Chat.ParseList(self.db.keywords, keywords)
+		lastText = nil
 	end
 
-	-- The shown chat window named like the tab, if any.
+	local function IsTabWindow(index)
+		local name, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(index)
+		return name == L.TAB and (shown or docked)
+	end
+
+	local function ResetTabIndex()
+		tabIndex = nil
+	end
+
+	-- The shown chat window named like the tab, if any. The cached index is
+	-- checked on every call, so a renamed or closed tab is noticed at once.
 	function module:GetTabFrame()
-		for i = 1, Chat.MAX_WINDOWS do
-			local name, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(i)
-			if name == L.TAB and (shown or docked) then
-				return _G["ChatFrame" .. i]
+		if not (tabIndex and IsTabWindow(tabIndex)) then
+			tabIndex = nil
+			for i = 1, Chat.MAX_WINDOWS do
+				if IsTabWindow(i) then
+					tabIndex = i
+					break
+				end
 			end
 		end
+		return tabIndex and _G["ChatFrame" .. tabIndex]
 	end
 
 	function module:CreateTabFrame()
@@ -114,6 +133,7 @@ function Chat.NewTabFilter(module, spec)
 			self:Print(L.NO_FREE_WINDOW)
 			return
 		end
+		ResetTabIndex()
 		if selected then
 			FCFDock_SelectWindow(GENERAL_CHAT_DOCK, selected)
 			if ChatFrameUtil and ChatFrameUtil.SetLastActiveWindow and selected.editBox then
@@ -166,14 +186,16 @@ function Chat.NewTabFilter(module, spec)
 		if not tabFrame then
 			return false
 		end
-		local match = Chat.ContainsAny(text, keywords)
+		if text ~= lastText then
+			lastText, lastMatch = text, Chat.ContainsAny(text, keywords)
+		end
 		if chatFrame == tabFrame then
-			return not match
+			return not lastMatch
 		end
 		if spec.keepOtherTabs then
-			return match and not IsOtherTab(module, chatFrame)
+			return lastMatch and not IsOtherTab(module, chatFrame)
 		end
-		return match
+		return lastMatch
 	end
 
 	function module:OnOptionChanged(key)
@@ -184,6 +206,10 @@ function Chat.NewTabFilter(module, spec)
 
 	function module:OnEnable()
 		self:ParseKeywords()
+		ResetTabIndex()
+		-- Window order or names may have changed; the next lookup scans again.
+		self:RegisterEvent("UPDATE_CHAT_WINDOWS", ResetTabIndex)
+		self:RegisterEvent("UPDATE_FLOATING_CHAT_WINDOWS", ResetTabIndex)
 		-- Delayed because chat windows are set up after PLAYER_LOGIN.
 		C_Timer.After(2, function()
 			if self.enabled then

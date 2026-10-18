@@ -58,6 +58,10 @@ local function Filter(_, _, text, ...)
 	if type(text) ~= "string" then
 		return false
 	end
+	-- Every address LinkifyWord accepts contains "://" or "www.".
+	if not (text:find("://", 1, true) or text:find("[Ww][Ww][Ww]%.")) then
+		return false
+	end
 	local linked = text:gsub("%S+", LinkifyWord)
 	if linked == text then
 		return false
