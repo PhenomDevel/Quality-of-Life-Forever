@@ -37,7 +37,12 @@ function QualityOfLifeForeverSettingsNoteMixin:Init(initializer)
 	-- 37 = left offset of Blizzard's row labels.
 	self.Text:SetPoint("LEFT", 37 + data.indent, 0)
 	self.Text:SetPoint("RIGHT", -20, 0)
-	self.Text:SetText(data.text)
+	-- A function is evaluated each time the row is shown (module status).
+	local text = data.text
+	if type(text) == "function" then
+		text = text()
+	end
+	self.Text:SetText(text)
 end
 
 QualityOfLifeForeverSettingsDividerMixin = {}
@@ -208,6 +213,17 @@ local function AddModule(category, layout, module, isFirst)
 		local hint = AddNote(layout, L.SETTINGS_ENABLE_FOR_OPTIONS, false)
 		hint:AddShownPredicate(function()
 			return not module.db.enabled
+		end)
+	end
+	if module.status then
+		local function GetStatus()
+			return module.db.enabled and module:status() or nil
+		end
+		local status = AddText(layout, NOTE_TEMPLATE, function()
+			return "|cffffd100" .. (GetStatus() or "") .. "|r"
+		end, 0)
+		status:AddShownPredicate(function()
+			return GetStatus() ~= nil
 		end)
 	end
 
