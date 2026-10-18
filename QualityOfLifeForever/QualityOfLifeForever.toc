@@ -55,6 +55,7 @@ Modules\CooldownManager\CooldownKeybinds.lua
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
 Modules\Character\PetHappiness.lua
+Modules\Character\TalentReminder.lua
 
 # Statistics
 Modules\Statistics\StatisticsSearch.lua
