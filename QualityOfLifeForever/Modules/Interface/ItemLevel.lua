@@ -130,11 +130,19 @@ local function UpdateInspectButton(button)
 	end
 end
 
--- Bag item buttons pass through this global on every bag update; other item
--- buttons (loot, merchant, …) don't have a bag ID and are ignored. The bag
--- bar's slot buttons have a bag ID too but are bags themselves (isBag).
+-- Bag item buttons pass through this global on every bag update. Only
+-- buttons inside a bag window count: loot and merchant buttons have no bag ID,
+-- and the bag bar's slot buttons do have one but sit on the bag bar.
+local function IsContainerItemButton(button)
+	if button.isBag or type(button.GetBagID) ~= "function" then
+		return false
+	end
+	local parent = button:GetParent()
+	return parent ~= nil and type(parent.IsCombinedBagContainer) == "function" and button:GetBagID() ~= nil
+end
+
 function module:OnSetItemButtonQuality(button)
-	if not button.isBag and type(button.GetBagID) == "function" and button:GetBagID() then
+	if IsContainerItemButton(button) then
 		UpdateBagButton(button)
 	end
 end
