@@ -1,0 +1,151 @@
+-- luacheck: read globals C_PetInfo HasPetUI InCombatLockdown PlaySound SOUNDKIT UIErrorsFrame PET_HAPPINESS1 PET_HAPPINESS2
+local _, ns = ...
+
+local L = ns.NewLocale({
+	enUS = {
+		TITLE = "Pet happiness warning",
+		NOTE = "Reminds you to feed your hunter pet",
+		DESC = "Warns you when your hunter pet's happiness drops and tells you what it eats. An unhappy pet deals less damage and loses loyalty.",
+		WARN_AT = "Warn at",
+		WARN_AT_DESC = "Happiness level at which the warning appears.",
+		NEUTRAL = "Content (yellow)",
+		MAD = "Unhappy (red)",
+		SECTION_WARNING = "Warning",
+		SCREEN = "On screen",
+		SCREEN_DESC = "Shows the warning in the middle of the screen as well as in chat.",
+		SOUND = "Sound",
+		SOUND_DESC = "Plays a sound with the warning.",
+		AFTER_COMBAT = "Remind after combat",
+		AFTER_COMBAT_DESC = "Repeats the warning after each fight while the pet is still at or below the level.",
+		MESSAGE = "Your pet is %s (%d%% damage). Feed it: %s",
+		ANY_FOOD = "any food",
+	},
+	deDE = {
+		TITLE = "Begleiter-Zufriedenheit",
+		NOTE = "Erinnert ans Füttern deines Jäger-Begleiters",
+		DESC = "Warnt dich, wenn die Zufriedenheit deines Jäger-Begleiters sinkt, und zeigt, was er frisst. Ein unzufriedener Begleiter macht weniger Schaden und verliert Treue.",
+		WARN_AT = "Warnen ab",
+		WARN_AT_DESC = "Zufriedenheitsstufe, ab der die Warnung erscheint.",
+		NEUTRAL = "Zufrieden (gelb)",
+		MAD = "Unglücklich (rot)",
+		SECTION_WARNING = "Warnung",
+		SCREEN = "Auf dem Bildschirm",
+		SCREEN_DESC = "Zeigt die Warnung zusätzlich zum Chat in der Bildschirmmitte.",
+		SOUND = "Ton",
+		SOUND_DESC = "Spielt einen Ton zur Warnung.",
+		AFTER_COMBAT = "Nach dem Kampf erinnern",
+		AFTER_COMBAT_DESC = "Wiederholt die Warnung nach jedem Kampf, solange der Begleiter auf oder unter der Stufe ist.",
+		MESSAGE = "Dein Begleiter ist %s (%d %% Schaden). Füttere ihn: %s",
+		ANY_FOOD = "beliebiges Futter",
+	},
+})
+
+-- C_PetInfo.GetPetHappiness: 1 = mad, 2 = neutral, 3 = happy
+-- (Forever Blizzard_FrameXML/PetHappiness.lua).
+local MAD, NEUTRAL = 1, 2
+local HAPPINESS_TEXT = { [MAD] = PET_HAPPINESS1, [NEUTRAL] = PET_HAPPINESS2 }
+
+local module = ns:NewModule("PetHappiness", {
+	title = L.TITLE,
+	description = L.DESC,
+	note = L.NOTE,
+	category = "CHARACTER",
+	defaults = {
+		warnAt = NEUTRAL,
+		screen = true,
+		sound = true,
+		afterCombat = true,
+	},
+	options = {
+		{
+			key = "warnAt",
+			type = "dropdown",
+			label = L.WARN_AT,
+			tooltip = L.WARN_AT_DESC,
+			values = {
+				{ value = NEUTRAL, label = L.NEUTRAL },
+				{ value = MAD, label = L.MAD },
+			},
+		},
+		{ type = "header", label = L.SECTION_WARNING },
+		{ key = "screen", type = "checkbox", label = L.SCREEN, tooltip = L.SCREEN_DESC },
+		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
+		{ key = "afterCombat", type = "checkbox", label = L.AFTER_COMBAT, tooltip = L.AFTER_COMBAT_DESC },
+	},
+})
+
+local IsSecret = ns.Utils.IsSecret
+local lastHappiness
+
+-- Happiness and damage percentage of the active hunter pet, or nil.
+local function GetHappiness()
+	local _, isHunterPet = HasPetUI()
+	if not isHunterPet then
+		return nil
+	end
+	local happiness, damagePercentage = C_PetInfo.GetPetHappiness()
+	if type(happiness) ~= "number" or IsSecret(happiness) or IsSecret(damagePercentage) then
+		return nil
+	end
+	return happiness, damagePercentage or 0
+end
+
+local function GetDiet()
+	local diet = C_PetInfo.GetPetFoodTypes()
+	if type(diet) == "table" and #diet > 0 then
+		return table.concat(diet, ", ")
+	end
+	return L.ANY_FOOD
+end
+
+function module:Warn(happiness, damagePercentage)
+	local message = L.MESSAGE:format(HAPPINESS_TEXT[happiness] or "", damagePercentage, GetDiet())
+	-- A warning, so not muted by the "chat messages" setting.
+	ns:Print(message)
+	if self.db.screen and UIErrorsFrame then
+		UIErrorsFrame:AddMessage(message, 1, 0.5, 0)
+	end
+	if self.db.sound then
+		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
+	end
+end
+
+-- Warns when happiness drops to or below the level, including a pet that is
+-- summoned while already unhappy; not again while it stays there.
+function module:Check()
+	local happiness, damagePercentage = GetHappiness()
+	if not happiness then
+		lastHappiness = nil
+		return
+	end
+	local dropped = lastHappiness == nil or happiness < lastHappiness
+	lastHappiness = happiness
+	if dropped and happiness <= self.db.warnAt then
+		self:Warn(happiness, damagePercentage)
+	end
+end
+
+function module:OnCombatEnd()
+	if not self.db.afterCombat then
+		return
+	end
+	local happiness, damagePercentage = GetHappiness()
+	if happiness and happiness <= self.db.warnAt then
+		self:Warn(happiness, damagePercentage)
+	end
+end
+
+function module:OnEnable()
+	lastHappiness = nil
+	self:RegisterEvent("UNIT_HAPPINESS", self.Check)
+	self:RegisterEvent("UNIT_PET", function(_, unit)
+		if unit == "player" then
+			lastHappiness = nil
+			self:Check()
+		end
+	end)
+	self:RegisterEvent("PLAYER_REGEN_ENABLED", self.OnCombatEnd)
+	if not InCombatLockdown() then
+		self:Check()
+	end
+end
