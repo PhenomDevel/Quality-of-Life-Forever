@@ -32,7 +32,7 @@ ns:RegisterEvent("PLAYER_LOGIN", OnPlayerLogin)
 --------------------------------------------------------------------------------
 
 function QualityOfLifeForever_OnAddonCompartmentClick()
-	ns:OpenSettings()
+	ns:ToggleSettings()
 end
 
 function QualityOfLifeForever_OnAddonCompartmentEnter(_, menuButtonFrame)

@@ -103,7 +103,7 @@ local function CreateButton()
 	button.Icon:SetTexture("Interface\\AddOns\\QualityOfLifeForever\\Media\\Logo")
 
 	button:SetScript("OnClick", function()
-		ns:OpenSettings()
+		ns:ToggleSettings()
 	end)
 	button:SetScript("OnEnter", function(self)
 		SetHovered(true)
