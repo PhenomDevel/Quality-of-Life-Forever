@@ -49,9 +49,10 @@ Widgets.fonts = {
 	body = NewFont("Body", 12, colors.text),
 	small = NewFont("Small", 11, colors.muted),
 	dim = NewFont("Dim", 11, colors.dim),
-	section = NewFont("Section", 11, colors.accent),
+	-- Text stays light; the darker accent is for fills, borders and markers.
+	section = NewFont("Section", 11, colors.text),
 	tooltip = NewFont("Tooltip", 12, { 0.88, 0.88, 0.90, 1 }),
-	accent = NewFont("Accent", 12, colors.accent),
+	value = NewFont("Value", 12, colors.text),
 }
 local fonts = Widgets.fonts
 
@@ -342,15 +343,15 @@ end
 -- Button ----------------------------------------------------------------------
 
 local function SetButtonHovered(button, hovered)
-	button.Background:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], hovered and 0.32 or 0.18)
+	button.Background:SetColorTexture(ACCENT[1], ACCENT[2], ACCENT[3], hovered and 0.4 or 0.22)
 end
 
 function Widgets.CreateButton(parent)
 	local button = CreateFrame("Button", nil, parent)
 	button:SetHeight(22)
 	button.Background = Widgets.Fill(button, colors.control)
-	Widgets.Border(button, { ACCENT[1], ACCENT[2], ACCENT[3], 0.7 })
-	button.Text = Widgets.Text(button, fonts.accent, "CENTER")
+	Widgets.Border(button, { ACCENT[1], ACCENT[2], ACCENT[3], 0.9 })
+	button.Text = Widgets.Text(button, fonts.value, "CENTER")
 	button.Text:SetPoint("LEFT", 10, 0)
 	button.Text:SetPoint("RIGHT", -10, 0)
 	button.Text:SetJustifyV("MIDDLE")

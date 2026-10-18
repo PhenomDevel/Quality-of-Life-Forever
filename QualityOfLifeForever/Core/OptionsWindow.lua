@@ -118,7 +118,7 @@ end
 rowTypes.slider = {
 	create = function(parent)
 		local row = CreateRowBase(parent)
-		row.Value = Widgets.Text(row, fonts.accent, "RIGHT")
+		row.Value = Widgets.Text(row, fonts.value, "RIGHT")
 		row.Value:SetPoint("TOPRIGHT", 0, -9)
 		row.Control = Widgets.CreateSlider(row)
 		row.Control:SetPoint("TOPLEFT", 0, -ROW_HEIGHT - 2)
@@ -232,8 +232,12 @@ rowTypes.textarea = {
 rowTypes.header = {
 	create = function(parent)
 		local row = CreateFrame("Frame", nil, parent)
+		local marker = row:CreateTexture(nil, "ARTWORK")
+		marker:SetColorTexture(unpack(colors.accent))
+		marker:SetSize(2, 12)
+		marker:SetPoint("BOTTOMLEFT", 0, 4)
 		row.Label = Widgets.Text(row, fonts.section)
-		row.Label:SetPoint("BOTTOMLEFT", 0, 4)
+		row.Label:SetPoint("BOTTOMLEFT", marker, "BOTTOMRIGHT", 6, 0)
 		row.Update = function() end
 		return row
 	end,
