@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Item C_PaperDollInfo UnitClass UnitGUID GetInventoryItemCount GetInventoryItemID GetInventoryItemTexture INVSLOT_AMMO
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Item Enum UnitClass UnitGUID GetInventoryItemCount GetInventoryItemID GetInventoryItemTexture INVSLOT_AMMO INVSLOT_RANGED
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -11,7 +11,7 @@ local L = ns.NewLocale({
 		SECTION_WARN = "Warning",
 		SECTION_LOOK = "Appearance",
 		SHOW_AMMO = "Ammo",
-		SHOW_AMMO_DESC = "Ammo in your bags of the type in your ammo slot, while your ranged weapon needs ammo.",
+		SHOW_AMMO_DESC = "Ammo in your bags of the type in your ammo slot, while a bow, gun or crossbow is equipped.",
 		SHOW_REAGENTS = "Reagents",
 		SHOW_REAGENTS_DESC = "Reagents of your class you carried at least once on this character.",
 		AMMO_WARN = "Ammo warning",
@@ -40,7 +40,7 @@ local L = ns.NewLocale({
 		SECTION_WARN = "Warnung",
 		SECTION_LOOK = "Darstellung",
 		SHOW_AMMO = "Munition",
-		SHOW_AMMO_DESC = "Munition in den Taschen vom Typ im Munitionsplatz, solange deine Fernkampfwaffe Munition braucht.",
+		SHOW_AMMO_DESC = "Munition in den Taschen vom Typ im Munitionsplatz, solange ein Bogen, Gewehr oder eine Armbrust angelegt ist.",
 		SHOW_REAGENTS = "Reagenzien",
 		SHOW_REAGENTS_DESC = "Reagenzien deiner Klasse, die du auf diesem Charakter mindestens einmal dabei hattest.",
 		AMMO_WARN = "Munitionswarnung",
@@ -211,10 +211,27 @@ function module:ForgetReagents()
 	self:Update()
 end
 
+-- Bows, guns and crossbows shoot ammo; wands and thrown weapons don't.
+-- C_PaperDollInfo.AmmoNeeded() returned true for a priest in Forever.
+local AMMO_WEAPONS = {
+	[Enum.ItemWeaponSubclass.Bows] = true,
+	[Enum.ItemWeaponSubclass.Guns] = true,
+	[Enum.ItemWeaponSubclass.Crossbow] = true,
+}
+
+local function UsesAmmo()
+	local itemID = GetInventoryItemID("player", INVSLOT_RANGED)
+	if not itemID then
+		return false
+	end
+	local _, _, _, _, _, classID, subclassID = C_Item.GetItemInfoInstant(itemID)
+	return classID == Enum.ItemClass.Weapon and AMMO_WEAPONS[subclassID] == true
+end
+
 -- { icon, count, warn } for everything to show, ammo first.
 function module:Collect()
 	local list = {}
-	if self.db.showAmmo and C_PaperDollInfo.AmmoNeeded() then
+	if self.db.showAmmo and UsesAmmo() then
 		local ammoID = GetInventoryItemID("player", INVSLOT_AMMO)
 		list[#list + 1] = {
 			icon = GetInventoryItemTexture("player", INVSLOT_AMMO) or "Interface\\PaperdollInfoFrame\\UI-Character-AmmoSlot",
