@@ -101,6 +101,7 @@ Modules\Social\AutoDeclineGuildInvites.lua
 # Chat
 Modules\Chat\ChatClassColors.lua
 Modules\Chat\ChatComfort.lua
+Modules\Chat\ChatCopy.lua
 Modules\Chat\ChatHighlight.lua
 Modules\Chat\CopyableURLs.lua
 Modules\Chat\GuildRecruitTab.lua
