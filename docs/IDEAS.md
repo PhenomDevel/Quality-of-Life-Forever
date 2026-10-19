@@ -124,11 +124,31 @@ Day-to-day annoyances of Classic-style leveling with reagents and pets.
 
 | # | Idea | Area | Approach | Risk |
 |---|------|------|----------|------|
-| 51 | [ ] Restock reagents and ammo | Merchant & Trainer | own list with target amounts, `BuyMerchantItem` up to the target on `MERCHANT_SHOW` | low |
-| 52 | [ ] Auto greed on greens | Loot | `START_LOOT_ROLL` → `RollOnLoot`, chat note | low–medium: BoP confirmations |
+| 51 | [-] Restock reagents and ammo | Merchant & Trainer | own list with target amounts, `BuyMerchantItem` up to the target on `MERCHANT_SHOW` | low |
+| 52 | [x] Auto greed on greens (`AutoGreed`) | Loot | `START_LOOT_ROLL` → `RollOnLoot`, chat note | low–medium: BoP confirmations |
 | 53 | [ ] Share accepted quests with the group | Quests | `QuestLogPushQuest` after `QUEST_ACCEPTED`, only in a group | low |
 | 54 | [ ] Invite on whisper keyword (e.g. "inv") | Social | `CHAT_MSG_WHISPER` → `C_PartyInfo.InviteUnit`, optionally friends/guild only | low |
-| 55 | [ ] Low durability warning | Interface | `UPDATE_INVENTORY_DURABILITY`, sound + chat once per threshold | low |
+| 55 | [x] Low durability warning (`DurabilityWarning`) | Interface | `UPDATE_INVENTORY_DURABILITY`, sound + chat once per threshold | low |
 | 56 | [ ] Flight time remaining | World map | `TAXIMAP_*`, durations measured by us on the first flight per route | medium |
 | 57 | [x] Pet happiness warning (`PetHappiness`) | Character | `UNIT_HAPPINESS` + `C_PetInfo.GetPetHappiness`, warn on drop or unhappy summon, diet in the message | low |
 | 58 | [ ] Buy stacks with Shift-click | Merchant & Trainer | hook the merchant item click, ask for the amount | low: may already be built in |
+
+## Round 5
+
+| # | Idea | Area | Approach | Risk |
+|---|------|------|----------|------|
+| 59 | [x] Missing self-buffs (`MissingBuffs`) | Reminders | per-class rank-1 IDs, aura matched by name, popup out of combat | low |
+| 60 | [x] Copy chat (`ChatCopy`) | Chat | button per chat window, history as plain text in an edit box | low: secret messages left out |
+| 61 | [x] Junk widget (`JunkWidget`) | Widgets | cheapest gray items by stack value, click deletes | low |
+
+## Don't propose again
+
+Kevin rejected these because the Forever client already has them:
+
+- Coordinates on the world map and minimap
+- Minimap mouse-wheel zoom, hiding the zoom buttons
+- Quest level in the quest log and tracker
+- Restocking reagents/ammo at vendors
+- Open all mail
+- Vendor sell price in tooltips
+- Dungeon entrances on the map (no data in Forever; dropped)
