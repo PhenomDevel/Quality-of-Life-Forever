@@ -1,4 +1,3 @@
--- luacheck: read globals ChatFrameUtil ChatFrame_AddMessageEventFilter ChatFrame_RemoveMessageEventFilter GetChatWindowInfo GetChannelList FCF_OpenNewWindow FCFDock_GetSelectedWindow FCFDock_SelectWindow GENERAL_CHAT_DOCK C_Timer Constants NUM_CHAT_WINDOWS strtrim
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -37,7 +36,6 @@ local L = ns.NewLocale({
 })
 
 local DEFAULT_KEYWORDS = "recruit, guild, gilde, rekrut"
-local EVENTS = { "CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL" }
 
 local module = ns:NewModule("GuildRecruitTab", {
 	title = L.TITLE,
@@ -64,138 +62,12 @@ local module = ns:NewModule("GuildRecruitTab", {
 			buttonText = L.CREATE,
 			tooltip = L.CREATE_TAB_DESC,
 			onClick = function(self)
-				if self:GetTabFrame() then
-					self:Print(L.TAB_EXISTS)
-				else
-					self:CreateTabFrame()
-				end
+				self:CreateTabButton()
 			end,
 		},
 	},
 })
 
-local AddFilter = ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter or ChatFrame_AddMessageEventFilter
-local RemoveFilter = ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter or ChatFrame_RemoveMessageEventFilter
-local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
-
-local keywords = {}
-
-function module:ParseKeywords()
-	wipe(keywords)
-	for word in self.db.keywords:gmatch("[^,]+") do
-		word = strtrim(word):lower()
-		if word ~= "" then
-			keywords[#keywords + 1] = word
-		end
-	end
-end
-
-local function Matches(text)
-	text = text:lower()
-	for _, word in ipairs(keywords) do
-		if text:find(word, 1, true) then
-			return true
-		end
-	end
-	return false
-end
-
--- The shown chat window named like our tab, if any.
-function module:GetTabFrame()
-	for i = 1, MAX_WINDOWS do
-		local name, _, _, _, _, _, shown, _, docked = GetChatWindowInfo(i)
-		if name == L.TAB and (shown or docked) then
-			return _G["ChatFrame" .. i]
-		end
-	end
-end
-
-function module:CreateTabFrame()
-	-- FCF_OpenNewWindow selects the new tab; keep the current one selected.
-	local selected = FCFDock_GetSelectedWindow(GENERAL_CHAT_DOCK)
-	local frame = FCF_OpenNewWindow(L.TAB, true)
-	if not frame then
-		self:Print(L.NO_FREE_WINDOW)
-		return
-	end
-	if selected then
-		FCFDock_SelectWindow(GENERAL_CHAT_DOCK, selected)
-		if ChatFrameUtil and ChatFrameUtil.SetLastActiveWindow and selected.editBox then
-			ChatFrameUtil.SetLastActiveWindow(selected.editBox)
-		end
-	end
-	frame:AddMessageGroup("SAY")
-	frame:AddMessageGroup("YELL")
-	frame:AddMessageGroup("CHANNEL")
-	local channels = { GetChannelList() }
-	for i = 2, #channels, 3 do
-		frame:AddChannel(channels[i])
-	end
-	self:Print(L.TAB_CREATED)
-	return frame
-end
-
 -- The spam filter's tab keeps its own messages; dropping matches there too
 -- would hide a message that is both spam and a guild ad everywhere.
-local function IsSpamTab(chatFrame)
-	local spamFilter = ns:GetModule("SpamFilter")
-	return spamFilter and spamFilter.enabled and chatFrame == spamFilter:GetSpamFrame()
-end
-
--- Runs once per chat frame that receives the message: matches are dropped
--- everywhere except our tab, which in turn drops everything else. Without
--- the tab nothing is dropped. Blizzard only calls filters when all args are
--- accessible (no secret values).
-local function Filter(chatFrame, _, text)
-	if type(text) ~= "string" then
-		return false
-	end
-	local tabFrame = module:GetTabFrame()
-	if not tabFrame then
-		return false
-	end
-	local match = Matches(text)
-	if chatFrame == tabFrame then
-		return not match
-	end
-	return match and not IsSpamTab(chatFrame)
-end
-
--- Same lifecycle as the spam filter: a tab that was closed since the last
--- session turns the module off instead of being recreated at login.
-function module:CheckTabFrame()
-	if self:GetTabFrame() then
-		self.db.tabCreated = true
-	elseif self.db.tabCreated then
-		self:Print(L.TAB_MISSING)
-		ns:SetModuleEnabled(self, false)
-	elseif self:CreateTabFrame() then
-		self.db.tabCreated = true
-	end
-end
-
-function module:OnOptionChanged(key)
-	if key == "keywords" then
-		self:ParseKeywords()
-	end
-end
-
-function module:OnEnable()
-	self:ParseKeywords()
-	-- Delayed because chat windows are set up after PLAYER_LOGIN.
-	C_Timer.After(2, function()
-		if self.enabled then
-			self:CheckTabFrame()
-		end
-	end)
-	for _, event in ipairs(EVENTS) do
-		AddFilter(event, Filter)
-	end
-end
-
-function module:OnDisable()
-	self.db.tabCreated = false
-	for _, event in ipairs(EVENTS) do
-		RemoveFilter(event, Filter)
-	end
-end
+ns.Chat.NewTabFilter(module, { L = L, keepOtherTabs = true })
