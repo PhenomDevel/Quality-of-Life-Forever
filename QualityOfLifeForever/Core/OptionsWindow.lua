@@ -9,21 +9,23 @@ local Markup = ns.Utils.Markup
 --[[
 	Standalone options window (/qol, minimap button, addon compartment).
 
-	┌ header: logo, title, search, close ──────────────────────────────┐
-	│ sidebar: General +      │ page title + subtitle                  │
-	│ one entry per category  │ module cards in 1–3 columns (scrolls)  │
-	└─────────────────────────┴───────────────────────────── resize grip ┘
+	┌ header: logo, title, search, close ─────────────────────────────────┐
+	│ sidebar: General +  │ page title + subtitle                         │
+	│ one entry per       │ module list      │ options of the selected    │
+	│ category            │ (title, note,    │ module in one full-width   │
+	│                     │  switch)         │ card (scrolls)             │
+	└─────────────────────┴──────────────────┴─────────────── resize grip ┘
 
-	The window is resizable; the number of columns follows its width. Each
-	card goes to the currently shortest column, so a card never moves when
-	its own height changes (only the cards after it).
+	Category and search pages list their modules on the left, all the same
+	height, and show the selected one's options on the right; the General
+	page has no list. The selection is remembered per page.
 	Pages are rebuilt from pooled frames whenever the layout changes (page,
-	search, a module turned on/off). Value changes from elsewhere (slash
-	commands, SetOption) only refresh the visible controls.
+	search, selection, a module turned on/off). Value changes from elsewhere
+	(slash commands, SetOption) only refresh the visible controls.
 ]]
 
 local DEFAULT_WIDTH, DEFAULT_HEIGHT = 1040, 640
-local MIN_WIDTH, MIN_HEIGHT = 640, 420
+local MIN_WIDTH, MIN_HEIGHT = 900, 420
 local MAX_WIDTH, MAX_HEIGHT = 1700, 1200
 local HEADER_HEIGHT = 56
 local SIDEBAR_WIDTH = 210
@@ -31,8 +33,9 @@ local PADDING = 16
 local SCROLLBAR_WIDTH = 10
 local CARD_PADDING = 14
 local CARD_GAP = 10
-local MIN_COLUMN_WIDTH = 340
-local MAX_COLUMNS = 3
+local LIST_WIDTH = 300
+local LIST_GAP = 14
+local LIST_ITEM_HEIGHT = 46
 local ROW_HEIGHT = 30
 local SLIDER_EXTRA = 22
 local INPUT_WIDTH = 160
@@ -42,10 +45,12 @@ local SCROLL_STEP = 48
 local GENERAL = "GENERAL"
 
 -- Derived from the window width by UpdateLayout() before every render.
-local columnCount, columnWidth, rowWidth
+local columnWidth, rowWidth
 
-local frame, scroll, content, sidebar, searchBox
-local state = { page = GENERAL, search = "" }
+-- scroll/content: the options card(s); listScroll/listContent: module list.
+local frame, scroll, content, listScroll, listContent, sidebar, searchBox
+-- selected[page key] = key of the selected list entry
+local state = { page = GENERAL, search = "", selected = {} }
 
 --------------------------------------------------------------------------------
 -- Rows
@@ -279,6 +284,25 @@ rowTypes.notice = {
 	end,
 }
 
+-- Wrapping description of a module at the top of its options.
+rowTypes.description = {
+	create = function(parent)
+		local row = CreateFrame("Frame", nil, parent)
+		row.Label = Widgets.Text(row, fonts.small)
+		row.Label:SetPoint("TOPLEFT", 0, -6)
+		row.Label:SetWordWrap(true)
+		row.Update = function() end
+		return row
+	end,
+	setup = function(row, spec)
+		row.Label:SetWidth(rowWidth)
+		row.Label:SetText(Markup(spec.label))
+		local height = row.Label:GetStringHeight() + 12
+		row:SetSize(rowWidth, height)
+		return height
+	end,
+}
+
 -- Gray single line, e.g. "More options appear when enabled."
 rowTypes.hint = {
 	create = function(parent)
@@ -451,27 +475,37 @@ local function OptionRow(module, option)
 	return spec
 end
 
-local function ModuleCard(module, categoryName)
+local function ModuleToggle(module)
+	return {
+		get = function()
+			return module.db.enabled
+		end,
+		set = function(enabled)
+			ns:SetModuleEnabled(module, enabled)
+		end,
+	}
+end
+
+local function ModuleNote(module, categoryName)
 	local note = module.note
 	if categoryName then
 		note = note and (categoryName .. "  ·  " .. note) or categoryName
 	end
+	return note
+end
+
+local function ModuleCard(module, categoryName)
 	local spec = {
 		title = module.title,
-		note = note,
-		tooltip = module.description,
-		toggle = {
-			get = function()
-				return module.db.enabled
-			end,
-			set = function(enabled)
-				ns:SetModuleEnabled(module, enabled)
-			end,
-		},
+		note = ModuleNote(module, categoryName),
+		toggle = ModuleToggle(module),
 		rows = {},
 	}
+	if module.description ~= "" then
+		spec.rows[1] = { type = "description", label = module.description }
+	end
 	if module.notice then
-		spec.rows[1] = { type = "notice", label = module.notice }
+		spec.rows[#spec.rows + 1] = { type = "notice", label = module.notice }
 	end
 	if module.db.enabled then
 		local status = module.status and module:status()
@@ -505,8 +539,9 @@ local function GlobalToggle(key, label, tooltip, onChange)
 	}
 end
 
+-- Returns title, subtitle, no list entries, cards.
 local function GeneralPage()
-	return L.SETTINGS_GENERAL_HEADER, L.OPTIONS_VERSION:format(ns.version), {
+	return L.SETTINGS_GENERAL_HEADER, L.OPTIONS_VERSION:format(ns.version), nil, {
 		{
 			rows = {
 				GlobalToggle("printMessages", L.SETTING_PRINT_MESSAGES, L.SETTING_PRINT_MESSAGES_DESC),
@@ -548,36 +583,58 @@ local function CountEnabled(modules)
 	return count
 end
 
--- Widgets page: the stack setting sits above the widget modules it affects.
-local function WidgetStackCard()
+-- A list entry: { key, title, note, toggle, card = function() -> card spec }.
+local function ModuleEntry(module, categoryName)
 	return {
-		title = L.SETTING_STACK_WIDGETS,
-		note = L.SETTING_STACK_WIDGETS_NOTE,
-		tooltip = L.SETTING_STACK_WIDGETS_DESC,
-		toggle = {
-			get = function()
-				return ns.db.global.stackWidgets
-			end,
-			set = function(value)
-				ns.db.global.stackWidgets = value
-				ns:UpdateWidgetStack()
-				ns:RefreshOptions()
-			end,
-		},
-		rows = {},
+		key = module.name,
+		title = module.title,
+		note = ModuleNote(module, categoryName),
+		toggle = ModuleToggle(module),
+		card = function()
+			return ModuleCard(module, categoryName)
+		end,
 	}
 end
 
+-- Widgets page: the stack setting comes first, above the widgets it affects.
+local function WidgetStackEntry()
+	local toggle = {
+		get = function()
+			return ns.db.global.stackWidgets
+		end,
+		set = function(value)
+			ns.db.global.stackWidgets = value
+			ns:UpdateWidgetStack()
+			ns:RefreshOptions()
+		end,
+	}
+	return {
+		key = "WidgetStack",
+		title = L.SETTING_STACK_WIDGETS,
+		note = L.SETTING_STACK_WIDGETS_NOTE,
+		toggle = toggle,
+		card = function()
+			return {
+				title = L.SETTING_STACK_WIDGETS,
+				note = L.SETTING_STACK_WIDGETS_NOTE,
+				toggle = toggle,
+				rows = { { type = "description", label = L.SETTING_STACK_WIDGETS_DESC } },
+			}
+		end,
+	}
+end
+
+-- Returns title, subtitle, list entries.
 local function CategoryPage(category)
 	local modules = ns:GetSortedModules(category.id)
-	local cards = {}
+	local entries = {}
 	if category.id == "WIDGETS" then
-		cards[1] = WidgetStackCard()
+		entries[1] = WidgetStackEntry()
 	end
 	for _, module in ipairs(modules) do
-		cards[#cards + 1] = ModuleCard(module)
+		entries[#entries + 1] = ModuleEntry(module)
 	end
-	return category.name, L.OPTIONS_ENABLED_COUNT:format(CountEnabled(modules), #modules), cards
+	return category.name, L.OPTIONS_ENABLED_COUNT:format(CountEnabled(modules), #modules), entries
 end
 
 local function Matches(module, query)
@@ -601,14 +658,18 @@ local function SearchPage()
 	for _, category in ipairs(ns.categories) do
 		categoryNames[category.id] = category.name
 	end
-	local cards = {}
+	local entries = {}
 	for _, module in ipairs(ns:GetSortedModules()) do
 		if Matches(module, query) then
-			cards[#cards + 1] = ModuleCard(module, categoryNames[module.category])
+			entries[#entries + 1] = ModuleEntry(module, categoryNames[module.category])
 		end
 	end
-	local subtitle = #cards > 0 and L.OPTIONS_RESULT_COUNT:format(#cards) or L.OPTIONS_NO_RESULTS:format(state.search)
-	return L.OPTIONS_SEARCH_RESULTS, subtitle, cards
+	local subtitle = #entries > 0 and L.OPTIONS_RESULT_COUNT:format(#entries) or L.OPTIONS_NO_RESULTS:format(state.search)
+	return L.OPTIONS_SEARCH_RESULTS, subtitle, entries
+end
+
+local function PageKey()
+	return state.search ~= "" and "SEARCH" or state.page
 end
 
 local function GetPage()
@@ -629,57 +690,58 @@ end
 -- Scrolling
 --------------------------------------------------------------------------------
 
-local function UpdateScrollBar()
-	local bar = scroll.Bar
-	local range = scroll:GetVerticalScrollRange()
+local function UpdateScrollBar(area)
+	local bar = area.Bar
+	local range = area:GetVerticalScrollRange()
 	if range <= 0 then
 		bar:Hide()
 		return
 	end
 	bar:Show()
-	local visible = scroll:GetHeight()
+	local visible = area:GetHeight()
 	local thumbHeight = math.max(24, visible * visible / (visible + range))
 	bar.Thumb:SetHeight(thumbHeight)
 	bar.Thumb:ClearAllPoints()
-	bar.Thumb:SetPoint("TOP", 0, -scroll:GetVerticalScroll() / range * (visible - thumbHeight))
+	bar.Thumb:SetPoint("TOP", 0, -area:GetVerticalScroll() / range * (visible - thumbHeight))
 end
 
-local function SetScroll(offset)
-	local range = scroll:GetVerticalScrollRange()
-	scroll:SetVerticalScroll(math.max(0, math.min(range, offset)))
-	UpdateScrollBar()
+local function SetScroll(area, offset)
+	local range = area:GetVerticalScrollRange()
+	area:SetVerticalScroll(math.max(0, math.min(range, offset)))
+	UpdateScrollBar(area)
 end
 
 local function OnThumbDrag(thumb)
+	local area = thumb.area
 	local _, cursorY = GetCursorPosition()
 	cursorY = cursorY / thumb:GetEffectiveScale()
-	local visible = scroll:GetHeight()
+	local visible = area:GetHeight()
 	local track = visible - thumb:GetHeight()
 	if track > 0 then
-		local range = scroll:GetVerticalScrollRange()
-		SetScroll(thumb.startScroll + (thumb.startY - cursorY) / track * range)
+		local range = area:GetVerticalScrollRange()
+		SetScroll(area, thumb.startScroll + (thumb.startY - cursorY) / track * range)
 	end
 end
 
+-- A scroll frame with a thin bar on its right; positioned by Render().
 local function CreateScrollArea(parent)
-	scroll = CreateFrame("ScrollFrame", nil, parent)
-	scroll:SetPoint("TOPLEFT", SIDEBAR_WIDTH + PADDING, -(HEADER_HEIGHT + 64))
-	scroll:SetPoint("BOTTOMRIGHT", -(PADDING + SCROLLBAR_WIDTH), PADDING)
-	scroll:EnableMouseWheel(true)
-	scroll:SetScript("OnMouseWheel", function(self, delta)
-		SetScroll(self:GetVerticalScroll() - delta * SCROLL_STEP)
+	local area = CreateFrame("ScrollFrame", nil, parent)
+	area:EnableMouseWheel(true)
+	area:SetScript("OnMouseWheel", function(self, delta)
+		SetScroll(self, self:GetVerticalScroll() - delta * SCROLL_STEP)
 	end)
 
-	content = CreateFrame("Frame", nil, scroll)
-	content:SetSize(1, 1)
-	scroll:SetScrollChild(content)
+	area.Content = CreateFrame("Frame", nil, area)
+	area.Content:SetSize(1, 1)
+	area:SetScrollChild(area.Content)
 
 	local bar = CreateFrame("Frame", nil, parent)
-	bar:SetPoint("TOPLEFT", scroll, "TOPRIGHT", 5, 0)
-	bar:SetPoint("BOTTOMLEFT", scroll, "BOTTOMRIGHT", 5, 0)
+	bar:SetPoint("TOPLEFT", area, "TOPRIGHT", 5, 0)
+	bar:SetPoint("BOTTOMLEFT", area, "BOTTOMRIGHT", 5, 0)
 	bar:SetWidth(3)
 	Widgets.Fill(bar, colors.hover)
 	local thumb = CreateFrame("Frame", nil, bar)
+	thumb.area = area
 	thumb:SetWidth(3)
 	thumb:SetHitRectInsets(-4, -4, 0, 0)
 	thumb:EnableMouse(true)
@@ -687,7 +749,7 @@ local function CreateScrollArea(parent)
 	thumb:SetScript("OnMouseDown", function(self)
 		local _, cursorY = GetCursorPosition()
 		self.startY = cursorY / self:GetEffectiveScale()
-		self.startScroll = scroll:GetVerticalScroll()
+		self.startScroll = area:GetVerticalScroll()
 		self:SetScript("OnUpdate", OnThumbDrag)
 	end)
 	thumb:SetScript("OnMouseUp", function(self)
@@ -700,7 +762,80 @@ local function CreateScrollArea(parent)
 		self.Texture:SetColorTexture(unpack(colors.control))
 	end)
 	bar.Thumb = thumb
-	scroll.Bar = bar
+	area.Bar = bar
+	return area
+end
+
+--------------------------------------------------------------------------------
+-- Module list
+--------------------------------------------------------------------------------
+-- Every entry has the same height: title, one line of note, switch.
+
+local Render
+
+local function SelectEntry(key)
+	state.selected[PageKey()] = key
+	scroll:SetVerticalScroll(0)
+	Render()
+end
+
+local listItemPool = Widgets.NewPool(function(parent)
+	local item = CreateFrame("Button", nil, parent)
+	item:SetHeight(LIST_ITEM_HEIGHT)
+	item.Hover = Widgets.Fill(item, colors.hover)
+	item.Hover:Hide()
+	item.Selected = Widgets.Fill(item, colors.selected)
+	item.Marker = item:CreateTexture(nil, "ARTWORK")
+	item.Marker:SetColorTexture(unpack(colors.accent))
+	item.Marker:SetPoint("TOPLEFT")
+	item.Marker:SetPoint("BOTTOMLEFT")
+	item.Marker:SetWidth(2)
+
+	item.Toggle = Widgets.CreateToggle(item)
+	item.Toggle:SetPoint("RIGHT", -10, 0)
+
+	item.Title = Widgets.Text(item, fonts.body)
+	item.Title:SetPoint("TOPLEFT", 12, -8)
+	item.Title:SetPoint("RIGHT", item.Toggle, "LEFT", -10, 0)
+	item.Title:SetWordWrap(false)
+	item.Note = Widgets.Text(item, fonts.small)
+	item.Note:SetPoint("TOPLEFT", item.Title, "BOTTOMLEFT", 0, -4)
+	item.Note:SetPoint("RIGHT", item.Toggle, "LEFT", -10, 0)
+	item.Note:SetWordWrap(false)
+
+	-- Also driven by the switch through ForwardHover.
+	item.OnHoverChanged = function(self, hovered)
+		self.Hover:SetShown(hovered)
+	end
+	item:SetScript("OnEnter", Widgets.ShowTooltip)
+	item:SetScript("OnLeave", Widgets.HideTooltip)
+	item:SetScript("OnClick", function(self)
+		if not self.selected then
+			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+			SelectEntry(self.entry.key)
+		end
+	end)
+	Widgets.ForwardHover(item.Toggle, item)
+	return item
+end)
+
+local activeItems = {}
+
+local function AddListItem(entry, selected, top, width)
+	local item = Widgets.Acquire(listItemPool, listContent)
+	item.entry, item.selected = entry, selected
+	item:SetPoint("TOPLEFT", 0, -top)
+	item:SetWidth(width)
+	item.Selected:SetShown(selected)
+	item.Marker:SetShown(selected)
+	item.Title:SetText(entry.title)
+	-- Long titles are cut off; the tooltip has them in full.
+	item.tooltipTitle, item.tooltipText = entry.title, entry.note
+	item.Title:SetTextColor(unpack(selected and colors.text or colors.muted))
+	item.Note:SetText(Markup(entry.note or ""))
+	item.Toggle:SetChecked(not not entry.toggle.get())
+	item.Toggle.onToggle = entry.toggle.set
+	activeItems[#activeItems + 1] = item
 end
 
 --------------------------------------------------------------------------------
@@ -718,8 +853,6 @@ local function UpdateSidebar()
 	end
 end
 
-local Render
-
 local function SelectPage(page)
 	state.page = page
 	if state.search ~= "" then
@@ -727,6 +860,7 @@ local function SelectPage(page)
 		searchBox:ClearFocus()
 	end
 	scroll:SetVerticalScroll(0)
+	listScroll:SetVerticalScroll(0)
 	Render()
 end
 
@@ -824,6 +958,7 @@ local function CreateSearchBox(parent)
 		if text ~= state.search then
 			state.search = text
 			scroll:SetVerticalScroll(0)
+			listScroll:SetVerticalScroll(0)
 			Render()
 		end
 	end)
@@ -906,45 +1041,78 @@ end
 
 local pageTitle, pageSubtitle
 
-local function UpdateLayout()
-	local contentWidth = frame:GetWidth() - SIDEBAR_WIDTH - 2 * PADDING - SCROLLBAR_WIDTH
-	columnCount = math.floor((contentWidth + CARD_GAP) / (MIN_COLUMN_WIDTH + CARD_GAP))
-	columnCount = math.max(1, math.min(MAX_COLUMNS, columnCount))
-	columnWidth = math.floor((contentWidth - (columnCount - 1) * CARD_GAP) / columnCount)
+local CONTENT_TOP = HEADER_HEIGHT + 64
+
+-- Places list and options area; without a list the options take the width.
+local function UpdateLayout(hasList)
+	local left = SIDEBAR_WIDTH + PADDING
+	local width = frame:GetWidth() - left - PADDING - SCROLLBAR_WIDTH
+	listScroll:SetShown(hasList)
+	if not hasList then
+		listScroll.Bar:Hide()
+	end
+	listScroll:ClearAllPoints()
+	listScroll:SetPoint("TOPLEFT", left, -CONTENT_TOP)
+	listScroll:SetPoint("BOTTOMLEFT", left, PADDING)
+	listScroll:SetWidth(LIST_WIDTH - SCROLLBAR_WIDTH)
+	listContent:SetWidth(LIST_WIDTH - SCROLLBAR_WIDTH)
+	if hasList then
+		left = left + LIST_WIDTH + LIST_GAP
+		width = width - LIST_WIDTH - LIST_GAP
+	end
+	scroll:ClearAllPoints()
+	scroll:SetPoint("TOPLEFT", left, -CONTENT_TOP)
+	scroll:SetPoint("BOTTOMRIGHT", -(PADDING + SCROLLBAR_WIDTH), PADDING)
+	columnWidth = width
 	rowWidth = columnWidth - 2 * CARD_PADDING
-	content:SetWidth(contentWidth)
+	content:SetWidth(width)
+end
+
+-- The remembered selection if it is still listed, else the first entry.
+local function SelectedEntry(entries)
+	local key = state.selected[PageKey()]
+	for _, entry in ipairs(entries) do
+		if entry.key == key then
+			return entry
+		end
+	end
+	return entries[1]
 end
 
 Render = function()
-	local offset = scroll:GetVerticalScroll()
-	UpdateLayout()
+	local offset, listOffset = scroll:GetVerticalScroll(), listScroll:GetVerticalScroll()
 	for _, rowType in pairs(rowTypes) do
 		Widgets.ReleaseAll(rowType.pool)
 	end
 	Widgets.ReleaseAll(cardPool)
+	Widgets.ReleaseAll(listItemPool)
 	wipe(activeRows)
+	wipe(activeItems)
 
-	local title, subtitle, cards = GetPage()
+	local title, subtitle, entries, cards = GetPage()
 	pageTitle:SetText(title)
 	pageSubtitle:SetText(subtitle)
+	UpdateLayout(entries ~= nil)
 
-	local columns = {}
-	for i = 1, columnCount do
-		columns[i] = 0
-	end
-	for _, card in ipairs(cards) do
-		local column = 1
-		for i = 2, columnCount do
-			if columns[i] < columns[column] then
-				column = i
-			end
+	if entries then
+		local selected = SelectedEntry(entries)
+		local width = LIST_WIDTH - SCROLLBAR_WIDTH
+		for i, entry in ipairs(entries) do
+			AddListItem(entry, entry == selected, (i - 1) * LIST_ITEM_HEIGHT, width)
 		end
-		local left = (column - 1) * (columnWidth + CARD_GAP)
-		columns[column] = columns[column] + AddCard(card, left, columns[column]) + CARD_GAP
+		listContent:SetHeight(math.max(1, #entries * LIST_ITEM_HEIGHT))
+		listScroll:UpdateScrollChildRect()
+		SetScroll(listScroll, listOffset)
+		cards = { selected and selected.card() }
 	end
-	content:SetHeight(math.max(1, math.max(unpack(columns)) - CARD_GAP))
+
+	local height = 0
+	for _, card in ipairs(cards) do
+		height = height + AddCard(card, 0, height) + CARD_GAP
+	end
+	content:SetHeight(math.max(1, height - CARD_GAP))
 	scroll:UpdateScrollChildRect()
-	SetScroll(offset)
+	SetScroll(scroll, offset)
 	UpdateSidebar()
 end
 
@@ -1030,7 +1198,10 @@ local function CreateWindow()
 		Clamp(ns.db.global.optionsWidth or DEFAULT_WIDTH, MIN_WIDTH, MAX_WIDTH),
 		Clamp(ns.db.global.optionsHeight or DEFAULT_HEIGHT, minHeight, MAX_HEIGHT)
 	)
-	CreateScrollArea(frame)
+	listScroll = CreateScrollArea(frame)
+	listContent = listScroll.Content
+	scroll = CreateScrollArea(frame)
+	content = scroll.Content
 	CreateResizeGrip(frame)
 
 	pageTitle = Widgets.Text(frame, fonts.title)
@@ -1095,5 +1266,8 @@ function ns:RefreshOptionValues()
 	end
 	for _, row in ipairs(activeRows) do
 		row:Update()
+	end
+	for _, item in ipairs(activeItems) do
+		item.Toggle:SetChecked(not not item.entry.toggle.get())
 	end
 end
