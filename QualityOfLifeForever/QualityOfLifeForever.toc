@@ -60,6 +60,7 @@ Modules\Character\HidePlayerName.lua
 
 # Reminders
 Modules\Reminders\DurabilityWarning.lua
+Modules\Reminders\MissingBuffs.lua
 Modules\Reminders\PetHappiness.lua
 Modules\Reminders\TalentReminder.lua
 Modules\Reminders\TrainerReminder.lua
