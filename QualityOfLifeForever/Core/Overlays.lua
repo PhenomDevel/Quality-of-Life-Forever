@@ -14,6 +14,9 @@ local LibEditMode = ns.LibEditMode
 
 	Frames can't be removed from LibEditMode, so an overlay is created once
 	and its module shows/hides it. A hidden overlay is not shown in Edit Mode.
+
+	Each overlay has a small title above it, shown while the options window or
+	Edit Mode is open, or always with ns.db.global.overlayTitles.
 ]]
 
 local overlays = {}
@@ -26,6 +29,21 @@ ns.overlayFont = CreateFont("QualityOfLifeForeverOverlayFont")
 ns.overlayFont:SetFont(STANDARD_TEXT_FONT, 11, "")
 ns.overlayFont:SetShadowOffset(1, -1)
 ns.overlayFont:SetShadowColor(0, 0, 0, 0.8)
+
+local titleFont = CreateFont("QualityOfLifeForeverOverlayTitleFont")
+titleFont:SetFont(STANDARD_TEXT_FONT, 10, "OUTLINE")
+titleFont:SetTextColor(1, 0.82, 0)
+local TITLE_GAP = 2
+local optionsShown, editing = false, false
+
+local function TitlesShown()
+	return optionsShown or editing or ns.db.global.overlayTitles
+end
+
+-- Extra space a widget needs above it for its title.
+local function TitleSpace(frame)
+	return frame.Title and frame.Title:IsShown() and frame.Title:GetStringHeight() + TITLE_GAP or 0
+end
 
 local function GetLayoutData(key, layoutName, create)
 	local store = ns.db.global.overlays
@@ -88,14 +106,15 @@ local function Restack()
 	local width, height = 0, 0
 	for i, frame in ipairs(shown) do
 		frame:ClearAllPoints()
-		if i == 1 then
-			frame:SetPoint("TOPLEFT", stackAnchor, "TOPLEFT")
-		else
-			frame:SetPoint("TOPLEFT", shown[i - 1], "BOTTOMLEFT", 0, -STACK_GAP)
-		end
 		local scale = frame:GetEffectiveScale() / anchorScale
+		local titleSpace = TitleSpace(frame)
+		if i == 1 then
+			frame:SetPoint("TOPLEFT", stackAnchor, "TOPLEFT", 0, -titleSpace)
+		else
+			frame:SetPoint("TOPLEFT", shown[i - 1], "BOTTOMLEFT", 0, -(STACK_GAP + titleSpace))
+		end
 		width = math.max(width, frame:GetWidth() * scale)
-		height = height + frame:GetHeight() * scale + (i > 1 and STACK_GAP or 0)
+		height = height + (frame:GetHeight() + titleSpace) * scale + (i > 1 and STACK_GAP or 0)
 	end
 	stackAnchor:SetSize(math.max(width, 60), math.max(height, 20))
 	stackAnchor:Show()
@@ -182,6 +201,9 @@ end
 		width, height
 		default  = { point, x, y } relative to UIParent
 		settings = optional extra LibEditMode settings (after scale)
+		label    = title shown above the overlay; defaults to title without
+		           the "QoL Forever: " prefix
+		noTitle  = true for overlays without a title (invisible anchors)
 	}
 	Returns the hidden overlay frame.
 ]]
@@ -196,6 +218,14 @@ function ns:CreateOverlay(key, info)
 	frame:Hide()
 
 	ns:AddPanelBackground(frame)
+
+	if not info.noTitle then
+		frame.Title = frame:CreateFontString(nil, "OVERLAY")
+		frame.Title:SetFontObject(titleFont)
+		frame.Title:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, TITLE_GAP)
+		frame.Title:SetText(info.label or info.title:gsub("^QoL Forever: ", ""))
+		frame.Title:SetShown(TitlesShown())
+	end
 
 	overlays[frame] = { key = key, default = info.default }
 	LibEditMode:AddFrame(frame, OnPositionChanged, info.default, info.title)
@@ -241,6 +271,7 @@ function ns:InitializeWidgetStack()
 	-- Invisible and click-through; only Edit Mode's selection shows it.
 	stackAnchor = ns:CreateOverlay("WidgetStack", {
 		title = L.WIDGET_STACK_EDIT_MODE_NAME,
+		noTitle = true,
 		width = 260,
 		height = 40,
 		default = { point = "TOP", x = 0, y = -60 },
@@ -258,6 +289,30 @@ function ns:UpdateWidgetStack()
 	end
 	Restack()
 end
+
+-- Shows or hides the titles of all overlays. optionsShown: the options window
+-- opened or closed; nil when only the overlayTitles setting changed.
+function ns:UpdateOverlayTitles(shown)
+	if shown ~= nil then
+		optionsShown = shown
+	end
+	local visible = TitlesShown()
+	for frame in pairs(overlays) do
+		if frame.Title then
+			frame.Title:SetShown(visible)
+		end
+	end
+	Restack()
+end
+
+LibEditMode:RegisterCallback("enter", function()
+	editing = true
+	ns:UpdateOverlayTitles()
+end)
+LibEditMode:RegisterCallback("exit", function()
+	editing = false
+	ns:UpdateOverlayTitles()
+end)
 
 -- Opacity of the shared background (0–1). The border fades along, relative
 -- to its default, so the default background alpha keeps the default look.
