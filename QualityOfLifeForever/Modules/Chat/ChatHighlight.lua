@@ -50,6 +50,7 @@ local module = ns:NewModule("ChatHighlight", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 80,
 	defaults = {
 		name = true,
 		keywords = "",

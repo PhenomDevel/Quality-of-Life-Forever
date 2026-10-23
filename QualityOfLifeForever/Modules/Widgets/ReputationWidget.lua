@@ -55,6 +55,7 @@ local module = ns:NewModule("ReputationWidget", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "WIDGETS",
+	order = 30,
 	defaults = {
 		showRate = true,
 		fontSize = 11,
@@ -68,10 +69,10 @@ local module = ns:NewModule("ReputationWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
-		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
-		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
+		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{
 			type = "button",

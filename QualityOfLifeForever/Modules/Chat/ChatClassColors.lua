@@ -18,6 +18,7 @@ local module = ns:NewModule("ChatClassColors", {
 	description = L.DESC,
 	notice = L.NOTICE,
 	category = "CHAT",
+	order = 20,
 })
 
 function module:OnEnable()

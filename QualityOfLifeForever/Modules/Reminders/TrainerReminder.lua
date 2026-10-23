@@ -35,6 +35,7 @@ local module = ns:NewModule("TrainerReminder", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 30,
 	defaults = {
 		-- [player GUID] = { { name, rank, level, cost, icon }, ... }
 		characters = {},

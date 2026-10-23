@@ -19,6 +19,7 @@ local module = ns:NewModule("GossipSkip", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "QUESTS",
+	order = 20,
 })
 
 function module:GOSSIP_SHOW()

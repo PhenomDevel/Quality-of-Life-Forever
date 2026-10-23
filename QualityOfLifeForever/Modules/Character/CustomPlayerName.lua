@@ -27,6 +27,7 @@ local module = ns:NewModule("CustomPlayerName", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHARACTER",
+	order = 30,
 	defaults = {
 		name = "",
 	},

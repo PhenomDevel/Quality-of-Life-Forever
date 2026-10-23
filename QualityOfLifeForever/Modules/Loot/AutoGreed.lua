@@ -37,6 +37,7 @@ local module = ns:NewModule("AutoGreed", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "LOOT",
+	order = 40,
 	defaults = {
 		maxQuality = 2,
 		skipNeed = false,

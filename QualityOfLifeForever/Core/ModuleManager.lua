@@ -7,29 +7,26 @@ local Utils = ns.Utils
 -- Categories
 --------------------------------------------------------------------------------
 -- Every module belongs to exactly one category. The pages in the options
--- window are sorted by localized name. Empty categories are not shown.
+-- window follow this list, roughly by how often they are used. Empty
+-- categories are not shown.
 
 ns.categories = {
-	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
-	{ id = "ACTION_BARS", name = L.CATEGORY_ACTION_BARS },
-	{ id = "BAGS", name = L.CATEGORY_BAGS },
-	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
-	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
-	{ id = "REMINDERS", name = L.CATEGORY_REMINDERS },
-	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
-	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
-	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },
-	{ id = "LOOT", name = L.CATEGORY_LOOT },
 	{ id = "QUESTS", name = L.CATEGORY_QUESTS },
-	{ id = "SOCIAL", name = L.CATEGORY_SOCIAL },
+	{ id = "LOOT", name = L.CATEGORY_LOOT },
+	{ id = "MERCHANT", name = L.CATEGORY_MERCHANT },
+	{ id = "BAGS", name = L.CATEGORY_BAGS },
+	{ id = "WIDGETS", name = L.CATEGORY_WIDGETS },
+	{ id = "TOOLTIP", name = L.CATEGORY_TOOLTIP },
 	{ id = "CHAT", name = L.CATEGORY_CHAT },
 	{ id = "MAP", name = L.CATEGORY_MAP },
-	{ id = "WIDGETS", name = L.CATEGORY_WIDGETS },
+	{ id = "REMINDERS", name = L.CATEGORY_REMINDERS },
+	{ id = "ACTION_BARS", name = L.CATEGORY_ACTION_BARS },
+	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
+	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },
+	{ id = "SOCIAL", name = L.CATEGORY_SOCIAL },
+	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
+	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
 }
-
-table.sort(ns.categories, function(a, b)
-	return a.name:lower() < b.name:lower()
-end)
 
 local categoryById = {}
 for _, category in ipairs(ns.categories) do

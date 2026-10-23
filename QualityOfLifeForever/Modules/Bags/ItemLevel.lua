@@ -39,6 +39,7 @@ local module = ns:NewModule("ItemLevel", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "BAGS",
+	order = 10,
 	defaults = {
 		character = true,
 		bags = true,

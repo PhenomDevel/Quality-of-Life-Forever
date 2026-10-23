@@ -78,6 +78,7 @@ local module = ns:NewModule("PetHappiness", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 50,
 	defaults = {
 		warnAt = NEUTRAL,
 		sound = true,

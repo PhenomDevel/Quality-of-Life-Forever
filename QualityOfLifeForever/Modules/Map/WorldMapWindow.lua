@@ -41,6 +41,7 @@ local module = ns:NewModule("WorldMapWindow", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "MAP",
+	order = 20,
 	defaults = {
 		scale = 0.8,
 		movable = true,

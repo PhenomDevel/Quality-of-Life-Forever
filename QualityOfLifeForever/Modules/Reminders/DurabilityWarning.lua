@@ -41,6 +41,7 @@ local module = ns:NewModule("DurabilityWarning", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 10,
 	defaults = {
 		threshold = 20,
 		sound = true,

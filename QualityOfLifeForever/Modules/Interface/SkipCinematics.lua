@@ -33,6 +33,7 @@ local module = ns:NewModule("SkipCinematics", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "INTERFACE",
+	order = 10,
 	defaults = {
 		cinematics = true,
 		movies = true,

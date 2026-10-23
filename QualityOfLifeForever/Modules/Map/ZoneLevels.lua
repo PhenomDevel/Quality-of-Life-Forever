@@ -78,6 +78,7 @@ local module = ns:NewModule("ZoneLevels", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "MAP",
+	order = 10,
 	defaults = {
 		zoneMap = true,
 		continentMap = true,

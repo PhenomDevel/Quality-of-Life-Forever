@@ -22,6 +22,7 @@ local module = ns:NewModule("AutoDeclineDuels", {
 	title = L.TITLE,
 	description = L.DESC,
 	category = "SOCIAL",
+	order = 20,
 	defaultEnabled = false,
 	defaults = {
 		notify = true,

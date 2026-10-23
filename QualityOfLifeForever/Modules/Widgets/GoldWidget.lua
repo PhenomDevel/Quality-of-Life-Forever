@@ -67,6 +67,7 @@ local module = ns:NewModule("GoldWidget", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "WIDGETS",
+	order = 20,
 	defaults = {
 		showSession = true,
 		sessionReset = "LOGIN",
@@ -94,10 +95,10 @@ local module = ns:NewModule("GoldWidget", {
 			},
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
-		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
-		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
+		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{ key = "sessionReset", type = "dropdown", label = ns.L.SESSION_RESET, tooltip = ns.L.SESSION_RESET_DESC, values = ns.Utils.SessionResetValues() },
 		{

@@ -23,6 +23,7 @@ local module = ns:NewModule("TooltipIDs", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "TOOLTIP",
+	order = 30,
 })
 
 local function AddID(format)

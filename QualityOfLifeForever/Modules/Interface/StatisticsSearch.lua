@@ -19,6 +19,7 @@ local module = ns:NewModule("StatisticsSearch", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "INTERFACE",
+	order = 60,
 })
 
 local box

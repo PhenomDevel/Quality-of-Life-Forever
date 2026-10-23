@@ -59,6 +59,7 @@ local module = ns:NewModule("TalentReminder", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 40,
 	defaults = {
 		levelUp = true,
 		levelUpDelay = 60,

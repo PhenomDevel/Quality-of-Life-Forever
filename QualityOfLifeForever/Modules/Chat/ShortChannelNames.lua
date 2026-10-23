@@ -19,6 +19,7 @@ local module = ns:NewModule("ShortChannelNames", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 30,
 })
 
 -- Localized base names of the server channels (General, Trade, …).

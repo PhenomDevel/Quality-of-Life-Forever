@@ -39,6 +39,7 @@ local module = ns:NewModule("AutoAcceptSummonResurrect", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "SOCIAL",
+	order = 10,
 	defaults = {
 		summons = true,
 		resurrections = true,

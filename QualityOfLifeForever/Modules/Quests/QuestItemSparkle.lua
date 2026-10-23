@@ -22,6 +22,7 @@ local module = ns:NewModule("QuestItemSparkle", {
 	notice = L.NOTICE,
 	note = L.NOTE,
 	category = "QUESTS",
+	order = 50,
 })
 
 -- Enough on its own (verified in-game): outlines may stay on.

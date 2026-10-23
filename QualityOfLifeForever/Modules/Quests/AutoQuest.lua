@@ -37,6 +37,7 @@ local module = ns:NewModule("AutoQuest", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "QUESTS",
+	order = 10,
 	defaults = {
 		accept = true,
 		turnIn = true,

@@ -26,6 +26,7 @@ local module = ns:NewModule("BagFreeSlots", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "BAGS",
+	order = 20,
 	defaults = {
 		fontSize = 14,
 	},

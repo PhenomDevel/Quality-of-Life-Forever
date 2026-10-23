@@ -20,6 +20,7 @@ local module = ns:NewModule("InstantQuestText", {
 	description = L.DESC,
 	notice = L.NOTICE,
 	category = "QUESTS",
+	order = 30,
 })
 
 function module:OnEnable()

@@ -35,6 +35,7 @@ local module = ns:NewModule("UnitFrameText", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHARACTER",
+	order = 10,
 	defaults = {
 		playerHealth = 12,
 		playerMana = 12,

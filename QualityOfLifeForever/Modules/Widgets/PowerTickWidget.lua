@@ -56,6 +56,7 @@ local module = ns:NewModule("PowerTickWidget", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "WIDGETS",
+	order = 70,
 	defaults = {
 		countdown = true,
 		countdownSize = 12,
@@ -71,12 +72,12 @@ local module = ns:NewModule("PowerTickWidget", {
 		{ key = "countdown", type = "checkbox", label = L.COUNTDOWN, tooltip = L.COUNTDOWN_DESC },
 		{ key = "countdownSize", type = "slider", label = L.COUNTDOWN_SIZE, tooltip = L.COUNTDOWN_SIZE_DESC, min = 8, max = 24, step = 1, format = FormatPixels },
 		{ type = "header", label = L.SECTION_LOOK },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		{ key = "width", type = "slider", label = L.WIDTH, tooltip = L.WIDTH_DESC, min = 60, max = 300, step = 10, format = FormatPixels },
 		{ key = "height", type = "slider", label = L.HEIGHT, tooltip = L.HEIGHT_DESC, min = 4, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		ns:TitleOption(),
-		ns:TextOutlineOption(),
-		ns:TextShadowOption(),
 	},
 })
 

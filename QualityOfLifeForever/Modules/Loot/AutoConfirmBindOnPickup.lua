@@ -19,6 +19,7 @@ local module = ns:NewModule("AutoConfirmBindOnPickup", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "LOOT",
+	order = 30,
 })
 
 function module:OnEnable()
