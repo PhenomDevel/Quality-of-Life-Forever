@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.12.0 (2026-10-23)
+
+### Options
+- New: "What's new" window – after an update to a new version it shows the
+  most important changes once; turn it off under General, open it again with
+  the button there or `/qol news`
+- New: preview switch in the title bar of the options – turn off the sample
+  widgets, frame titles and sample reminder while the options are open
+
 ## v0.11.0 (2026-10-23)
 
 ### Options
