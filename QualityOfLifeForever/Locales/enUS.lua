@@ -130,3 +130,13 @@ L.TEXT_OUTLINE_THIN = "Thin"
 L.TEXT_OUTLINE_THICK = "Thick"
 L.TEXT_SHADOW = "Text shadow"
 L.TEXT_SHADOW_DESC = "Draws a small shadow below the widget's text."
+
+-- What's new
+L.SETTING_WHATS_NEW = "What's new after updates"
+L.SETTING_WHATS_NEW_DESC = "After an update to a new version (e.g. 0.11 → 0.12, not for small fixes), shows a window with the most important changes once."
+L.WHATS_NEW_SHOW = "What's new"
+L.WHATS_NEW_SHOW_DESC = "Shows the changes of the current version. Also: |cffffd100/qol news|r"
+L.WHATS_NEW_TITLE = "What's new"
+L.WHATS_NEW_VERSION = "Version %s"
+L.WHATS_NEW_HINT = "Turn this window off in the options under General."
+L.SLASH_HELP_NEWS = "|cffffd100/qol news|r - show what's new in this version"

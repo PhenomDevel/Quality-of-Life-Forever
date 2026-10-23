@@ -125,3 +125,13 @@ L.TEXT_OUTLINE_THIN = "Dünn"
 L.TEXT_OUTLINE_THICK = "Dick"
 L.TEXT_SHADOW = "Textschatten"
 L.TEXT_SHADOW_DESC = "Zeichnet einen kleinen Schatten unter den Text des Widgets."
+
+-- What's new
+L.SETTING_WHATS_NEW = "Neuerungen nach Updates"
+L.SETTING_WHATS_NEW_DESC = "Zeigt nach einem Update auf eine neue Version (z. B. 0.11 → 0.12, nicht bei kleinen Fehlerbehebungen) einmal ein Fenster mit den wichtigsten Änderungen."
+L.WHATS_NEW_SHOW = "Neuerungen"
+L.WHATS_NEW_SHOW_DESC = "Zeigt die Änderungen der aktuellen Version. Auch: |cffffd100/qol news|r"
+L.WHATS_NEW_TITLE = "Neuerungen"
+L.WHATS_NEW_VERSION = "Version %s"
+L.WHATS_NEW_HINT = "Abschaltbar in den Optionen unter Allgemein."
+L.SLASH_HELP_NEWS = "|cffffd100/qol news|r - Neuerungen dieser Version anzeigen"

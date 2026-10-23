@@ -60,7 +60,10 @@ in-game; there are no automated tests.
 ## Release
 
 Add a section for the version to `CHANGELOG.md` (the whole file is uploaded
-as release notes, so keep it user-facing), merge it, then run *Actions →
+as release notes, so keep it user-facing). For a new minor or major version,
+also add a short entry (enUS + deDE) to `QualityOfLifeForever/Locales/WhatsNew.lua`:
+players updating from an older minor version see it once in the "What's new"
+window. Merge it, then run *Actions →
 Release → Run workflow* on `main` with the version (`v0.1.0`, or
 `v0.1.0-beta1` / `-alpha1` for test releases). Test releases of the 2.0
 redesign are started on the `2.0` branch and must be alpha or beta versions. The workflow checks that the
