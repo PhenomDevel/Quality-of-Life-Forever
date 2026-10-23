@@ -54,6 +54,7 @@ Modules\Bags\ShowDurability.lua
 
 # Cooldown manager
 Modules\CooldownManager\CooldownKeybinds.lua
+Modules\CooldownManager\CooldownTextPosition.lua
 
 # Character
 Modules\Character\CustomPlayerName.lua
