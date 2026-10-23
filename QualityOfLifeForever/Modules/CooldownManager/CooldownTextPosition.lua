@@ -1,16 +1,11 @@
--- luacheck: read globals C_AddOns InCombatLockdown
+-- luacheck: read globals C_AddOns
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Cooldown text position",
 		NOTE = "Moves the countdown numbers away from the center",
-		DESC = "Places the remaining cooldown time on the icons of the cooldown manager and the action bars at a corner or edge instead of the center.",
-		VIEWER = "Cooldown manager",
-		ACTIONBARS = "Action bars",
-		ENABLE = "Move cooldown text",
-		ENABLE_VIEWER_DESC = "Moves the cooldown text on the icons of the cooldown manager.",
-		ENABLE_ACTIONBARS_DESC = "Moves the cooldown text on the action buttons. Changes wait until you leave combat.",
+		DESC = "Places the remaining cooldown time on the icons of the cooldown manager at a corner or edge instead of the center.",
 		POSITION = "Position",
 		POSITION_DESC = "Where on the icon the cooldown text is shown.",
 		OFFSET_X = "Horizontal offset",
@@ -30,12 +25,7 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Position des Abklingzeit-Texts",
 		NOTE = "Verschiebt die Countdown-Zahlen aus der Mitte",
-		DESC = "Zeigt die verbleibende Abklingzeit auf den Symbolen des Cooldown-Managers und der Aktionsleisten an einer Ecke oder Kante statt in der Mitte.",
-		VIEWER = "Cooldown-Manager",
-		ACTIONBARS = "Aktionsleisten",
-		ENABLE = "Abklingzeit-Text verschieben",
-		ENABLE_VIEWER_DESC = "Verschiebt den Abklingzeit-Text auf den Symbolen des Cooldown-Managers.",
-		ENABLE_ACTIONBARS_DESC = "Verschiebt den Abklingzeit-Text auf den Aktionstasten. Änderungen warten, bis du den Kampf verlässt.",
+		DESC = "Zeigt die verbleibende Abklingzeit auf den Symbolen des Cooldown-Managers an einer Ecke oder Kante statt in der Mitte.",
 		POSITION = "Position",
 		POSITION_DESC = "Wo auf dem Symbol der Abklingzeit-Text angezeigt wird.",
 		OFFSET_X = "Horizontaler Versatz",
@@ -69,91 +59,43 @@ local function FormatPixels(value)
 	return ("%d px"):format(value)
 end
 
--- Settings per group, stored as <prefix>, <prefix>Position, <prefix>X, <prefix>Y
-local GROUPS = {
-	{ prefix = "viewer", label = L.VIEWER, enableDesc = L.ENABLE_VIEWER_DESC, position = "BOTTOMRIGHT" },
-	{ prefix = "actionbars", label = L.ACTIONBARS, enableDesc = L.ENABLE_ACTIONBARS_DESC, position = "BOTTOMRIGHT" },
-}
-
-local defaults, options = {}, {}
-for _, group in ipairs(GROUPS) do
-	local p = group.prefix
-	defaults[p] = true
-	defaults[p .. "Position"] = group.position
-	defaults[p .. "X"] = 0
-	defaults[p .. "Y"] = 0
-	for _, option in ipairs({
-		{ type = "header", label = group.label },
-		{ key = p, type = "checkbox", label = L.ENABLE, tooltip = group.enableDesc },
-		{ key = p .. "Position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
-		{ key = p .. "X", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
-		{ key = p .. "Y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
-	}) do
-		options[#options + 1] = option
-	end
-end
-
 local module = ns:NewModule("CooldownTextPosition", {
 	title = L.TITLE,
 	description = L.DESC,
 	note = L.NOTE,
 	category = "COOLDOWN_MANAGER",
-	defaults = defaults,
-	options = options,
+	defaults = {
+		position = "BOTTOMRIGHT",
+		x = 0,
+		y = 0,
+	},
+	options = {
+		{ key = "position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
+		{ key = "x", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
+		{ key = "y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
+	},
 })
 
 local VIEWERS = { "EssentialCooldownViewer", "UtilityCooldownViewer", "BuffIconCooldownViewer" }
 
--- MainActionBar is the Midnight name, MainMenuBar the older one.
-local ACTION_BARS = {
-	"MainActionBar", "MainMenuBar", "MultiBarBottomLeft", "MultiBarBottomRight",
-	"MultiBarRight", "MultiBarLeft", "MultiBar5", "MultiBar6", "MultiBar7",
-}
-
 -- countdown FontString -> its original anchors, to restore on disable
 local originals = {}
 
-local function SavePoints(text)
-	if originals[text] then
-		return
-	end
-	local points = {}
-	for i = 1, text:GetNumPoints() do
-		points[i] = { text:GetPoint(i) }
-	end
-	originals[text] = points
-end
-
-local function RestorePoints(text)
-	local points = originals[text]
-	if not points then
-		return
-	end
-	text:ClearAllPoints()
-	for _, point in ipairs(points) do
-		text:SetPoint(unpack(point))
-	end
-	originals[text] = nil
-end
-
-local function CountdownText(cooldown)
-	return cooldown and cooldown.GetCountdownFontString and cooldown:GetCountdownFontString()
-end
-
-local function Place(cooldown, prefix)
-	local text = CountdownText(cooldown)
+local function Place(cooldown)
+	local text = cooldown and cooldown.GetCountdownFontString and cooldown:GetCountdownFontString()
 	if not text then
 		return
 	end
-	local db = module.db
-	if not module.enabled or not db[prefix] then
-		RestorePoints(text)
-		return
+	if not originals[text] then
+		local points = {}
+		for i = 1, text:GetNumPoints() do
+			points[i] = { text:GetPoint(i) }
+		end
+		originals[text] = points
 	end
-	SavePoints(text)
-	local point = db[prefix .. "Position"]
+	local db = module.db
 	text:ClearAllPoints()
-	text:SetPoint(point, cooldown, point, db[prefix .. "X"], db[prefix .. "Y"])
+	text:SetPoint(db.position, cooldown, db.position, db.x, db.y)
 end
 
 function module:UpdateViewer(frame)
@@ -161,7 +103,7 @@ function module:UpdateViewer(frame)
 		return
 	end
 	for _, item in ipairs(frame:GetItemFrames()) do
-		Place(item.Cooldown, "viewer")
+		Place(item.Cooldown)
 	end
 end
 
@@ -170,23 +112,6 @@ function module:UpdateViewers()
 		local frame = _G[name]
 		if frame then
 			self:UpdateViewer(frame)
-		end
-	end
-end
-
--- Action buttons are secure; their regions are only touched out of combat.
-function module:UpdateActionBars()
-	if InCombatLockdown() then
-		self:RegisterEvent("PLAYER_REGEN_ENABLED", "UpdateActionBars")
-		return
-	end
-	self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-	for _, name in ipairs(ACTION_BARS) do
-		local bar = _G[name]
-		if bar and bar.actionButtons then
-			for _, button in ipairs(bar.actionButtons) do
-				Place(button.cooldown, "actionbars")
-			end
 		end
 	end
 end
@@ -211,8 +136,6 @@ function module:ADDON_LOADED(name)
 end
 
 function module:OnEnable()
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateActionBars")
-	self:UpdateActionBars()
 	if C_AddOns.IsAddOnLoaded("Blizzard_CooldownViewer") then
 		self:HookViewers()
 	else
@@ -220,35 +143,16 @@ function module:OnEnable()
 	end
 end
 
--- Module events are unregistered on disable, so a restore that has to wait
--- for the end of combat goes through the addon's own event frame.
-local restorePending, restoreHooked
-
-local function RestoreAfterCombat()
-	if restorePending and not module.enabled then
-		module:UpdateActionBars()
-	end
-	restorePending = false
-end
-
 function module:OnDisable()
-	-- Place() restores every text while the module is disabled.
-	self:UpdateViewers()
-	if InCombatLockdown() then
-		restorePending = true
-		if not restoreHooked then
-			restoreHooked = true
-			ns:RegisterEvent("PLAYER_REGEN_ENABLED", RestoreAfterCombat)
+	for text, points in pairs(originals) do
+		text:ClearAllPoints()
+		for _, point in ipairs(points) do
+			text:SetPoint(unpack(point))
 		end
-	else
-		self:UpdateActionBars()
 	end
+	wipe(originals)
 end
 
-function module:OnOptionChanged(key)
-	if key:find("^viewer") then
-		self:UpdateViewers()
-	else
-		self:UpdateActionBars()
-	end
+function module:OnOptionChanged()
+	self:UpdateViewers()
 end
