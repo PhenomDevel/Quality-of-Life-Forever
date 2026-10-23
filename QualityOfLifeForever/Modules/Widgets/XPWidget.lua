@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString SecondsToTime MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -21,10 +21,6 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
-		LEVEL_TIMES = "Last level times",
-		LEVEL_TIMES_DESC = "Shows how long the last levels took in played time. A level counts once it was tracked from its start; typing /played makes the current level count right away.",
-		LEVEL_TIMES_OFF = "Off",
-		LEVEL_TIME = "Level %d: %s",
 		LAYOUT = "Layout",
 		LAYOUT_DESC = "Horizontal: wide, with the bar between the text rows. Vertical: narrow, with the bar on the left filling from bottom to top and the texts stacked next to it.",
 		LAYOUT_HORIZONTAL = "Horizontal",
@@ -60,10 +56,6 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
-		LEVEL_TIMES = "Dauer der letzten Stufen",
-		LEVEL_TIMES_DESC = "Zeigt, wie lange die letzten Stufen an Spielzeit gedauert haben. Eine Stufe zählt, wenn sie von Anfang an erfasst wurde; mit /played zählt die aktuelle Stufe sofort.",
-		LEVEL_TIMES_OFF = "Aus",
-		LEVEL_TIME = "Stufe %d: %s",
 		LAYOUT = "Ausrichtung",
 		LAYOUT_DESC = "Horizontal: breit, die Leiste zwischen den Textzeilen. Vertikal: schmal, die Leiste links wird von unten nach oben gefüllt, die Texte stehen untereinander daneben.",
 		LAYOUT_HORIZONTAL = "Horizontal",
@@ -86,11 +78,6 @@ local function FormatPercent(value)
 	return ("%d%%"):format(value)
 end
 
-local levelTimeValues = { { value = 0, label = L.LEVEL_TIMES_OFF } }
-for count = 1, 5 do
-	levelTimeValues[#levelTimeValues + 1] = { value = count, label = tostring(count) }
-end
-
 local module = ns:NewModule("XPWidget", {
 	title = L.TITLE,
 	description = L.DESC,
@@ -100,7 +87,6 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
-		levelTimes = 3,
 		sessionReset = "LOGIN",
 		layout = "HORIZONTAL",
 		fontSize = 11,
@@ -112,7 +98,6 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
-		{ key = "levelTimes", type = "dropdown", label = L.LEVEL_TIMES, tooltip = L.LEVEL_TIMES_DESC, values = levelTimeValues },
 		{ type = "header", label = L.SECTION_LOOK },
 		{
 			key = "layout",
@@ -203,10 +188,6 @@ local function CreateWidget()
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
 	frame.Quests = CreateText(frame, "RIGHT")
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
-	-- One line per level.
-	frame.Times = CreateText(frame, "LEFT")
-	frame.Times:SetTextColor(0.72, 0.72, 0.74)
-	frame.Times:SetSpacing(ROW_GAP)
 end
 
 local function IsVertical()
@@ -289,23 +270,12 @@ function module:QueueQuestScan()
 end
 
 -- Rows that are shown decide the size: in the horizontal layout only a 4th
--- row for quest XP below rested XP, in the vertical one every optional row;
--- in both the number of level times.
+-- row for quest XP below rested XP, in the vertical one every optional row.
 function module:GetLayoutKey()
-	local times = frame.timeLines or 0
 	if IsVertical() then
-		return ("V%d%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0, HasText(frame.Rate) and 1 or 0, times)
+		return ("V%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0, HasText(frame.Rate) and 1 or 0)
 	end
-	return ((HasText(frame.Rested) and HasText(frame.Quests)) and "H4" or "H3") .. times
-end
-
-function module:UpdateLevelTimes()
-	local lines = {}
-	for _, entry in ipairs(XPSession.GetLevelTimes(self.db.levelTimes)) do
-		lines[#lines + 1] = L.LEVEL_TIME:format(entry.level, SecondsToTime(math.max(entry.seconds, 60), true))
-	end
-	frame.timeLines = #lines
-	frame.Times:SetText(table.concat(lines, "\n"))
+	return (HasText(frame.Rested) and HasText(frame.Quests)) and "H4" or "H3"
 end
 
 function module:Update()
@@ -336,7 +306,6 @@ function module:Update()
 	else
 		frame.Rate:SetText("")
 	end
-	self:UpdateLevelTimes()
 
 	local layoutKey = self:GetLayoutKey()
 	if layoutKey ~= self.layoutKey then
@@ -444,12 +413,6 @@ local function LayoutHorizontal(size, lineHeight)
 	else
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	end
-	local times = frame.timeLines or 0
-	if times > 0 then
-		height = height - PADDING + ROW_GAP
-		PlaceText(frame.Times, "LEFT", 0, "TOPLEFT", PADDING, -height)
-		height = height + times * lineHeight + (times - 1) * ROW_GAP + PADDING
-	end
 	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
 end
 
@@ -468,17 +431,11 @@ local function LayoutVertical(size, lineHeight)
 		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + (i - 1) * (lineHeight + ROW_GAP)))
 	end
 	local rowsHeight = #rows * lineHeight + (#rows - 1) * ROW_GAP
-	local contentHeight = rowsHeight
-	local times = frame.timeLines or 0
-	if times > 0 then
-		PlaceText(frame.Times, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + rowsHeight + ROW_GAP))
-		contentHeight = rowsHeight + ROW_GAP + times * lineHeight + (times - 1) * ROW_GAP
-	end
 	local bar = frame.Bar
 	bar:SetOrientation("VERTICAL")
 	bar:SetSize(BAR_HEIGHT, rowsHeight)
 	bar:SetPoint("TOPLEFT", PADDING, -PADDING)
-	frame:SetSize(textLeft + textWidth + PADDING, contentHeight + PADDING * 2)
+	frame:SetSize(textLeft + textWidth + PADDING, rowsHeight + PADDING * 2)
 end
 
 -- Font, layout and size follow the text size and the shown rows.
@@ -486,7 +443,7 @@ function module:ApplyLayout()
 	local size = self.db.fontSize
 	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
 	frame.Bar:ClearAllPoints()
-	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests, frame.Times }) do
+	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests }) do
 		text:ClearAllPoints()
 	end
 	if IsVertical() then
