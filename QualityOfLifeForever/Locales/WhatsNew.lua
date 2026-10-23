@@ -5,6 +5,19 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "0.12",
+		enUS = {
+			"# Options",
+			"This window: after updates it shows what's new once; turn it off under General, open it again with /qol news",
+			"Preview switch in the title bar of the options: turn the sample widgets and reminders off while the options are open",
+		},
+		deDE = {
+			"# Optionen",
+			"Dieses Fenster: zeigt nach Updates einmal die Neuerungen; abschaltbar unter Allgemein, wieder öffnen mit /qol news",
+			"Vorschau-Schalter in der Titelleiste der Optionen: Beispiel-Widgets und -Erinnerungen bei offenen Optionen ausblenden",
+		},
+	},
+	{
 		version = "0.11",
 		enUS = {
 			"# Options",
