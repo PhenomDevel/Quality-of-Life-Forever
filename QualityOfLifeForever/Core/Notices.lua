@@ -183,6 +183,7 @@ function ns:InitializeNotices()
 	-- Invisible and click-through; only Edit Mode's selection shows it.
 	anchor = ns:CreateOverlay("Notices", {
 		title = L.NOTICES_EDIT_MODE_NAME,
+		noTitle = true,
 		width = WIDTH,
 		height = 48,
 		default = { point = "BOTTOMRIGHT", x = -20, y = 220 },

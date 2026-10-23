@@ -10,6 +10,7 @@ local GLOBAL_DEFAULTS = {
 	printMessages = true,
 	notices = true,
 	stackWidgets = false,
+	overlayTitles = false,
 	debug = false,
 	minimapButton = true,
 	minimapAngle = 225,
@@ -36,7 +37,7 @@ end
 	Layout of QualityOfLifeForeverDB (account wide):
 	{
 		version = 1,
-		global = { printMessages = true, notices = true, stackWidgets = false, debug = false, minimapButton = true, minimapAngle = 225, overlays = {} },
+		global = { printMessages = true, notices = true, stackWidgets = false, overlayTitles = false, debug = false, minimapButton = true, minimapAngle = 225, overlays = {} },
 		modules = {
 			AutoRepair = { enabled = true, useGuildFunds = true },
 			...
