@@ -16,7 +16,7 @@ L.UNKNOWN_VERSION = "dev"
 
 -- Categories
 L.CATEGORY_INTERFACE = "Interface & Misc"
-L.CATEGORY_ACTION_BARS = "Action Bars"
+L.CATEGORY_ACTION_BARS = "Action bars"
 L.CATEGORY_BAGS = "Bags & items"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Merchant & trainer"
@@ -103,16 +103,16 @@ L.MINIMAP_HINT_DRAG = "|cffffd100Drag|r to move the button."
 L.OVERLAY_SCALE = "Scale"
 L.EDIT_MODE_COMBAT = "Edit Mode is not available in combat."
 
--- Notices
-L.SETTING_NOTICES = "Popup notices"
-L.SETTING_NOTICES_DESC = "Shows hints and reminders (e.g. new trainer skills, unspent talent points) as small popups instead of in the chat. They only appear out of combat; move them in {Edit Mode}. Click a popup to close it."
+-- Reminders (notices)
+L.SETTING_NOTICES = "Reminder popups"
+L.SETTING_NOTICES_DESC = "Shows reminders (e.g. new trainer skills, unspent talent points) as small popups instead of in the chat. They only appear out of combat; move them in {Edit Mode}. Click a popup to close it."
 L.NOTICES_TEST = "Test popup"
 L.NOTICES_TEST_DESC = "Shows a sample popup, e.g. to check its position."
 L.NOTICES_TEST_BUTTON = "Show"
-L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Notices"
+L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Reminders"
 L.NOTICES_TEST_TITLE = "Quality of Life Forever"
-L.NOTICES_TEST_TEXT = "Hints and reminders appear here. Move them in {Edit Mode}; click to close."
-L.NOTICES_PREVIEW_TEXT = "Hints and reminders appear here. Drag this frame to move them."
+L.NOTICES_TEST_TEXT = "Reminders appear here. Move them in {Edit Mode}; click to close."
+L.NOTICES_PREVIEW_TEXT = "Reminders appear here. Drag this frame to move them."
 
 -- Widget stack
 L.SETTING_STACK_WIDGETS = "Combine widgets"

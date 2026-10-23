@@ -80,7 +80,7 @@ doesn't take others down.
 | `self:SecureHook([table,] "func", handler)` | `hooksecurefunc` that only fires while enabled |
 | `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript` that only fires while enabled |
 | `self:Print(...)`                         | Chat output (respects the global "Show chat messages" option) |
-| `self:Notice(text[, icon[, key]])`        | Small popup for hints and reminders, shown only out of combat (queued during combat); falls back to chat when the global "Popup notices" option is off. A newer notice with the same key (default: the module name) replaces the older one |
+| `self:Notice(text[, icon[, key]])`        | Small popup for hints and reminders, shown only out of combat (queued during combat); falls back to chat when the global "Reminder popups" option is off. A newer notice with the same key (default: the module name) replaces the older one |
 | `self:Debug(...)`                         | Output only in debug mode (`/qol debug`) |
 | `self:GetOption(key)` / `self:SetOption(key, value)` | Read/write options (keeps the options window in sync) |
 | `self:SetCVar(name, value)`               | Set a CVar; the original value is persisted in the module DB and restored on disable. Returns `false` for unknown CVars. |
