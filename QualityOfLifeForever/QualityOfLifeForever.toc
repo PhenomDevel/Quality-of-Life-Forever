@@ -20,6 +20,7 @@ Libs\LibEditMode\embed.xml
 # Locales (enUS must be loaded first, it defines the fallback table)
 Locales\enUS.lua
 Locales\deDE.lua
+Locales\WhatsNew.lua
 
 # Core
 Core\Init.lua
@@ -35,6 +36,7 @@ Core\MinimapButton.lua
 Core\Overlays.lua
 Core\Notices.lua
 Core\XPSession.lua
+Core\WhatsNew.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
