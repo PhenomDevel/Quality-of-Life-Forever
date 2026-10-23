@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.11.0 (2026-10-23)
+
+### Options
+- New category **Action bars**; Interface is now **Interface & Misc**
+- Modules within a category are sorted by how often they are likely used;
+  widget options follow the same order everywhere (Show → widget-specific →
+  Appearance → Session)
+- Consistent names: frame titles and Edit Mode names match the module titles,
+  popups are called reminders everywhere
+
+### Action bars
+- New: action bars – move the cooldown numbers on all action bars to a corner
+  or edge, with X/Y offset
+
+### Cooldown manager
+- New: cooldown text position – move the countdown numbers on the cooldown
+  manager icons (default bottom right)
+- Out of range indicator: keybind turns red and the icon gray while the
+  target is out of range
+
+### Character
+- New: health and mana text size for the player and target frames
+
+### Widgets
+- Every widget can show its title; while the options or Edit Mode are open,
+  all titles and a light highlight show where each frame is
+- Text outline and shadow options for every widget
+- XP widget: bar length and thickness options
+- XP widget: last level times removed
+- Five second rule: energy tick removed; the widget only shows the mana
+  countdown
+
+### Reminders
+- Missing self-buffs are shown as an icon bar; click an icon to cast the
+  buff. The bar shows while the options or Edit Mode are open, so it can be
+  placed
+- While the options are open, a sample reminder shows where reminders appear;
+  drag it to move them
+
+### License
+- The addon is now MIT licensed (was GPL-3.0)
+
 ## v0.10.0 (2026-10-19)
 
 ### Options
