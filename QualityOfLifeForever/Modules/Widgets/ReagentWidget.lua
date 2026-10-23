@@ -81,6 +81,7 @@ local module = ns:NewModule("ReagentWidget", {
 		backgroundOpacity = 92,
 		textOutline = "NONE",
 		textShadow = true,
+		showTitle = false,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -102,6 +103,7 @@ local module = ns:NewModule("ReagentWidget", {
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
 		{
@@ -179,6 +181,7 @@ end
 local function CreateWidget()
 	frame = ns:CreateOverlay("ReagentWidget", {
 		title = L.EDIT_MODE_NAME,
+		module = module,
 		width = 80,
 		height = 26,
 		default = { point = "TOP", x = 0, y = -280 },

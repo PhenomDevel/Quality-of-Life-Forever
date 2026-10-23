@@ -113,6 +113,7 @@ local module = ns:NewModule("XPWidget", {
 		backgroundOpacity = 92,
 		textOutline = "NONE",
 		textShadow = true,
+		showTitle = false,
 		hideBlizzardBar = false,
 	},
 	options = {
@@ -136,6 +137,7 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "barLength", type = "slider", label = L.BAR_LENGTH, tooltip = L.BAR_LENGTH_DESC, min = 0, max = 600, step = 10, format = FormatLength },
 		{ key = "barThickness", type = "slider", label = L.BAR_THICKNESS, tooltip = L.BAR_THICKNESS_DESC, min = 2, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
 		{ type = "header", label = L.SECTION_SESSION },
@@ -186,6 +188,7 @@ end
 local function CreateWidget()
 	frame = ns:CreateOverlay("XPWidget", {
 		title = L.EDIT_MODE_NAME,
+		module = module,
 		width = BASE_WIDTH,
 		height = 44,
 		default = { point = "TOP", x = 0, y = -120 },
