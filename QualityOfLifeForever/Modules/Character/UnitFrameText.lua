@@ -121,6 +121,9 @@ function module:OnOptionChanged()
 end
 
 function module:OnEnable()
+	-- Re-applied on world entry in case Blizzard reset the fonts after a
+	-- loading screen or vehicle swap.
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "Apply")
 	self:Apply()
 end
 
