@@ -2,7 +2,29 @@
 
 ## v0.10.0 (2026-10-19)
 
-TODO
+### Options
+- Category pages show a list of modules on the left and the selected
+  module's options on the right; modules can be switched on and off right in
+  the list, and the description is shown at the top of the options
+- The selected module is remembered per page; the search uses the same layout
+- Minimum window width is now 900 px
+
+### Chat
+- New: copy chat – a small button on every chat window opens its history as
+  plain text, ready to copy with Ctrl+C
+- Chat filters (spam filter, guild ads tab, highlight, clickable URLs) do less
+  work per message
+
+### Reminders
+- New: missing self-buffs – a popup out of combat when a long-lasting class
+  buff you know is missing (e.g. Arcane Intellect, Inner Fire, Mark of the
+  Wild); optional sound, not in rest areas by default
+
+### Widgets
+- New: junk widget – the cheapest gray items in your bags with their vendor
+  value; click an item to delete it (no confirmation, gray items only)
+- Five second rule: countdown of the seconds left in the middle of the bar,
+  with adjustable size
 
 ## v0.9.0 (2026-10-18)
 
