@@ -7,8 +7,7 @@ local Utils = ns.Utils
 -- Categories
 --------------------------------------------------------------------------------
 -- Every module belongs to exactly one category. The pages in the options
--- window follow this list, roughly by how often they are used. Empty
--- categories are not shown.
+-- window are sorted by localized name. Empty categories are not shown.
 
 ns.categories = {
 	{ id = "QUESTS", name = L.CATEGORY_QUESTS },
@@ -27,6 +26,10 @@ ns.categories = {
 	{ id = "GRAPHICS", name = L.CATEGORY_GRAPHICS },
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
 }
+
+table.sort(ns.categories, function(a, b)
+	return a.name:lower() < b.name:lower()
+end)
 
 local categoryById = {}
 for _, category in ipairs(ns.categories) do
