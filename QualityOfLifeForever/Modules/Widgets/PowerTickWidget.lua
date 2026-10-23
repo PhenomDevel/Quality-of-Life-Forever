@@ -64,6 +64,7 @@ local module = ns:NewModule("PowerTickWidget", {
 		backgroundOpacity = 92,
 		textOutline = "OUTLINE",
 		textShadow = false,
+		showTitle = false,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_MANA },
@@ -73,6 +74,7 @@ local module = ns:NewModule("PowerTickWidget", {
 		{ key = "width", type = "slider", label = L.WIDTH, tooltip = L.WIDTH_DESC, min = 60, max = 300, step = 10, format = FormatPixels },
 		{ key = "height", type = "slider", label = L.HEIGHT, tooltip = L.HEIGHT_DESC, min = 4, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
 	},
@@ -132,6 +134,7 @@ end
 local function CreateWidget()
 	frame = ns:CreateOverlay("PowerTickWidget", {
 		title = L.EDIT_MODE_NAME,
+		module = module,
 		width = 140,
 		height = 12,
 		default = { point = "CENTER", x = 0, y = -160 },

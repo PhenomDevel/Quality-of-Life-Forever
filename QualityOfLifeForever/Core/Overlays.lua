@@ -15,8 +15,9 @@ local LibEditMode = ns.LibEditMode
 	Frames can't be removed from LibEditMode, so an overlay is created once
 	and its module shows/hides it. A hidden overlay is not shown in Edit Mode.
 
-	Each overlay has a small title above it, shown while the options window or
-	Edit Mode is open, or always with ns.db.global.overlayTitles.
+	Each overlay has a small title right above it and a light background over
+	both, shown while the options window or Edit Mode is open. The title also
+	shows outside of that when the owning module's showTitle option is on.
 ]]
 
 local overlays = {}
@@ -33,16 +34,34 @@ ns.overlayFont:SetShadowColor(0, 0, 0, 0.8)
 local titleFont = CreateFont("QualityOfLifeForeverOverlayTitleFont")
 titleFont:SetFont(STANDARD_TEXT_FONT, 10, "OUTLINE")
 titleFont:SetTextColor(1, 0.82, 0)
-local TITLE_GAP = 2
+local HIGHLIGHT = { 1, 1, 1, 0.12 }
 local optionsShown, editing = false, false
 
-local function TitlesShown()
-	return optionsShown or editing or ns.db.global.overlayTitles
+local function Arranging()
+	return optionsShown or editing
+end
+
+local function TitleShown(frame)
+	if Arranging() then
+		return true
+	end
+	local module = overlays[frame] and overlays[frame].module
+	return module ~= nil and module.db.showTitle == true
 end
 
 -- Extra space a widget needs above it for its title.
 local function TitleSpace(frame)
-	return frame.Title and frame.Title:IsShown() and frame.Title:GetStringHeight() + TITLE_GAP or 0
+	return frame.Title and frame.Title:IsShown() and frame.Title:GetStringHeight() or 0
+end
+
+local function UpdateTitle(frame)
+	if frame.Title then
+		frame.Title:SetShown(TitleShown(frame))
+	end
+	if frame.Highlight then
+		frame.Highlight:SetPoint("TOPLEFT", 0, TitleSpace(frame))
+		frame.Highlight:SetShown(Arranging())
+	end
 end
 
 local function GetLayoutData(key, layoutName, create)
@@ -204,6 +223,8 @@ end
 		label    = title shown above the overlay; defaults to title without
 		           the "QoL Forever: " prefix
 		noTitle  = true for overlays without a title (invisible anchors)
+		module   = owning module; its db.showTitle keeps the title visible,
+		           see ns:TitleOption()
 	}
 	Returns the hidden overlay frame.
 ]]
@@ -219,15 +240,20 @@ function ns:CreateOverlay(key, info)
 
 	ns:AddPanelBackground(frame)
 
+	overlays[frame] = { key = key, default = info.default, module = info.module }
+
 	if not info.noTitle then
 		frame.Title = frame:CreateFontString(nil, "OVERLAY")
 		frame.Title:SetFontObject(titleFont)
-		frame.Title:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, TITLE_GAP)
+		frame.Title:SetPoint("BOTTOMLEFT", frame, "TOPLEFT")
 		frame.Title:SetText(info.label or info.title:gsub("^QoL Forever: ", ""))
-		frame.Title:SetShown(TitlesShown())
+		-- Marks the area of title and frame while arranging, also with a
+		-- transparent widget background.
+		frame.Highlight = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
+		frame.Highlight:SetColorTexture(unpack(HIGHLIGHT))
+		frame.Highlight:SetPoint("BOTTOMRIGHT")
+		UpdateTitle(frame)
 	end
-
-	overlays[frame] = { key = key, default = info.default }
 	LibEditMode:AddFrame(frame, OnPositionChanged, info.default, info.title)
 
 	local settings = {
@@ -290,19 +316,22 @@ function ns:UpdateWidgetStack()
 	Restack()
 end
 
--- Shows or hides the titles of all overlays. optionsShown: the options window
--- opened or closed; nil when only the overlayTitles setting changed.
+-- Shows or hides the titles and highlights of all overlays. shown: the
+-- options window opened or closed; nil when only a showTitle option changed.
 function ns:UpdateOverlayTitles(shown)
 	if shown ~= nil then
 		optionsShown = shown
 	end
-	local visible = TitlesShown()
 	for frame in pairs(overlays) do
-		if frame.Title then
-			frame.Title:SetShown(visible)
-		end
+		UpdateTitle(frame)
 	end
 	Restack()
+end
+
+-- Per-module option to keep the overlay title visible; a module lists it and
+-- adds showTitle = false to its defaults.
+function ns:TitleOption()
+	return { key = "showTitle", type = "checkbox", label = L.SHOW_TITLE, tooltip = L.SHOW_TITLE_DESC }
 end
 
 LibEditMode:RegisterCallback("enter", function()

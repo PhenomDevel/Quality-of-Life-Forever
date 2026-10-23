@@ -386,6 +386,10 @@ function ns:NotifyOptionChanged(module, key, value)
 	if module.enabled and module.OnOptionChanged then
 		Utils.SafeCall(module.OnOptionChanged, module, key, value)
 	end
+	-- Shared overlay option, see ns:TitleOption().
+	if key == "showTitle" then
+		ns:UpdateOverlayTitles()
+	end
 end
 
 function ns:InitializeModules()
