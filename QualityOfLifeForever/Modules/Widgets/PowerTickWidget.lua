@@ -62,6 +62,8 @@ local module = ns:NewModule("PowerTickWidget", {
 		width = 140,
 		height = 8,
 		backgroundOpacity = 92,
+		textOutline = "OUTLINE",
+		textShadow = false,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_MANA },
@@ -71,6 +73,8 @@ local module = ns:NewModule("PowerTickWidget", {
 		{ key = "width", type = "slider", label = L.WIDTH, tooltip = L.WIDTH_DESC, min = 60, max = 300, step = 10, format = FormatPixels },
 		{ key = "height", type = "slider", label = L.HEIGHT, tooltip = L.HEIGHT_DESC, min = 4, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 	},
 })
 
@@ -215,7 +219,7 @@ end
 
 function module:ApplyLayout()
 	frame:SetSize(self.db.width, self.db.height + INSET * 2)
-	frame.Countdown:SetFont(STANDARD_TEXT_FONT, self.db.countdownSize, "OUTLINE")
+	ns:SetOverlayFont(frame.Countdown, self.db.countdownSize, self.db)
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 

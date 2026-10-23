@@ -74,6 +74,8 @@ local module = ns:NewModule("GoldWidget", {
 		layout = "HORIZONTAL",
 		fontSize = 11,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -92,6 +94,8 @@ local module = ns:NewModule("GoldWidget", {
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{ key = "sessionReset", type = "dropdown", label = ns.L.SESSION_RESET, tooltip = ns.L.SESSION_RESET_DESC, values = ns.Utils.SessionResetValues() },
 		{
@@ -231,7 +235,7 @@ end
 -- Font, positions and height follow the text size, layout and shown texts.
 function module:ApplyLayout()
 	local size = self.db.fontSize
-	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
+	ns:SetOverlayFont(self.font, size, self.db)
 	frame.Session:SetShown(self.db.showSession)
 	frame.Rate:SetShown(self.db.showRate)
 
@@ -303,7 +307,8 @@ function module:UpdateTicker()
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "showSession" or key == "showRate" or key == "backgroundOpacity" or key == "layout" then
+	if key == "fontSize" or key == "showSession" or key == "showRate" or key == "backgroundOpacity" or key == "layout"
+		or key == "textOutline" or key == "textShadow" then
 		self:ApplyLayout()
 	end
 	self:UpdateTicker()

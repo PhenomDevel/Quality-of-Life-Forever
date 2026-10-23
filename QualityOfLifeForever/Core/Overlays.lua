@@ -259,6 +259,37 @@ function ns:UpdateWidgetStack()
 	Restack()
 end
 
+-- Text style options shared by the widgets. A module lists both options
+-- and adds textOutline/textShadow to its defaults.
+function ns:TextOutlineOption()
+	return {
+		key = "textOutline",
+		type = "dropdown",
+		label = L.TEXT_OUTLINE,
+		tooltip = L.TEXT_OUTLINE_DESC,
+		values = {
+			{ value = "NONE", label = L.TEXT_OUTLINE_NONE },
+			{ value = "OUTLINE", label = L.TEXT_OUTLINE_THIN },
+			{ value = "THICKOUTLINE", label = L.TEXT_OUTLINE_THICK },
+		},
+	}
+end
+
+function ns:TextShadowOption()
+	return { key = "textShadow", type = "checkbox", label = L.TEXT_SHADOW, tooltip = L.TEXT_SHADOW_DESC }
+end
+
+-- Applies size and the text style options of `db` to a Font or FontString.
+function ns:SetOverlayFont(font, size, db)
+	font:SetFont(STANDARD_TEXT_FONT, size, db.textOutline == "NONE" and "" or db.textOutline)
+	font:SetShadowColor(0, 0, 0, 0.8)
+	if db.textShadow then
+		font:SetShadowOffset(1, -1)
+	else
+		font:SetShadowOffset(0, 0)
+	end
+end
+
 -- Opacity of the shared background (0–1). The border fades along, relative
 -- to its default, so the default background alpha keeps the default look.
 function ns:SetOverlayBackgroundAlpha(frame, alpha)

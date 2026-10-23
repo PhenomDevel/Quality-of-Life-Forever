@@ -79,6 +79,8 @@ local module = ns:NewModule("ReagentWidget", {
 		layout = "HORIZONTAL",
 		fontSize = 11,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -100,6 +102,8 @@ local module = ns:NewModule("ReagentWidget", {
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		{
 			type = "button",
 			label = L.FORGET,
@@ -310,7 +314,7 @@ function module:Update()
 end
 
 function module:ApplyLayout()
-	self.font:SetFont(STANDARD_TEXT_FONT, self.db.fontSize, "")
+	ns:SetOverlayFont(self.font, self.db.fontSize, self.db)
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
