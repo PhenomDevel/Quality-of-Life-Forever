@@ -17,9 +17,8 @@ local L = ns.L
 			icon  = optional texture path or file ID
 		})
 
-	While the options window is open, every enabled module with a
-	PreviewNotice() method (returning text, icon) shows a preview that stays
-	until the window closes.
+	While the options window is open, the anchor shows its title and a sample
+	notice and can be dragged like a widget.
 ]]
 
 local WIDTH = 300
@@ -115,6 +114,8 @@ end
 local function Fill(toast, notice)
 	toast.notice = notice
 	toast.remaining = notice.preview and math.huge or DURATION
+	-- The preview lets mouse input through to the anchor below, for dragging.
+	toast:EnableMouse(not notice.preview)
 	local left = PADDING
 	if notice.icon then
 		toast.Icon:SetTexture(notice.icon)
@@ -140,8 +141,7 @@ function ShowNext()
 	if InCombatLockdown() then
 		return
 	end
-	-- Previews may exceed the limit; they all belong on screen together.
-	while #queue > 0 and (#shown < MAX_SHOWN or queue[1].preview) do
+	while #queue > 0 and #shown < MAX_SHOWN do
 		local toast = table.remove(pool) or CreateToast()
 		Fill(toast, table.remove(queue, 1))
 		shown[#shown + 1] = toast
@@ -196,35 +196,37 @@ local function RemovePreviews()
 	end
 end
 
--- Shows or removes the module previews. optionsShown: the options window
--- opened or closed; nil to rebuild them after a module was turned on or off.
-local previewsShown = false
-function ns:UpdateNoticePreviews(optionsShown)
-	if optionsShown ~= nil then
-		previewsShown = optionsShown
-	end
+local ANCHOR_HEIGHT = 48
+local previewShown = false
+
+-- Shows or removes the sample notice; with it, the anchor takes the sample's
+-- size and becomes draggable. optionsShown: the options window opened or
+-- closed.
+function ns:UpdateNoticePreview(optionsShown)
+	previewShown = optionsShown
 	RemovePreviews()
-	if not previewsShown or not ns.db.global.notices then
+	anchor:EnableMouse(false)
+	anchor:SetHeight(ANCHOR_HEIGHT)
+	if not previewShown or not ns.db.global.notices then
 		return
 	end
-	for _, module in ipairs(ns:GetSortedModules("REMINDERS")) do
-		if module.enabled and module.PreviewNotice then
-			local ok, text, icon = ns.Utils.SafeCall(module.PreviewNotice, module)
-			if ok and text then
-				ns:ShowNotice({ key = "preview:" .. module.name, title = module.title, text = text, icon = icon, preview = true })
-			end
+	ns:ShowNotice({ key = "preview", title = L.NOTICES_TEST_TITLE, text = L.NOTICES_PREVIEW_TEXT, icon = 134400, preview = true })
+	for _, toast in ipairs(shown) do
+		if toast.notice.preview then
+			anchor:SetHeight(toast:GetHeight())
+			anchor:EnableMouse(true)
 		end
 	end
 end
 
 -- Called once on login, after the database is loaded.
 function ns:InitializeNotices()
-	-- Invisible and click-through; only Edit Mode's selection shows it.
+	-- Invisible and click-through; its title and highlight show while
+	-- arranging, and it is draggable while the sample notice is shown.
 	anchor = ns:CreateOverlay("Notices", {
 		title = L.NOTICES_EDIT_MODE_NAME,
-		noTitle = true,
 		width = WIDTH,
-		height = 48,
+		height = ANCHOR_HEIGHT,
 		default = { point = "BOTTOMRIGHT", x = -20, y = 220 },
 	})
 	ns:SetOverlayBackgroundAlpha(anchor, 0)

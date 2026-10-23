@@ -107,6 +107,7 @@ L.NOTICES_TEST_BUTTON = "Anzeigen"
 L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Hinweise"
 L.NOTICES_TEST_TITLE = "Quality of Life Forever"
 L.NOTICES_TEST_TEXT = "Hier erscheinen Hinweise und Erinnerungen. Verschieben im {Bearbeitungsmodus}; zum Schließen klicken."
+L.NOTICES_PREVIEW_TEXT = "Hier erscheinen Hinweise und Erinnerungen. Zum Verschieben diesen Rahmen ziehen."
 
 -- Widget stack
 L.SETTING_STACK_WIDGETS = "Widgets kombinieren"

@@ -110,12 +110,6 @@ function module:Warn(happiness, damagePercentage)
 	end
 end
 
--- Current pet; without one, a content pet dealing normal damage.
-function module:PreviewNotice()
-	local happiness, damagePercentage = GetHappiness()
-	return Message(happiness or NEUTRAL, damagePercentage or 100)
-end
-
 -- Warns when happiness drops to or below the level, including a pet that is
 -- summoned while already unhappy; not again while it stays there.
 function module:Check()

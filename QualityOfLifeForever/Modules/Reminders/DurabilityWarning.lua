@@ -90,15 +90,6 @@ function module:Warn(percent, slot)
 	end
 end
 
--- Most worn item; without any item with durability, a sample at the threshold.
-function module:PreviewNotice()
-	local lowest, slot = FindMostWorn()
-	if slot then
-		return Message(lowest, slot)
-	end
-	return L.MESSAGE:format("?", self.db.threshold)
-end
-
 function module:OnOptionChanged(key)
 	if key == "threshold" then
 		warned = false

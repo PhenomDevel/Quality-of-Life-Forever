@@ -232,8 +232,6 @@ ns.moduleOrder = {}
 		                        unregistered and CVars restored afterwards)
 		OnOptionChanged(key, value)
 		OnOptionsShown(shown)   the options window opened (true) or closed (false)
-		PreviewNotice()         returns text, icon of a sample notice, shown while
-		                        the options window is open
 ]]
 function ns:NewModule(name, info)
 	assert(type(name) == "string" and name ~= "", "Module name must be a non-empty string")
@@ -378,7 +376,6 @@ end)
 function ns:SetModuleEnabled(module, enabled)
 	module.db.enabled = not not enabled
 	ns:ApplyModuleState(module)
-	ns:UpdateNoticePreviews()
 	ns:RefreshOptions()
 end
 
