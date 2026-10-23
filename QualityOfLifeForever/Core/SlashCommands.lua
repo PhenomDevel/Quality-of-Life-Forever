@@ -13,6 +13,7 @@ local function PrintHelp()
 	ns:Print(L.SLASH_HELP_TOGGLE)
 	ns:Print(L.SLASH_HELP_MINIMAP)
 	ns:Print(L.SLASH_HELP_DEBUG)
+	ns:Print(L.SLASH_HELP_NEWS)
 	ns:Print(L.SLASH_HELP_RESET)
 	ns:Print(L.SLASH_HELP_CVARINFO)
 end
@@ -172,6 +173,10 @@ function ns:ConfirmReset()
 		showAlert = true,
 	}
 	StaticPopup_Show("QOLFOREVER_RESET")
+end
+
+commands.news = function()
+	ns:ShowWhatsNew()
 end
 
 commands.reset = function()

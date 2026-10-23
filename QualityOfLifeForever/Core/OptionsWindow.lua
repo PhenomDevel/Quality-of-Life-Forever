@@ -555,6 +555,16 @@ local function GeneralPage()
 						ns:ShowTestNotice()
 					end,
 				},
+				GlobalToggle("whatsNew", L.SETTING_WHATS_NEW, L.SETTING_WHATS_NEW_DESC),
+				{
+					type = "button",
+					label = L.WHATS_NEW_SHOW,
+					tooltip = L.WHATS_NEW_SHOW_DESC,
+					buttonText = L.NOTICES_TEST_BUTTON,
+					onClick = function()
+						ns:ShowWhatsNew()
+					end,
+				},
 				GlobalToggle("minimapButton", L.SETTING_MINIMAP_BUTTON, L.SETTING_MINIMAP_BUTTON_DESC, function()
 					ns:UpdateMinimapButton()
 				end),
