@@ -28,7 +28,7 @@ it again).
 | Category | Features |
 |----------|----------|
 | **Action bars** | Move the cooldown numbers to a corner or edge |
-| **Bags & items** | Auto-sort on open · free/total slots on the backpack button · item level on gear, in bags and when inspecting · durability in % · repair costs |
+| **Bags & items** | Auto-sort on open · free or used slots on the backpack button · item level on gear, in bags and when inspecting · durability in % · repair costs |
 | **Camera & graphics** | Larger max camera distance · extra graphics settings |
 | **Character** | Custom or hidden player name · text size of health and mana on the player and target frames |
 | **Chat** | Longer history · copy the chat as text · highlight your name and keywords · class colors · clickable URLs · short channel names · hide chat buttons · spam filter tab · guild ads in their own tab |
