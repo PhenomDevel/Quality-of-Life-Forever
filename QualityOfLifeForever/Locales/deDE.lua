@@ -45,6 +45,8 @@ L.OPTIONS_NO_RESULTS = "Nichts passt zu „%s“."
 L.OPTIONS_RESET = "Alle Einstellungen zurücksetzen"
 L.OPTIONS_RESET_DESC = "Setzt alle Funktionen auf ihren Standard zurück und lädt die Oberfläche neu."
 L.OPTIONS_RESET_BUTTON = "Zurücksetzen"
+L.OPTIONS_PREVIEW = "Vorschau"
+L.OPTIONS_PREVIEW_DESC = "Zeigt bei offenem Fenster alle Widgets und Erinnerungen mit Beispielinhalt, damit du sie siehst und verschieben kannst. Ausgeschaltet siehst du deine Oberfläche, wie sie ist."
 
 -- Blizzard-Einstellungsseite (Optionen > AddOns)
 L.SETTINGS_PAGE_TEXT = "Die Optionen haben ein eigenes Fenster. Du öffnest es auch mit |cffffd100/qol|r oder über das Addon-Menü an der Minimap."

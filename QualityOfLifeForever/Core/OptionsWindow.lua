@@ -992,6 +992,36 @@ local function CreateCloseButton(parent)
 	return button
 end
 
+local NotifyModules
+
+-- Label + switch; the label is part of the button, so clicking it toggles too.
+local function CreatePreviewToggle(parent)
+	local button = CreateFrame("Button", nil, parent)
+	button:SetHeight(26)
+	button.tooltipTitle = L.OPTIONS_PREVIEW
+	button.tooltipText = L.OPTIONS_PREVIEW_DESC
+	local toggle = Widgets.CreateToggle(button)
+	toggle:SetPoint("RIGHT")
+	toggle:SetChecked(ns.db.global.optionsPreview)
+	toggle.onToggle = function(checked)
+		ns.db.global.optionsPreview = checked
+		toggle:SetChecked(checked)
+		NotifyModules(frame:IsShown())
+	end
+	Widgets.ForwardHover(toggle, button)
+	local label = Widgets.Text(button, fonts.small, "RIGHT")
+	label:SetPoint("RIGHT", toggle, "LEFT", -8, 0)
+	label:SetJustifyV("MIDDLE")
+	label:SetText(L.OPTIONS_PREVIEW)
+	button:SetWidth(label:GetUnboundedStringWidth() + 8 + toggle:GetWidth())
+	button:SetScript("OnEnter", Widgets.ShowTooltip)
+	button:SetScript("OnLeave", Widgets.HideTooltip)
+	button:SetScript("OnClick", function()
+		toggle:Click()
+	end)
+	return button
+end
+
 local function CreateHeader(parent)
 	local header = CreateFrame("Frame", nil, parent)
 	header:SetPoint("TOPLEFT")
@@ -1026,7 +1056,9 @@ local function CreateHeader(parent)
 
 	local close = CreateCloseButton(header)
 	close:SetPoint("RIGHT", -PADDING + 4, 0)
-	CreateSearchBox(header):SetPoint("RIGHT", close, "LEFT", -10, 0)
+	local search = CreateSearchBox(header)
+	search:SetPoint("RIGHT", close, "LEFT", -10, 0)
+	CreatePreviewToggle(header):SetPoint("RIGHT", search, "LEFT", -16, 0)
 
 	local edge = header:CreateTexture(nil, "BORDER")
 	edge:SetColorTexture(unpack(colors.border))
@@ -1167,13 +1199,15 @@ local function Clamp(value, min, max)
 end
 
 -- Modules can react to the window, e.g. show a preview of a widget that is
--- otherwise only visible in certain situations.
-local function NotifyModules(shown)
-	ns:UpdateOverlayTitles(shown)
-	ns:UpdateNoticePreview(shown)
+-- otherwise only visible in certain situations. The header's preview switch
+-- turns that off while the window stays open.
+function NotifyModules(shown)
+	local preview = shown and ns.db.global.optionsPreview
+	ns:UpdateOverlayTitles(preview)
+	ns:UpdateNoticePreview(preview)
 	for _, module in ipairs(ns.moduleOrder) do
 		if module.enabled and module.OnOptionsShown then
-			ns.Utils.SafeCall(module.OnOptionsShown, module, shown)
+			ns.Utils.SafeCall(module.OnOptionsShown, module, preview)
 		end
 	end
 end
@@ -1252,6 +1286,11 @@ end
 
 function ns:IsOptionsShown()
 	return frame ~= nil and frame:IsShown()
+end
+
+-- Options open with the preview switch on: widgets and reminders show samples.
+function ns:IsOptionsPreviewShown()
+	return ns:IsOptionsShown() and ns.db.global.optionsPreview
 end
 
 -- Layout changed (module turned on/off): rebuild the visible page.

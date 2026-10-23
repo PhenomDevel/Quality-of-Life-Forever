@@ -272,7 +272,7 @@ function module:OnEnable()
 	self:RegisterEvent("BAG_UPDATE_DELAYED", self.QueueUpdate)
 	self:RegisterEvent("GET_ITEM_INFO_RECEIVED", self.QueueUpdate)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", self.QueueUpdate)
-	optionsShown = ns:IsOptionsShown()
+	optionsShown = ns:IsOptionsPreviewShown()
 	if not self.editModeHooked then
 		self.editModeHooked = true
 		LibEditMode:RegisterCallback("enter", function()
