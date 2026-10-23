@@ -1170,7 +1170,7 @@ end
 -- otherwise only visible in certain situations.
 local function NotifyModules(shown)
 	ns:UpdateOverlayTitles(shown)
-	ns:UpdateNoticePreviews(shown)
+	ns:UpdateNoticePreview(shown)
 	for _, module in ipairs(ns.moduleOrder) do
 		if module.enabled and module.OnOptionsShown then
 			ns.Utils.SafeCall(module.OnOptionsShown, module, shown)

@@ -112,6 +112,7 @@ L.NOTICES_TEST_BUTTON = "Show"
 L.NOTICES_EDIT_MODE_NAME = "QoL Forever: Notices"
 L.NOTICES_TEST_TITLE = "Quality of Life Forever"
 L.NOTICES_TEST_TEXT = "Hints and reminders appear here. Move them in {Edit Mode}; click to close."
+L.NOTICES_PREVIEW_TEXT = "Hints and reminders appear here. Drag this frame to move them."
 
 -- Widget stack
 L.SETTING_STACK_WIDGETS = "Combine widgets"

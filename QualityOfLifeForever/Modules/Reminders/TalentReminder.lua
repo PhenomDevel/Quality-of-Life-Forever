@@ -110,12 +110,6 @@ function module:Remind()
 	end
 end
 
--- Current unspent points, or one without any.
-function module:PreviewNotice()
-	local hasUnspent, count = Unspent()
-	return Message(hasUnspent and count or 1)
-end
-
 function module:UpdateBadge()
 	if not TalentMicroButton then
 		return
