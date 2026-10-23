@@ -1,4 +1,4 @@
--- luacheck: read globals C_ActionBar C_AddOns CreateFrame GetActionButtonForID GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
+-- luacheck: read globals C_ActionBar C_AddOns C_Spell CreateFrame GetActionButtonForID GetBindingKey GetBindingText GetActionBarPage GetBonusBarOffset NumberFontNormal
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -31,6 +31,9 @@ local L = ns.NewLocale({
 		PRESS = "Key press",
 		PRESS_HIGHLIGHT = "Highlight on key press",
 		PRESS_HIGHLIGHT_DESC = "Lights up the icon while you hold down the key of the action button that holds the spell.",
+		RANGE = "Range",
+		RANGE_INDICATOR = "Out of range indicator",
+		RANGE_INDICATOR_DESC = "Like on the action bars: the keybind turns red and the icon gray while your target is out of range of the spell.",
 	},
 	deDE = {
 		TITLE = "Tastenbelegung",
@@ -61,6 +64,9 @@ local L = ns.NewLocale({
 		PRESS = "Tastendruck",
 		PRESS_HIGHLIGHT = "Bei Tastendruck aufleuchten",
 		PRESS_HIGHLIGHT_DESC = "Lässt das Symbol aufleuchten, solange die Taste der Aktionstaste mit dem Zauber gedrückt ist.",
+		RANGE = "Reichweite",
+		RANGE_INDICATOR = "Außer-Reichweite-Anzeige",
+		RANGE_INDICATOR_DESC = "Wie auf den Aktionsleisten: Die Taste wird rot und das Symbol grau, solange dein Ziel außerhalb der Reichweite des Zaubers ist.",
 	},
 })
 
@@ -107,6 +113,9 @@ end
 defaults.pressHighlight = true
 options[#options + 1] = { type = "header", label = L.PRESS }
 options[#options + 1] = { key = "pressHighlight", type = "checkbox", label = L.PRESS_HIGHLIGHT, tooltip = L.PRESS_HIGHLIGHT_DESC }
+defaults.rangeIndicator = true
+options[#options + 1] = { type = "header", label = L.RANGE }
+options[#options + 1] = { key = "rangeIndicator", type = "checkbox", label = L.RANGE_INDICATOR, tooltip = L.RANGE_INDICATOR_DESC }
 
 local module = ns:NewModule("CooldownKeybinds", {
 	title = L.TITLE,
@@ -182,8 +191,12 @@ end
 -- item frame -> slots of the spell shown on it, for the key press highlight
 local itemSlots = {}
 
+-- item frame -> spell ID shown on it, for the range indicator
+local itemSpells = {}
+
 -- Only reads the item's cooldown info; Blizzard's item fields stay untouched.
 local function GetItemKey(item)
+	itemSpells[item] = nil
 	local info = item.GetCooldownInfo and item:GetCooldownInfo()
 	if not info then
 		return ""
@@ -191,6 +204,9 @@ local function GetItemKey(item)
 	local spell
 	if info.overrideSpellID and not IsSecret(info.overrideSpellID) then
 		spell = GetSpellInfo(info.overrideSpellID)
+		itemSpells[item] = info.overrideSpellID
+	elseif info.spellID and not IsSecret(info.spellID) then
+		itemSpells[item] = info.spellID
 	end
 	if (not spell or spell.key == "") and info.spellID and not IsSecret(info.spellID) then
 		local base = GetSpellInfo(info.spellID)
@@ -224,13 +240,51 @@ local function GetOverlay(item)
 			overlay.highlight:AddMaskTexture(mask)
 		end
 		overlay.highlight:Hide()
+		-- Gray tint while out of range, below the key text.
+		overlay.range = overlay:CreateTexture(nil, "BORDER")
+		overlay.range:SetColorTexture(0.3, 0.3, 0.3, 0.65)
+		overlay.range:SetAllPoints(icon)
+		if mask then
+			overlay.range:AddMaskTexture(mask)
+		end
+		overlay.range:Hide()
 		overlays[item] = overlay
 	end
 	return overlay
 end
 
+-- spell ID -> true while its range check is enabled / it is out of range
+local rangeChecks, outOfRange = {}, {}
+
+local function UpdateRange(item)
+	local spellID = itemSpells[item]
+	local out = module.enabled and module.db.rangeIndicator and spellID and outOfRange[spellID]
+	if not out and not overlays[item] then
+		return
+	end
+	local overlay = GetOverlay(item)
+	overlay.range:SetShown(out)
+	if out then
+		overlay.text:SetTextColor(1, 0.1, 0.1)
+	else
+		overlay.text:SetTextColor(1, 1, 1)
+	end
+end
+
+local function WatchRange(item)
+	local spellID = itemSpells[item]
+	if spellID and module.db.rangeIndicator and not rangeChecks[spellID] then
+		rangeChecks[spellID] = true
+		C_Spell.EnableSpellRangeCheck(spellID, true)
+	end
+end
+
 local function UpdateItem(item, enabled, p)
 	local key = GetItemKey(item)
+	if module.enabled then
+		WatchRange(item)
+	end
+	UpdateRange(item)
 	if not enabled or key == "" then
 		if overlays[item] then
 			overlays[item].text:Hide()
@@ -343,6 +397,29 @@ function module:HookViewers()
 	self:UpdateAll()
 end
 
+function module:SPELL_RANGE_CHECK_UPDATE(spellID, inRange, checksRange)
+	if IsSecret(inRange) or IsSecret(checksRange) then
+		return
+	end
+	outOfRange[spellID] = (checksRange and not inRange) or nil
+	for item, id in pairs(itemSpells) do
+		if id == spellID then
+			UpdateRange(item)
+		end
+	end
+end
+
+function module:StopRangeChecks()
+	for spellID in pairs(rangeChecks) do
+		C_Spell.EnableSpellRangeCheck(spellID, false)
+	end
+	wipe(rangeChecks)
+	wipe(outOfRange)
+	for item in pairs(overlays) do
+		UpdateRange(item)
+	end
+end
+
 function module:ADDON_LOADED(name)
 	if name == "Blizzard_CooldownViewer" then
 		self:UnregisterEvent("ADDON_LOADED")
@@ -370,6 +447,7 @@ function module:OnEnable()
 	}) do
 		self:RegisterEvent(event, self.Invalidate)
 	end
+	self:RegisterEvent("SPELL_RANGE_CHECK_UPDATE")
 	self:HookPresses()
 	if C_AddOns.IsAddOnLoaded("Blizzard_CooldownViewer") then
 		self:HookViewers()
@@ -380,6 +458,7 @@ end
 
 function module:OnDisable()
 	self:ClearPressed()
+	self:StopRangeChecks()
 	for _, overlay in pairs(overlays) do
 		overlay.text:Hide()
 	end
@@ -388,6 +467,8 @@ end
 function module:OnOptionChanged(key)
 	if key == "pressHighlight" then
 		self:ClearPressed()
+	elseif key == "rangeIndicator" and not self.db.rangeIndicator then
+		self:StopRangeChecks()
 	end
 	self:UpdateAll()
 end
