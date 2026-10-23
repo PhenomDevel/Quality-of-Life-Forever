@@ -33,7 +33,7 @@ scale widgets like the XP widget; drag them anytime to move them.
 | **Reminders** | Small popups, only out of combat: new skills at your trainer on level-up · unspent talent points (on login and an hour after a level-up) · missing self-buffs · low durability · unhappy pet |
 | **Social** | Auto-accept invites and summons · auto-decline duels and guild invites |
 | **Tooltip** | Position, scale and background opacity · guild rank, target, class color · item/spell IDs |
-| **Widgets** | Movable overlays, optionally combined into one column: XP (rested and quest XP, XP per hour, last level times) · gold (session, gold per hour) · reputation · FPS & latency · ammo & reagents · energy tick & five second rule with countdown · cheapest gray items, click to delete |
+| **Widgets** | Movable overlays, optionally combined into one column: XP (rested and quest XP, XP per hour) · gold (session, gold per hour) · reputation · FPS & latency · ammo & reagents · five second rule with countdown · cheapest gray items, click to delete |
 | **World map** | Movable, scalable map · zone level ranges, also on the minimap |
 
 \* on by default
