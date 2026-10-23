@@ -3,20 +3,28 @@ local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
-		TITLE = "Free bag slots",
-		NOTE = "Free / total slots on the backpack button",
-		DESC = "Shows free and total slots of your bags as \"free/total\" on the backpack button. Profession bags, quivers and ammo pouches are not counted. Red when your bags are full.",
+		TITLE = "Bag slots",
+		NOTE = "Free or used / total slots on the backpack button",
+		DESC = "Shows the free or used slots and the total slots of your bags as \"free/total\" or \"used/total\" on the backpack button. Profession bags, quivers and ammo pouches are not counted. Red when your bags are full.",
 		NOTICE = "Turns off the game's own free slot count on the backpack button (setting `displayFreeBagSlots`), which would overlap. Disabling restores your previous setting.",
 		FONT_SIZE = "Text size",
-		FONT_SIZE_DESC = "Size of the free/total text on the backpack button.",
+		FONT_SIZE_DESC = "Size of the slot text on the backpack button.",
+		COUNT = "Count",
+		COUNT_DESC = "Whether the first number counts the free or the used slots.",
+		COUNT_FREE = "Free slots",
+		COUNT_USED = "Used slots",
 	},
 	deDE = {
-		TITLE = "Freie Taschenplätze",
-		NOTE = "Freie / gesamte Plätze am Rucksack-Button",
-		DESC = "Zeigt freie und gesamte Plätze deiner Taschen als „frei/gesamt“ auf dem Rucksack-Button. Berufstaschen, Köcher und Munitionsbeutel werden nicht mitgezählt. Rot, wenn deine Taschen voll sind.",
+		TITLE = "Taschenplätze",
+		NOTE = "Freie oder belegte / gesamte Plätze am Rucksack-Button",
+		DESC = "Zeigt die freien oder belegten und die gesamten Plätze deiner Taschen als „frei/gesamt“ oder „belegt/gesamt“ auf dem Rucksack-Button. Berufstaschen, Köcher und Munitionsbeutel werden nicht mitgezählt. Rot, wenn deine Taschen voll sind.",
 		NOTICE = "Schaltet die spieleigene Anzeige freier Plätze auf dem Rucksack-Button aus (Einstellung `displayFreeBagSlots`), die sich sonst überlagern würde. Beim Deaktivieren wird deine vorherige Einstellung wiederhergestellt.",
 		FONT_SIZE = "Textgröße",
-		FONT_SIZE_DESC = "Größe des Textes frei/gesamt auf dem Rucksack-Button.",
+		FONT_SIZE_DESC = "Größe des Textes auf dem Rucksack-Button.",
+		COUNT = "Zählen",
+		COUNT_DESC = "Ob die erste Zahl die freien oder die belegten Plätze zählt.",
+		COUNT_FREE = "Freie Plätze",
+		COUNT_USED = "Belegte Plätze",
 	},
 })
 
@@ -28,9 +36,14 @@ local module = ns:NewModule("BagFreeSlots", {
 	category = "BAGS",
 	order = 20,
 	defaults = {
+		count = "free",
 		fontSize = 14,
 	},
 	options = {
+		{ key = "count", type = "dropdown", label = L.COUNT, tooltip = L.COUNT_DESC, values = {
+			{ value = "free", label = L.COUNT_FREE },
+			{ value = "used", label = L.COUNT_USED },
+		} },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 24, step = 1 },
 	},
 })
@@ -56,7 +69,7 @@ function module:Update()
 	end
 	local free, total = CountSlots()
 	local color = free == 0 and RED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-	text:SetFormattedText("%d/%d", free, total)
+	text:SetFormattedText("%d/%d", self.db.count == "used" and total - free or free, total)
 	text:SetTextColor(color:GetRGB())
 	text:Show()
 end
@@ -88,6 +101,8 @@ end
 function module:OnOptionChanged(key)
 	if key == "fontSize" then
 		self:ApplyFontSize()
+	elseif key == "count" then
+		self:Update()
 	end
 end
 
