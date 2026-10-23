@@ -62,11 +62,16 @@ editable while the module is enabled.
 
 | Callback                      | When |
 |-------------------------------|------|
-| `OnInitialize()`              | once, after SavedVariables are loaded (`ADDON_LOADED`) |
+| `OnInitialize()`              | once, right before the module is enabled for the first time; never runs for modules that stay disabled, so put frames, fonts, popups and hooks here or in `OnEnable`, not at file scope |
 | `OnEnable()`                  | on login (if enabled) and every time the module is switched on |
 | `OnDisable()`                 | every time the module is switched off – undo everything it changed; events are unregistered and CVars restored afterwards |
 | `OnOptionChanged(key, value)` | an option changed while the module is enabled |
 | `OnOptionsShown(shown)`      | the options window opened (`true`) or closed (`false`), while the module is enabled; check `ns:IsOptionsShown()` in `OnEnable` for the current state |
+
+Hooks and callbacks can't be removed at runtime. Always install them through
+the helpers above (never `hooksecurefunc`/`AddTooltipPostCall` directly): they
+stay silent while the module is off, and switching off a module that installed
+any offers a `/reload` so it is unloaded completely.
 
 Callback errors are caught and routed to the error handler, so a broken module
 doesn't take others down.
@@ -79,6 +84,8 @@ doesn't take others down.
 | `self:UnregisterEvent(event)`             | Unregister a single event |
 | `self:SecureHook([table,] "func", handler)` | `hooksecurefunc` that only fires while enabled |
 | `self:HookScript(frame, "OnShow", handler)` | `frame:HookScript` that only fires while enabled |
+| `self:AddTooltipPostCall(dataType, handler)` | `TooltipDataProcessor.AddTooltipPostCall` that only fires while enabled; `handler(module, tooltip, data)` |
+| `self:RegisterEditModeCallback(event, handler)` | LibEditMode callback (`enter`, `exit`, `layout`) that only fires while enabled |
 | `self:Print(...)`                         | Chat output (respects the global "Show chat messages" option) |
 | `self:Notice(text[, icon[, key]])`        | Small popup for hints and reminders, shown only out of combat (queued during combat); falls back to chat when the global "Reminder popups" option is off. A newer notice with the same key (default: the module name) replaces the older one |
 | `self:Debug(...)`                         | Output only in debug mode (`/qol debug`) |

@@ -147,8 +147,10 @@ function Module:RestoreCVars()
 end
 
 -- Hooks -----------------------------------------------------------------------
--- Secure hooks cannot be removed again, so the wrapper checks whether the module
--- is enabled. Hooking the same target twice only replaces the callback.
+-- Secure hooks, script hooks, tooltip post-calls and Edit Mode callbacks cannot
+-- be removed again, so the wrappers check whether the module is enabled and
+-- mark it as `hooked`: disabling it then offers a reload to drop them for good.
+-- Hooking the same target twice only replaces the callback.
 
 function Module:SecureHook(target, method, handler)
 	if type(target) == "string" then
@@ -164,6 +166,7 @@ function Module:SecureHook(target, method, handler)
 
 	local hook = { handler = handler }
 	self.hooks[key] = hook
+	self.hooked = true
 	local wrapper = function(...)
 		if self.enabled then
 			hook.handler(self, ...)
@@ -187,9 +190,39 @@ function Module:HookScript(frame, script, handler)
 
 	local hook = { handler = handler }
 	self.hooks[key] = hook
+	self.hooked = true
 	frame:HookScript(script, function(...)
 		if self.enabled then
 			hook.handler(self, ...)
+		end
+	end)
+end
+
+-- handler(module, tooltip, data); call once per data type (e.g. in OnInitialize).
+function Module:AddTooltipPostCall(dataType, handler)
+	self.hooked = true
+	TooltipDataProcessor.AddTooltipPostCall(dataType, function(...)
+		if self.enabled then
+			handler(self, ...)
+		end
+	end)
+end
+
+-- LibEditMode "enter"/"exit"/"layout" callbacks; handler(module, ...).
+function Module:RegisterEditModeCallback(event, handler)
+	self.editModeCallbacks = self.editModeCallbacks or {}
+	local existing = self.editModeCallbacks[event]
+	if existing then
+		existing.handler = handler
+		return
+	end
+
+	local callback = { handler = handler }
+	self.editModeCallbacks[event] = callback
+	self.hooked = true
+	ns.LibEditMode:RegisterCallback(event, function(...)
+		if self.enabled then
+			callback.handler(self, ...)
 		end
 	end)
 end
@@ -229,7 +262,8 @@ ns.moduleOrder = {}
 	}
 
 	Callbacks a module may implement:
-		OnInitialize()          once, after the saved variables are loaded
+		OnInitialize()          once, right before the module is enabled for the
+		                        first time (never for modules that stay disabled)
 		OnEnable()              every time the module gets enabled (also on login)
 		OnDisable()             every time the module gets disabled (events are
 		                        unregistered and CVars restored afterwards)
@@ -322,6 +356,18 @@ local function CanChangeState(module)
 	return not module.combatProtected or not InCombatLockdown()
 end
 
+-- Deferred until the first enable, so a disabled module creates no frames,
+-- hooks or callbacks at all.
+local function Initialize(module)
+	if module.initialized then
+		return
+	end
+	module.initialized = true
+	if module.OnInitialize then
+		Utils.SafeCall(module.OnInitialize, module)
+	end
+end
+
 local function Enable(module)
 	if module.enabled then
 		return
@@ -348,6 +394,9 @@ end
 
 -- Brings the runtime state of a module in line with its saved `enabled` flag.
 function ns:ApplyModuleState(module)
+	if module.db.enabled then
+		Initialize(module)
+	end
 	if not CanChangeState(module) then
 		if not pendingCombat[module] then
 			pendingCombat[module] = true
@@ -364,6 +413,8 @@ function ns:ApplyModuleState(module)
 		Disable(module)
 		if wasEnabled and module.requiresReload then
 			ns:RequestReload(module)
+		elseif wasEnabled and module.hooked then
+			ns:RequestReload(module, L.RELOAD_TO_UNLOAD)
 		end
 	end
 end
@@ -396,9 +447,6 @@ end
 function ns:InitializeModules()
 	for _, module in ipairs(ns.moduleOrder) do
 		module.db = ns:GetModuleDB(module)
-		if module.OnInitialize then
-			Utils.SafeCall(module.OnInitialize, module)
-		end
 	end
 end
 
@@ -408,12 +456,11 @@ function ns:EnableModules()
 	end
 end
 
-function ns:RequestReload(module)
+function ns:RequestReload(module, text)
 	if not StaticPopupDialogs or not StaticPopup_Show then
 		return
 	end
 	StaticPopupDialogs.QOLFOREVER_RELOAD = StaticPopupDialogs.QOLFOREVER_RELOAD or {
-		text = L.RELOAD_REQUIRED,
 		button1 = ACCEPT,
 		button2 = CANCEL,
 		OnAccept = function()
@@ -423,5 +470,6 @@ function ns:RequestReload(module)
 		whileDead = true,
 		hideOnEscape = true,
 	}
+	StaticPopupDialogs.QOLFOREVER_RELOAD.text = text or L.RELOAD_REQUIRED
 	StaticPopup_Show("QOLFOREVER_RELOAD", module.title)
 end

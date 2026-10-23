@@ -34,6 +34,7 @@ L.CATEGORY_WIDGETS = "Widgets"
 -- Options window
 L.SETTINGS_GENERAL_HEADER = "General"
 L.SETTINGS_ENABLE_FOR_OPTIONS = "More options appear when enabled."
+L.SETTINGS_UNLOAD_ON_RELOAD = "Off. Fully unloaded after the next |cffffd100/reload|r."
 L.SETTING_PRINT_MESSAGES = "Show chat messages"
 L.SETTING_PRINT_MESSAGES_DESC = "Shows feedback from modules in the chat frame (e.g. repair costs, sold junk)."
 L.SETTING_MINIMAP_BUTTON = "Minimap button"
@@ -57,6 +58,7 @@ L.OPTIONS_PREVIEW_DESC = "While this window is open, shows all widgets and remin
 L.SETTINGS_PAGE_TEXT = "The options have their own window. You can also open it with |cffffd100/qol|r or the addon menu at the minimap."
 L.SETTINGS_PAGE_BUTTON = "Open options"
 L.RELOAD_REQUIRED = "%s requires a UI reload to fully apply this change. Reload now?"
+L.RELOAD_TO_UNLOAD = "%s is off. Reload the interface now to unload it completely? Until then it stays muted."
 L.COMBAT_QUEUED = "%s will be updated after combat."
 
 -- XP session

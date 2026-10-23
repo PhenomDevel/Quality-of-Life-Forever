@@ -89,7 +89,6 @@ local INSET = 2
 local MANA_COLOR = { 0.25, 0.55, 1 }
 
 local IsSecret = ns.Utils.IsSecret
-local LibEditMode = ns.LibEditMode
 -- Shown as a preview while Edit Mode or the options window is open, so it can
 -- be found and moved.
 local editing, optionsShown = false, false
@@ -240,17 +239,14 @@ function module:OnEnable()
 	self:RegisterEvent("UNIT_POWER_FREQUENT")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	optionsShown = ns:IsOptionsPreviewShown()
-	if not self.editModeHooked then
-		self.editModeHooked = true
-		LibEditMode:RegisterCallback("enter", function()
-			editing = true
-			self:UpdateShown()
-		end)
-		LibEditMode:RegisterCallback("exit", function()
-			editing = false
-			self:UpdateShown()
-		end)
-	end
+	self:RegisterEditModeCallback("enter", function()
+		editing = true
+		self:UpdateShown()
+	end)
+	self:RegisterEditModeCallback("exit", function()
+		editing = false
+		self:UpdateShown()
+	end)
 	self:RegisterEvent("UNIT_DISPLAYPOWER", function(_, unit)
 		if unit == "player" then
 			self:ResetPower()

@@ -81,7 +81,6 @@ local NAME_COLOR = { 0.62, 0.62, 0.62 }
 local PRICE_COLOR = { 0.9, 0.9, 0.9 }
 
 local IsSecret = ns.Utils.IsSecret
-local LibEditMode = ns.LibEditMode
 local frame
 local rows = {}
 -- Shown empty while Edit Mode or the options window is open, so the widget
@@ -273,17 +272,14 @@ function module:OnEnable()
 	self:RegisterEvent("GET_ITEM_INFO_RECEIVED", self.QueueUpdate)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", self.QueueUpdate)
 	optionsShown = ns:IsOptionsPreviewShown()
-	if not self.editModeHooked then
-		self.editModeHooked = true
-		LibEditMode:RegisterCallback("enter", function()
-			editing = true
-			self:Update()
-		end)
-		LibEditMode:RegisterCallback("exit", function()
-			editing = false
-			self:Update()
-		end)
-	end
+	self:RegisterEditModeCallback("enter", function()
+		editing = true
+		self:Update()
+	end)
+	self:RegisterEditModeCallback("exit", function()
+		editing = false
+		self:Update()
+	end)
 	self:Update()
 end
 

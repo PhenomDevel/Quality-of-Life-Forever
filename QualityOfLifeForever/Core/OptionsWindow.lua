@@ -515,8 +515,14 @@ local function ModuleCard(module, categoryName)
 		for _, option in ipairs(module.options) do
 			spec.rows[#spec.rows + 1] = OptionRow(module, option)
 		end
-	elseif HasControls(module) then
-		spec.hint = L.SETTINGS_ENABLE_FOR_OPTIONS
+	else
+		-- Hooks of this session stay until a reload (see Module:SecureHook).
+		if module.hooked then
+			spec.rows[#spec.rows + 1] = { type = "notice", label = L.SETTINGS_UNLOAD_ON_RELOAD }
+		end
+		if HasControls(module) then
+			spec.hint = L.SETTINGS_ENABLE_FOR_OPTIONS
+		end
 	end
 	return spec
 end

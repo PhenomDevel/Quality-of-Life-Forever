@@ -1,4 +1,4 @@
--- luacheck: read globals TooltipDataProcessor Enum UnitIsPlayer UnitIsUnit UnitClass UnitExists UnitName GetGuildInfo C_ClassColor HIGHLIGHT_FONT_COLOR
+-- luacheck: read globals Enum UnitIsPlayer UnitIsUnit UnitClass UnitExists UnitName GetGuildInfo C_ClassColor HIGHLIGHT_FONT_COLOR
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -110,10 +110,7 @@ local function AddTarget(tooltip, unit)
 	tooltip:AddLine(L.TARGET_LINE:format(color:WrapTextInColorCode(name)))
 end
 
-local function OnUnit(tooltip)
-	if not module.enabled then
-		return
-	end
+local function OnUnit(_, tooltip)
 	local _, unit = tooltip:GetUnit()
 	if not Usable(unit) then
 		return
@@ -136,6 +133,5 @@ local function OnUnit(tooltip)
 end
 
 function module:OnInitialize()
-	-- Post-calls can't be removed: they check module.enabled.
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, OnUnit)
+	self:AddTooltipPostCall(Enum.TooltipDataType.Unit, OnUnit)
 end

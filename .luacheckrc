@@ -41,6 +41,7 @@ read_globals = {
 	"UIParent",
 	"StaticPopup_Show",
 	"StaticPopup_Hide",
+	"TooltipDataProcessor",
 	"ACCEPT",
 	"CANCEL",
 
