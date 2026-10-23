@@ -11,6 +11,7 @@ local Utils = ns.Utils
 
 ns.categories = {
 	{ id = "INTERFACE", name = L.CATEGORY_INTERFACE },
+	{ id = "ACTION_BARS", name = L.CATEGORY_ACTION_BARS },
 	{ id = "BAGS", name = L.CATEGORY_BAGS },
 	{ id = "COOLDOWN_MANAGER", name = L.CATEGORY_COOLDOWN_MANAGER },
 	{ id = "CHARACTER", name = L.CATEGORY_CHARACTER },

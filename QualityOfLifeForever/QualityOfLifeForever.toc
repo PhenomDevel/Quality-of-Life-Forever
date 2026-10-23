@@ -38,7 +38,6 @@ Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
-Modules\Interface\ActionBars.lua
 Modules\Interface\CombatHideTracker.lua
 Modules\Interface\CombatText.lua
 Modules\Interface\SkipCinematics.lua
@@ -52,6 +51,9 @@ Modules\Bags\BagFreeSlots.lua
 Modules\Bags\ItemLevel.lua
 Modules\Bags\RepairCosts.lua
 Modules\Bags\ShowDurability.lua
+
+# Action bars
+Modules\ActionBars\ActionBars.lua
 
 # Cooldown manager
 Modules\CooldownManager\CooldownKeybinds.lua
