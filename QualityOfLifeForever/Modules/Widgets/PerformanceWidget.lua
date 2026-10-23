@@ -79,6 +79,8 @@ local module = ns:NewModule("PerformanceWidget", {
 		layout = "HORIZONTAL",
 		fontSize = 11,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -109,6 +111,8 @@ local module = ns:NewModule("PerformanceWidget", {
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 	},
 })
 
@@ -189,7 +193,7 @@ end
 
 function module:ApplyLayout()
 	local size = self.db.fontSize
-	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
+	ns:SetOverlayFont(self.font, size, self.db)
 	frame.Fps:SetShown(self.db.showFps)
 	frame.Latency:SetShown(self.db.showLatency)
 

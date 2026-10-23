@@ -59,6 +59,8 @@ local module = ns:NewModule("ReputationWidget", {
 		showRate = true,
 		fontSize = 11,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -66,6 +68,8 @@ local module = ns:NewModule("ReputationWidget", {
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{
 			type = "button",
@@ -165,7 +169,7 @@ end
 -- Font, size and bar position follow the text size.
 function module:ApplyLayout()
 	local size = self.db.fontSize
-	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
+	ns:SetOverlayFont(self.font, size, self.db)
 	local lineHeight = size + 2
 	local barTop = PADDING + lineHeight + 2
 	frame.Bar:ClearAllPoints()
@@ -233,7 +237,7 @@ function module:UpdateTicker()
 end
 
 function module:OnOptionChanged(key)
-	if key == "fontSize" or key == "backgroundOpacity" then
+	if key == "fontSize" or key == "backgroundOpacity" or key == "textOutline" or key == "textShadow" then
 		self:ApplyLayout()
 	end
 	self:UpdateTicker()

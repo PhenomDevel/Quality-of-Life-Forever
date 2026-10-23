@@ -111,6 +111,8 @@ local module = ns:NewModule("XPWidget", {
 		barLength = 0,
 		barThickness = 6,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 		hideBlizzardBar = false,
 	},
 	options = {
@@ -134,6 +136,8 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "barLength", type = "slider", label = L.BAR_LENGTH, tooltip = L.BAR_LENGTH_DESC, min = 0, max = 600, step = 10, format = FormatLength },
 		{ key = "barThickness", type = "slider", label = L.BAR_THICKNESS, tooltip = L.BAR_THICKNESS_DESC, min = 2, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{ key = "sessionReset", type = "dropdown", label = ns.L.SESSION_RESET, tooltip = ns.L.SESSION_RESET_DESC, values = ns.Utils.SessionResetValues() },
 		{
@@ -474,7 +478,7 @@ end
 -- Font, layout and size follow the text size and the shown rows.
 function module:ApplyLayout()
 	local size = self.db.fontSize
-	self.font:SetFont(STANDARD_TEXT_FONT, size, "")
+	ns:SetOverlayFont(self.font, size, self.db)
 	frame.Bar:ClearAllPoints()
 	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests }) do
 		text:ClearAllPoints()
@@ -489,7 +493,7 @@ end
 
 function module:OnOptionChanged(key)
 	if key == "fontSize" or key == "showQuestXP" or key == "backgroundOpacity" or key == "layout"
-		or key == "barLength" or key == "barThickness" then
+		or key == "barLength" or key == "barThickness" or key == "textOutline" or key == "textShadow" then
 		self:ApplyLayout()
 	end
 	if key == "hideBlizzardBar" then

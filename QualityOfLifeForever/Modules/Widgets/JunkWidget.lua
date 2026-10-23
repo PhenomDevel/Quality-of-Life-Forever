@@ -52,12 +52,16 @@ local module = ns:NewModule("JunkWidget", {
 		count = 3,
 		fontSize = 11,
 		backgroundOpacity = 92,
+		textOutline = "NONE",
+		textShadow = true,
 	},
 	options = {
 		{ key = "count", type = "slider", label = L.COUNT, tooltip = L.COUNT_DESC, min = 1, max = 5, step = 1 },
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 	},
 })
 
@@ -237,7 +241,7 @@ function module:QueueUpdate()
 end
 
 function module:ApplyLayout()
-	self.font:SetFont(STANDARD_TEXT_FONT, self.db.fontSize, "")
+	ns:SetOverlayFont(self.font, self.db.fontSize, self.db)
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
