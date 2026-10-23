@@ -38,7 +38,6 @@ Core\XPSession.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface
-Modules\Interface\ActionBarPadding.lua
 Modules\Interface\CombatHideTracker.lua
 Modules\Interface\CombatText.lua
 Modules\Interface\SkipCinematics.lua
