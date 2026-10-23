@@ -15,7 +15,8 @@ L.ADDON_LOADED = "Version %s loaded. Type |cffffd100/qol|r for options."
 L.UNKNOWN_VERSION = "dev"
 
 -- Categories
-L.CATEGORY_INTERFACE = "Interface"
+L.CATEGORY_INTERFACE = "Interface & Misc"
+L.CATEGORY_ACTION_BARS = "Action Bars"
 L.CATEGORY_BAGS = "Bags & items"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Merchant & trainer"

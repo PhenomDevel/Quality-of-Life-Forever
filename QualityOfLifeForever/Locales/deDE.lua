@@ -10,7 +10,8 @@ local L = ns.L
 L.ADDON_LOADED = "Version %s geladen. Gib |cffffd100/qol|r für die Optionen ein."
 
 -- Categories
-L.CATEGORY_INTERFACE = "Oberfläche"
+L.CATEGORY_INTERFACE = "Oberfläche & Sonstiges"
+L.CATEGORY_ACTION_BARS = "Aktionsleisten"
 L.CATEGORY_BAGS = "Taschen & Gegenstände"
 L.CATEGORY_COOLDOWN_MANAGER = "Cooldown Manager"
 L.CATEGORY_MERCHANT = "Händler & Lehrer"
