@@ -21,6 +21,9 @@ local L = ns.NewLocale({
 		BG_OPACITY_DESC = "Opacity of the bar's background and border, 0 % (transparent) to 100 %.",
 		HEADER = "Missing",
 		CLICK_TO_CAST = "Click to cast",
+		PREVIEW = "Preview",
+		PREVIEW_BUTTON = "Show / hide",
+		PREVIEW_DESC = "Shows the bar with all buffs of your class, also with this window closed, until you click again or enter combat. Without any learned buff, sample icons are shown.",
 	},
 	deDE = {
 		TITLE = "Fehlende Selbst-Buffs",
@@ -41,6 +44,9 @@ local L = ns.NewLocale({
 		BG_OPACITY_DESC = "Deckkraft von Hintergrund und Rahmen der Leiste, von 0 % (durchsichtig) bis 100 %.",
 		HEADER = "Fehlt",
 		CLICK_TO_CAST = "Klicken zum Wirken",
+		PREVIEW = "Vorschau",
+		PREVIEW_BUTTON = "Ein / aus",
+		PREVIEW_DESC = "Zeigt die Leiste mit allen Buffs deiner Klasse, auch bei geschlossenem Fenster, bis du erneut klickst oder in den Kampf gehst. Ohne gelernten Buff werden Beispielsymbole gezeigt.",
 	},
 })
 
@@ -63,6 +69,7 @@ local module = ns:NewModule("MissingBuffs", {
 		sound = false,
 		iconSize = 32,
 		backgroundOpacity = 92,
+		showTitle = false,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_WHEN },
@@ -72,6 +79,17 @@ local module = ns:NewModule("MissingBuffs", {
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "iconSize", type = "slider", label = L.ICON_SIZE, tooltip = L.ICON_SIZE_DESC, min = 20, max = 56, step = 2, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
+		{
+			type = "button",
+			label = L.PREVIEW,
+			buttonText = L.PREVIEW_BUTTON,
+			tooltip = L.PREVIEW_DESC,
+			onClick = function(self)
+				self.forcedPreview = not self.forcedPreview
+				self:QueueUpdate()
+			end,
+		},
 	},
 })
 
@@ -122,8 +140,12 @@ local lastMissing = {}
 local editing, optionsShown = false, false
 
 local function IsPreview()
-	return editing or optionsShown
+	return editing or optionsShown or module.forcedPreview
 end
+
+-- Shown in the preview when no buff of the class is learned yet: Arcane
+-- Intellect, Mark of the Wild, Power Word: Fortitude.
+local SAMPLE_SPELLS = { 1459, 1126, 1243 }
 
 local function IsKnown(spellID)
 	return C_SpellBook.IsSpellKnown(spellID) == true
@@ -196,6 +218,7 @@ end
 local function CreateBar()
 	frame = ns:CreateOverlay("MissingBuffs", {
 		title = L.EDIT_MODE_NAME,
+		module = module,
 		width = 80,
 		height = 50,
 		default = { point = "CENTER", x = 0, y = 120 },
@@ -246,6 +269,14 @@ function module:Update()
 	end
 	local preview = IsPreview()
 	local list = Collect(not preview)
+	if preview and #list == 0 then
+		for _, spellID in ipairs(SAMPLE_SPELLS) do
+			local name = C_Spell.GetSpellName(spellID)
+			if name and not IsSecret(name) then
+				list[#list + 1] = { spellID = spellID, name = name, icon = C_Spell.GetSpellTexture(spellID) }
+			end
+		end
+	end
 	local show = #list > 0 and (preview or ShouldShow(self))
 	if not preview then
 		local missing = {}
@@ -273,6 +304,7 @@ end
 
 -- Last chance to hide the bar before combat locks it.
 function module:OnCombatStart()
+	self.forcedPreview = false
 	if pending then
 		pending:Cancel()
 		pending = nil
@@ -344,6 +376,7 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
+	self.forcedPreview = false
 	if pending then
 		pending:Cancel()
 		pending = nil
