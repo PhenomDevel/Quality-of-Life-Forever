@@ -18,9 +18,6 @@ local L = ns.NewLocale({
 		AFTER_COMBAT_DESC = "Repeats the warning after each fight while the pet is still at or below the level.",
 		MESSAGE = "Your pet is %s (%d%% damage). Feed it: %s",
 		ANY_FOOD = "any food",
-		PREVIEW = "Preview",
-		PREVIEW_DESC = "Shows the warning popup, with your current pet if you have one out.",
-		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Begleiter-Zufriedenheit",
@@ -38,9 +35,6 @@ local L = ns.NewLocale({
 		AFTER_COMBAT_DESC = "Wiederholt die Warnung nach jedem Kampf, solange der Begleiter auf oder unter der Stufe ist.",
 		MESSAGE = "Dein Begleiter ist %s (%d %% Schaden). Füttere ihn: %s",
 		ANY_FOOD = "beliebiges Futter",
-		PREVIEW = "Vorschau",
-		PREVIEW_DESC = "Zeigt das Warn-Popup, mit deinem aktuellen Begleiter, falls einer draußen ist.",
-		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -99,28 +93,27 @@ local module = ns:NewModule("PetHappiness", {
 		{ key = "afterCombat", type = "checkbox", label = L.AFTER_COMBAT, tooltip = L.AFTER_COMBAT_DESC },
 		{ type = "header", label = L.SECTION_HOW },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
-		{
-			type = "button",
-			label = L.PREVIEW,
-			buttonText = L.PREVIEW_BUTTON,
-			tooltip = L.PREVIEW_DESC,
-			onClick = function(self)
-				local happiness, damagePercentage = GetHappiness()
-				-- Without a pet: a content pet deals normal damage.
-				self:Warn(happiness or NEUTRAL, damagePercentage or 100)
-			end,
-		},
 	},
 })
 
 local ICON = "Interface\\Icons\\Ability_Hunter_BeastTraining"
 local lastHappiness
 
+local function Message(happiness, damagePercentage)
+	return L.MESSAGE:format(HAPPINESS_TEXT[happiness] or "", damagePercentage, GetDiet()), ICON
+end
+
 function module:Warn(happiness, damagePercentage)
-	self:Notice(L.MESSAGE:format(HAPPINESS_TEXT[happiness] or "", damagePercentage, GetDiet()), ICON)
+	self:Notice(Message(happiness, damagePercentage))
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end
+end
+
+-- Current pet; without one, a content pet dealing normal damage.
+function module:PreviewNotice()
+	local happiness, damagePercentage = GetHappiness()
+	return Message(happiness or NEUTRAL, damagePercentage or 100)
 end
 
 -- Warns when happiness drops to or below the level, including a pet that is
