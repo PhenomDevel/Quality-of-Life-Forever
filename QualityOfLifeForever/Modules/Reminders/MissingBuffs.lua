@@ -21,9 +21,6 @@ local L = ns.NewLocale({
 		BG_OPACITY_DESC = "Opacity of the bar's background and border, 0 % (transparent) to 100 %.",
 		HEADER = "Missing",
 		CLICK_TO_CAST = "Click to cast",
-		PREVIEW = "Preview",
-		PREVIEW_BUTTON = "Show / hide",
-		PREVIEW_DESC = "Shows the bar with all buffs of your class, also with this window closed, until you click again or enter combat. Without any learned buff, sample icons are shown.",
 	},
 	deDE = {
 		TITLE = "Fehlende Selbst-Buffs",
@@ -44,9 +41,6 @@ local L = ns.NewLocale({
 		BG_OPACITY_DESC = "Deckkraft von Hintergrund und Rahmen der Leiste, von 0 % (durchsichtig) bis 100 %.",
 		HEADER = "Fehlt",
 		CLICK_TO_CAST = "Klicken zum Wirken",
-		PREVIEW = "Vorschau",
-		PREVIEW_BUTTON = "Ein / aus",
-		PREVIEW_DESC = "Zeigt die Leiste mit allen Buffs deiner Klasse, auch bei geschlossenem Fenster, bis du erneut klickst oder in den Kampf gehst. Ohne gelernten Buff werden Beispielsymbole gezeigt.",
 	},
 })
 
@@ -64,6 +58,7 @@ local module = ns:NewModule("MissingBuffs", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "REMINDERS",
+	order = 20,
 	defaults = {
 		notResting = true,
 		sound = false,
@@ -80,16 +75,6 @@ local module = ns:NewModule("MissingBuffs", {
 		{ key = "iconSize", type = "slider", label = L.ICON_SIZE, tooltip = L.ICON_SIZE_DESC, min = 20, max = 56, step = 2, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		ns:TitleOption(),
-		{
-			type = "button",
-			label = L.PREVIEW,
-			buttonText = L.PREVIEW_BUTTON,
-			tooltip = L.PREVIEW_DESC,
-			onClick = function(self)
-				self.forcedPreview = not self.forcedPreview
-				self:QueueUpdate()
-			end,
-		},
 	},
 })
 
@@ -140,7 +125,7 @@ local lastMissing = {}
 local editing, optionsShown = false, false
 
 local function IsPreview()
-	return editing or optionsShown or module.forcedPreview
+	return editing or optionsShown
 end
 
 -- Shown in the preview when no buff of the class is learned yet: Arcane
@@ -304,7 +289,6 @@ end
 
 -- Last chance to hide the bar before combat locks it.
 function module:OnCombatStart()
-	self.forcedPreview = false
 	if pending then
 		pending:Cancel()
 		pending = nil
@@ -376,7 +360,6 @@ function module:OnEnable()
 end
 
 function module:OnDisable()
-	self.forcedPreview = false
 	if pending then
 		pending:Cancel()
 		pending = nil

@@ -21,6 +21,7 @@ local module = ns:NewModule("CopyableURLs", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 10,
 })
 
 local EVENTS = {

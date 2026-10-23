@@ -21,9 +21,6 @@ local L = ns.NewLocale({
 		BADGE_DESC = "Shows the number of unspent talent points on the talent button of the micro menu.",
 		MESSAGE = "You have %d unspent talent point(s).",
 		MESSAGE_UNKNOWN = "You have unspent talent points.",
-		PREVIEW = "Preview",
-		PREVIEW_DESC = "Shows the reminder popup, with your current number of unspent points.",
-		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Talentpunkt-Erinnerung",
@@ -44,9 +41,6 @@ local L = ns.NewLocale({
 		BADGE_DESC = "Zeigt die Anzahl freier Talentpunkte auf der Talent-Taste des Mikromenüs.",
 		MESSAGE = "Du hast %d freie(n) Talentpunkt(e).",
 		MESSAGE_UNKNOWN = "Du hast freie Talentpunkte.",
-		PREVIEW = "Vorschau",
-		PREVIEW_DESC = "Zeigt das Erinnerungs-Popup mit deiner aktuellen Anzahl freier Punkte.",
-		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -59,6 +53,7 @@ local module = ns:NewModule("TalentReminder", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 40,
 	defaults = {
 		levelUp = true,
 		levelUpDelay = 60,
@@ -76,15 +71,6 @@ local module = ns:NewModule("TalentReminder", {
 		{ type = "header", label = L.SECTION_HOW },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
 		{ key = "badge", type = "checkbox", label = L.BADGE, tooltip = L.BADGE_DESC },
-		{
-			type = "button",
-			label = L.PREVIEW,
-			buttonText = L.PREVIEW_BUTTON,
-			tooltip = L.PREVIEW_DESC,
-			onClick = function(self)
-				self:Remind(true)
-			end,
-		},
 	},
 })
 
@@ -109,19 +95,25 @@ local function Unspent()
 	return true, count > 0 and count or nil
 end
 
--- `preview` shows the popup even without unspent points.
-function module:Remind(preview)
+local function Message(count)
+	return count and L.MESSAGE:format(count) or L.MESSAGE_UNKNOWN, ICON
+end
+
+function module:Remind()
 	local hasUnspent, count = Unspent()
-	if not hasUnspent and not preview then
+	if not hasUnspent then
 		return
 	end
-	if not hasUnspent then
-		count = 1
-	end
-	self:Notice(count and L.MESSAGE:format(count) or L.MESSAGE_UNKNOWN, ICON)
+	self:Notice(Message(count))
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end
+end
+
+-- Current unspent points, or one without any.
+function module:PreviewNotice()
+	local hasUnspent, count = Unspent()
+	return Message(hasUnspent and count or 1)
 end
 
 function module:UpdateBadge()

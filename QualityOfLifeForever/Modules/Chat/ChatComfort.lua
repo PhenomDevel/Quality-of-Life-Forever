@@ -29,6 +29,7 @@ local module = ns:NewModule("ChatComfort", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 40,
 	defaults = {
 		history = 1024,
 		scroll = true,

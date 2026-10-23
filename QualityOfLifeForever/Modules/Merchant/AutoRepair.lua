@@ -31,6 +31,7 @@ local module = ns:NewModule("AutoRepair", {
 	description = L.DESC,
 	notice = L.NOTICE,
 	category = "MERCHANT",
+	order = 20,
 	defaultEnabled = true,
 	defaults = {
 		useGuildFunds = true,

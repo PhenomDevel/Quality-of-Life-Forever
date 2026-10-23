@@ -19,6 +19,7 @@ local module = ns:NewModule("FastLoot", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "LOOT",
+	order = 10,
 	defaultEnabled = false,
 })
 

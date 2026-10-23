@@ -19,6 +19,7 @@ local module = ns:NewModule("CombatHideTracker", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "INTERFACE",
+	order = 50,
 })
 
 -- Alpha only: the tracker holds secure quest item buttons and can't be

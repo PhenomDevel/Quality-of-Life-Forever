@@ -37,6 +37,7 @@ local module = ns:NewModule("AutoAcceptGroupInvites", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "SOCIAL",
+	order = 30,
 	defaults = {
 		friends = true,
 		guild = true,

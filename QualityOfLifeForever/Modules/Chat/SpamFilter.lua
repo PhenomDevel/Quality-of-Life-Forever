@@ -42,6 +42,7 @@ local module = ns:NewModule("SpamFilter", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 50,
 	defaults = {
 		keywords = DEFAULT_KEYWORDS,
 		tabCreated = false,

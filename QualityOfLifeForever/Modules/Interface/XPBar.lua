@@ -60,6 +60,7 @@ local module = ns:NewModule("XPBar", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "INTERFACE",
+	order = 30,
 	defaults = {
 		alwaysText = true,
 		rateText = false,

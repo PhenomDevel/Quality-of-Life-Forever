@@ -64,6 +64,7 @@ local module = ns:NewModule("CooldownTextPosition", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "COOLDOWN_MANAGER",
+	order = 20,
 	defaults = {
 		position = "BOTTOMRIGHT",
 		x = 0,

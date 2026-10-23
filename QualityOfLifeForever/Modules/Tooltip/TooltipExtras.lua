@@ -35,6 +35,7 @@ local module = ns:NewModule("TooltipExtras", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "TOOLTIP",
+	order = 10,
 	defaults = {
 		guildRank = true,
 		target = true,

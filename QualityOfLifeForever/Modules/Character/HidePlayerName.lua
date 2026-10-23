@@ -19,6 +19,7 @@ local module = ns:NewModule("HidePlayerName", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHARACTER",
+	order = 20,
 })
 
 local function GetNameText()

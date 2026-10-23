@@ -122,6 +122,7 @@ local module = ns:NewModule("CooldownKeybinds", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "COOLDOWN_MANAGER",
+	order = 10,
 	defaults = defaults,
 	options = options,
 })

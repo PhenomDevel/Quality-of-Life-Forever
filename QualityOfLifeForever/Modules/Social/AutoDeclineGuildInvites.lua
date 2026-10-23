@@ -39,6 +39,7 @@ local module = ns:NewModule("AutoDeclineGuildInvites", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "SOCIAL",
+	order = 40,
 	defaults = {
 		invites = true,
 		petitions = true,

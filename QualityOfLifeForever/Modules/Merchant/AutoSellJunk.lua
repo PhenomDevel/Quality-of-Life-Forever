@@ -27,6 +27,7 @@ local module = ns:NewModule("AutoSellJunk", {
 	description = L.DESC,
 	notice = L.NOTICE,
 	category = "MERCHANT",
+	order = 10,
 	defaultEnabled = true,
 	defaults = {
 		showSummary = true,

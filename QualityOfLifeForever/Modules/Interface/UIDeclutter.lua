@@ -33,6 +33,7 @@ local module = ns:NewModule("UIDeclutter", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "INTERFACE",
+	order = 20,
 	defaults = {
 		errors = true,
 		zoneText = false,

@@ -38,6 +38,7 @@ local module = ns:NewModule("CombatText", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "INTERFACE",
+	order = 40,
 	defaults = {
 		damage = false,
 		healing = false,

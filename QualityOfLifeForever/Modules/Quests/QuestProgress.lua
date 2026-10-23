@@ -20,6 +20,7 @@ local module = ns:NewModule("QuestProgress", {
 	title = L.TITLE,
 	description = L.DESC,
 	category = "QUESTS",
+	order = 40,
 	defaults = {
 		share = false,
 	},

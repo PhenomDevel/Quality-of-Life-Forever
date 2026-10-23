@@ -42,6 +42,7 @@ local module = ns:NewModule("GuildRecruitTab", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 90,
 	defaults = {
 		keywords = DEFAULT_KEYWORDS,
 		tabCreated = false,

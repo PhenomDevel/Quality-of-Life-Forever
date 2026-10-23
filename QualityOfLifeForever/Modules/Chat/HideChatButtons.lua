@@ -18,6 +18,7 @@ local module = ns:NewModule("HideChatButtons", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 70,
 })
 
 local BUTTONS = { "ChatFrameMenuButton", "ChatFrameChannelButton", "ChatFrameToggleVoiceDeafenButton", "ChatFrameToggleVoiceMuteButton", "QuickJoinToastButton" }

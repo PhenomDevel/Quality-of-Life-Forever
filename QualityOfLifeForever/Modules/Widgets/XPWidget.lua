@@ -101,6 +101,7 @@ local module = ns:NewModule("XPWidget", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "WIDGETS",
+	order = 10,
 	defaults = {
 		showRate = true,
 		showRested = true,
@@ -121,6 +122,8 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ type = "header", label = L.SECTION_BAR },
+		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
 		{
 			key = "layout",
@@ -133,13 +136,13 @@ local module = ns:NewModule("XPWidget", {
 			},
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
+		ns:TextOutlineOption(),
+		ns:TextShadowOption(),
 		-- 0 is Auto; anything below MIN_BAR_LENGTH is raised to it.
 		{ key = "barLength", type = "slider", label = L.BAR_LENGTH, tooltip = L.BAR_LENGTH_DESC, min = 0, max = 600, step = 10, format = FormatLength },
 		{ key = "barThickness", type = "slider", label = L.BAR_THICKNESS, tooltip = L.BAR_THICKNESS_DESC, min = 2, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		ns:TitleOption(),
-		ns:TextOutlineOption(),
-		ns:TextShadowOption(),
 		{ type = "header", label = L.SECTION_SESSION },
 		{ key = "sessionReset", type = "dropdown", label = ns.L.SESSION_RESET, tooltip = ns.L.SESSION_RESET_DESC, values = ns.Utils.SessionResetValues() },
 		{
@@ -153,8 +156,6 @@ local module = ns:NewModule("XPWidget", {
 				self:Print(L.RESET_DONE)
 			end,
 		},
-		{ type = "header", label = L.SECTION_BAR },
-		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 	},
 })
 

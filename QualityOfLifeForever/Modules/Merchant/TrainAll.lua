@@ -35,6 +35,7 @@ local module = ns:NewModule("TrainAll", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "MERCHANT",
+	order = 30,
 	defaults = {
 		petTrainer = false,
 	},

@@ -50,6 +50,7 @@ local module = ns:NewModule("TooltipAnchor", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "TOOLTIP",
+	order = 20,
 	defaults = {
 		anchor = "ANCHOR_CURSOR",
 		scale = 1,

@@ -18,6 +18,7 @@ local module = ns:NewModule("AutoLoot", {
 	description = L.DESC,
 	notice = L.NOTICE,
 	category = "LOOT",
+	order = 20,
 })
 
 function module:OnEnable()

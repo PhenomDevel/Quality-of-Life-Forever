@@ -23,6 +23,7 @@ local module = ns:NewModule("ShowDurability", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "BAGS",
+	order = 40,
 	defaults = {
 		hideFull = true,
 	},

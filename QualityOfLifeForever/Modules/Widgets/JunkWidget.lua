@@ -8,6 +8,7 @@ local L = ns.NewLocale({
 		DESC = "A small movable list of the cheapest gray (junk) items in your bags, cheapest first by vendor value of the whole stack. Click an item to delete it and free a bag slot out in the world, where you can't sell. Hidden while you carry no gray items. Drag the widget's edge to move it; scale it in {Edit Mode}.",
 		NOTICE = "A click deletes the item right away, without asking. Only gray items are listed.",
 		EDIT_MODE_NAME = "QoL Forever: Junk",
+		SECTION_SHOW = "Show",
 		SECTION_LOOK = "Appearance",
 		COUNT = "Items shown",
 		COUNT_DESC = "How many of the cheapest gray items are listed.",
@@ -25,6 +26,7 @@ local L = ns.NewLocale({
 		DESC = "Eine kleine verschiebbare Liste der günstigsten grauen Gegenstände (Plunder) in deinen Taschen, aufsteigend nach Händlerwert des ganzen Stapels. Ein Klick löscht den Gegenstand und macht unterwegs, wo du nichts verkaufen kannst, einen Taschenplatz frei. Ausgeblendet, solange du keine grauen Gegenstände dabei hast. Zum Verschieben am Rand ziehen; skalieren im {Bearbeitungsmodus}.",
 		NOTICE = "Ein Klick löscht den Gegenstand sofort und ohne Nachfrage. Es werden nur graue Gegenstände angezeigt.",
 		EDIT_MODE_NAME = "QoL Forever: Plunder",
+		SECTION_SHOW = "Anzeigen",
 		SECTION_LOOK = "Darstellung",
 		COUNT = "Angezeigte Gegenstände",
 		COUNT_DESC = "Wie viele der günstigsten grauen Gegenstände aufgelistet werden.",
@@ -48,6 +50,7 @@ local module = ns:NewModule("JunkWidget", {
 	note = L.NOTE,
 	notice = L.NOTICE,
 	category = "WIDGETS",
+	order = 60,
 	defaults = {
 		count = 3,
 		fontSize = 11,
@@ -57,13 +60,14 @@ local module = ns:NewModule("JunkWidget", {
 		showTitle = false,
 	},
 	options = {
+		{ type = "header", label = L.SECTION_SHOW },
 		{ key = "count", type = "slider", label = L.COUNT, tooltip = L.COUNT_DESC, min = 1, max = 5, step = 1 },
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
-		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
-		ns:TitleOption(),
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
+		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
+		ns:TitleOption(),
 	},
 })
 

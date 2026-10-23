@@ -12,9 +12,6 @@ local L = ns.NewLocale({
 		SOUND = "Sound",
 		SOUND_DESC = "Plays a sound with the warning.",
 		MESSAGE = "Durability low: %s at %d%%. Time to repair.",
-		PREVIEW = "Preview",
-		PREVIEW_DESC = "Shows the warning popup with your most worn item.",
-		PREVIEW_BUTTON = "Show",
 	},
 	deDE = {
 		TITLE = "Haltbarkeits-Warnung",
@@ -26,9 +23,6 @@ local L = ns.NewLocale({
 		SOUND = "Ton",
 		SOUND_DESC = "Spielt einen Ton zur Warnung.",
 		MESSAGE = "Haltbarkeit niedrig: %s bei %d %%. Zeit zum Reparieren.",
-		PREVIEW = "Vorschau",
-		PREVIEW_DESC = "Zeigt das Warn-Popup mit deinem am stärksten abgenutzten Gegenstand.",
-		PREVIEW_BUTTON = "Anzeigen",
 	},
 })
 
@@ -41,6 +35,7 @@ local module = ns:NewModule("DurabilityWarning", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "REMINDERS",
+	order = 10,
 	defaults = {
 		threshold = 20,
 		sound = true,
@@ -49,15 +44,6 @@ local module = ns:NewModule("DurabilityWarning", {
 		{ key = "threshold", type = "slider", label = L.THRESHOLD, tooltip = L.THRESHOLD_DESC, min = 5, max = 50, step = 5, format = FormatPercent },
 		{ type = "header", label = L.SECTION_HOW },
 		{ key = "sound", type = "checkbox", label = L.SOUND, tooltip = L.SOUND_DESC },
-		{
-			type = "button",
-			label = L.PREVIEW,
-			buttonText = L.PREVIEW_BUTTON,
-			tooltip = L.PREVIEW_DESC,
-			onClick = function(self)
-				self:Preview()
-			end,
-		},
 	},
 })
 
@@ -93,19 +79,24 @@ function module:Check()
 	self:Warn(lowest, slot)
 end
 
+local function Message(percent, slot)
+	return L.MESSAGE:format(GetInventoryItemLink("player", slot) or "?", math.floor(percent)), GetInventoryItemTexture("player", slot)
+end
+
 function module:Warn(percent, slot)
-	local message = L.MESSAGE:format(GetInventoryItemLink("player", slot) or "?", math.floor(percent))
-	self:Notice(message, GetInventoryItemTexture("player", slot))
+	self:Notice(Message(percent, slot))
 	if self.db.sound then
 		PlaySound(SOUNDKIT.RAID_WARNING, "Master")
 	end
 end
 
-function module:Preview()
+-- Most worn item; without any item with durability, a sample at the threshold.
+function module:PreviewNotice()
 	local lowest, slot = FindMostWorn()
 	if slot then
-		self:Warn(lowest, slot)
+		return Message(lowest, slot)
 	end
+	return L.MESSAGE:format("?", self.db.threshold)
 end
 
 function module:OnOptionChanged(key)

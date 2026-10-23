@@ -16,6 +16,10 @@ local L = ns.L
 			text  = string (markup like ns:Print)
 			icon  = optional texture path or file ID
 		})
+
+	While the options window is open, every enabled module with a
+	PreviewNotice() method (returning text, icon) shows a preview that stays
+	until the window closes.
 ]]
 
 local WIDTH = 300
@@ -110,7 +114,7 @@ end
 
 local function Fill(toast, notice)
 	toast.notice = notice
-	toast.remaining = DURATION
+	toast.remaining = notice.preview and math.huge or DURATION
 	local left = PADDING
 	if notice.icon then
 		toast.Icon:SetTexture(notice.icon)
@@ -136,7 +140,8 @@ function ShowNext()
 	if InCombatLockdown() then
 		return
 	end
-	while #queue > 0 and #shown < MAX_SHOWN do
+	-- Previews may exceed the limit; they all belong on screen together.
+	while #queue > 0 and (#shown < MAX_SHOWN or queue[1].preview) do
 		local toast = table.remove(pool) or CreateToast()
 		Fill(toast, table.remove(queue, 1))
 		shown[#shown + 1] = toast
@@ -176,6 +181,40 @@ function ns:ShowNotice(notice)
 	end
 	queue[#queue + 1] = notice
 	ShowNext()
+end
+
+local function RemovePreviews()
+	for i = #queue, 1, -1 do
+		if queue[i].preview then
+			table.remove(queue, i)
+		end
+	end
+	for i = #shown, 1, -1 do
+		if shown[i].notice.preview then
+			Dismiss(shown[i])
+		end
+	end
+end
+
+-- Shows or removes the module previews. optionsShown: the options window
+-- opened or closed; nil to rebuild them after a module was turned on or off.
+local previewsShown = false
+function ns:UpdateNoticePreviews(optionsShown)
+	if optionsShown ~= nil then
+		previewsShown = optionsShown
+	end
+	RemovePreviews()
+	if not previewsShown or not ns.db.global.notices then
+		return
+	end
+	for _, module in ipairs(ns:GetSortedModules("REMINDERS")) do
+		if module.enabled and module.PreviewNotice then
+			local ok, text, icon = ns.Utils.SafeCall(module.PreviewNotice, module)
+			if ok and text then
+				ns:ShowNotice({ key = "preview:" .. module.name, title = module.title, text = text, icon = icon, preview = true })
+			end
+		end
+	end
 end
 
 -- Called once on login, after the database is loaded.

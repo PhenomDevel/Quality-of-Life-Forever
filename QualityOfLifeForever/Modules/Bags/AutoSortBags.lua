@@ -22,6 +22,7 @@ local module = ns:NewModule("AutoSortBags", {
 	notice = L.NOTICE,
 	note = L.NOTE,
 	category = "BAGS",
+	order = 30,
 })
 
 local pending = false

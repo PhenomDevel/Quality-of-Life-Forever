@@ -147,6 +147,7 @@ local module = ns:NewModule("GraphicsTweaks", {
 	notice = L.NOTICE,
 	note = L.NOTE,
 	category = "GRAPHICS",
+	order = 20,
 	defaults = defaults,
 	options = options,
 })

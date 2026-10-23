@@ -23,6 +23,7 @@ local module = ns:NewModule("ChatCopy", {
 	description = L.DESC,
 	note = L.NOTE,
 	category = "CHAT",
+	order = 60,
 })
 
 local MAX_WINDOWS = Constants and Constants.ChatFrameConstants and Constants.ChatFrameConstants.MaxChatWindows or NUM_CHAT_WINDOWS
