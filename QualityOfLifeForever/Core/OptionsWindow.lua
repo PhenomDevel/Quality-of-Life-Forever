@@ -624,12 +624,41 @@ local function WidgetStackEntry()
 	}
 end
 
+-- Widgets page: titles above the widgets also while the options are closed.
+local function WidgetTitlesEntry()
+	local toggle = {
+		get = function()
+			return ns.db.global.overlayTitles
+		end,
+		set = function(value)
+			ns.db.global.overlayTitles = value
+			ns:UpdateOverlayTitles()
+			ns:RefreshOptions()
+		end,
+	}
+	return {
+		key = "WidgetTitles",
+		title = L.SETTING_WIDGET_TITLES,
+		note = L.SETTING_WIDGET_TITLES_NOTE,
+		toggle = toggle,
+		card = function()
+			return {
+				title = L.SETTING_WIDGET_TITLES,
+				note = L.SETTING_WIDGET_TITLES_NOTE,
+				toggle = toggle,
+				rows = { { type = "description", label = L.SETTING_WIDGET_TITLES_DESC } },
+			}
+		end,
+	}
+end
+
 -- Returns title, subtitle, list entries.
 local function CategoryPage(category)
 	local modules = ns:GetSortedModules(category.id)
 	local entries = {}
 	if category.id == "WIDGETS" then
 		entries[1] = WidgetStackEntry()
+		entries[2] = WidgetTitlesEntry()
 	end
 	for _, module in ipairs(modules) do
 		entries[#entries + 1] = ModuleEntry(module)
@@ -1169,6 +1198,7 @@ end
 -- Modules can react to the window, e.g. show a preview of a widget that is
 -- otherwise only visible in certain situations.
 local function NotifyModules(shown)
+	ns:UpdateOverlayTitles(shown)
 	for _, module in ipairs(ns.moduleOrder) do
 		if module.enabled and module.OnOptionsShown then
 			ns.Utils.SafeCall(module.OnOptionsShown, module, shown)

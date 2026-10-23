@@ -27,6 +27,11 @@ local L = ns.NewLocale({
 		LAYOUT_VERTICAL = "Vertical",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text. The widget grows with it.",
+		BAR_LENGTH = "Bar length",
+		BAR_LENGTH_DESC = "Length of the XP bar in pixels: its width in the horizontal layout, its height in the vertical one. Auto follows the text size (horizontal) or the text rows (vertical).",
+		BAR_THICKNESS = "Bar thickness",
+		BAR_THICKNESS_DESC = "Thickness of the XP bar in pixels: its height in the horizontal layout, its width in the vertical one.",
+		AUTO = "Auto",
 		BG_OPACITY = "Background opacity",
 		BG_OPACITY_DESC = "Opacity of the widget's background and border, 0 % (transparent) to 100 %. Text and bar stay as they are.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
@@ -60,6 +65,11 @@ local L = ns.NewLocale({
 		LAYOUT_DESC = "Horizontal: breit, die Leiste zwischen den Textzeilen. Vertikal: schmal, die Leiste links wird von unten nach oben gefüllt, die Texte stehen untereinander daneben.",
 		LAYOUT_HORIZONTAL = "Horizontal",
 		LAYOUT_VERTICAL = "Vertikal",
+		BAR_LENGTH = "Leistenlänge",
+		BAR_LENGTH_DESC = "Länge der EP-Leiste in Pixeln: ihre Breite bei horizontaler, ihre Höhe bei vertikaler Ausrichtung. Automatisch richtet sie sich nach der Textgröße (horizontal) bzw. den Textzeilen (vertikal).",
+		BAR_THICKNESS = "Leistendicke",
+		BAR_THICKNESS_DESC = "Dicke der EP-Leiste in Pixeln: ihre Höhe bei horizontaler, ihre Breite bei vertikaler Ausrichtung.",
+		AUTO = "Automatisch",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Schriftgröße des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
@@ -78,6 +88,14 @@ local function FormatPercent(value)
 	return ("%d%%"):format(value)
 end
 
+local function FormatPixels(value)
+	return ("%d px"):format(value)
+end
+
+local function FormatLength(value)
+	return value == 0 and L.AUTO or FormatPixels(value)
+end
+
 local module = ns:NewModule("XPWidget", {
 	title = L.TITLE,
 	description = L.DESC,
@@ -90,6 +108,8 @@ local module = ns:NewModule("XPWidget", {
 		sessionReset = "LOGIN",
 		layout = "HORIZONTAL",
 		fontSize = 11,
+		barLength = 0,
+		barThickness = 6,
 		backgroundOpacity = 92,
 		textOutline = "NONE",
 		textShadow = true,
@@ -112,6 +132,9 @@ local module = ns:NewModule("XPWidget", {
 			},
 		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
+		-- 0 is Auto; anything below MIN_BAR_LENGTH is raised to it.
+		{ key = "barLength", type = "slider", label = L.BAR_LENGTH, tooltip = L.BAR_LENGTH_DESC, min = 0, max = 600, step = 10, format = FormatLength },
+		{ key = "barThickness", type = "slider", label = L.BAR_THICKNESS, tooltip = L.BAR_THICKNESS_DESC, min = 2, max = 24, step = 1, format = FormatPixels },
 		{ key = "backgroundOpacity", type = "slider", label = L.BG_OPACITY, tooltip = L.BG_OPACITY_DESC, min = 0, max = 100, step = 1, format = FormatPercent },
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
@@ -140,7 +163,7 @@ local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
 local VERTICAL_TEXT_WIDTH = 150
 local ROW_GAP = 3
 local PADDING = 7
-local BAR_HEIGHT = 6
+local MIN_BAR_LENGTH = 60
 local REFRESH_SECONDS = 3
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
 local RESTED_COLOR = { 0.72, 0.5, 1, 0.65 }
@@ -391,6 +414,12 @@ function module:HookContainers()
 	end
 end
 
+-- Custom bar length in pixels, or nil for Auto.
+local function BarLength()
+	local length = module.db.barLength
+	return length > 0 and math.max(length, MIN_BAR_LENGTH) or nil
+end
+
 local function PlaceText(text, justify, width, ...)
 	text:SetJustifyH(justify)
 	text:SetWidth(width)
@@ -402,26 +431,28 @@ end
 local function LayoutHorizontal(size, lineHeight)
 	local bar = frame.Bar
 	local barTop = PADDING + lineHeight + 2
+	local thickness = module.db.barThickness
 	bar:SetOrientation("HORIZONTAL")
-	bar:SetHeight(BAR_HEIGHT)
+	bar:SetHeight(thickness)
 	bar:SetPoint("TOPLEFT", PADDING, -barTop)
 	bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
 	PlaceText(frame.Level, "LEFT", 0, "TOPLEFT", PADDING, -PADDING)
 	PlaceText(frame.Rate, "RIGHT", 0, "TOPRIGHT", -PADDING, -PADDING)
 	PlaceText(frame.Values, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
 	PlaceText(frame.Rested, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
-	local height = barTop + BAR_HEIGHT + 4 + lineHeight + PADDING
+	local height = barTop + thickness + 4 + lineHeight + PADDING
 	if HasText(frame.Rested) and HasText(frame.Quests) then
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -ROW_GAP)
 		height = height + lineHeight + ROW_GAP
 	else
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
 	end
-	frame:SetSize(math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+	local length = BarLength()
+	frame:SetSize(length and length + PADDING * 2 or math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
 end
 
--- Vertical: the bar on the left as high as the text column; empty optional
--- rows take no space.
+-- Vertical: the bar on the left, as high as the text column unless it has a
+-- length of its own; empty optional rows take no space.
 local function LayoutVertical(size, lineHeight)
 	local rows = { frame.Level, frame.Values }
 	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate }) do
@@ -429,7 +460,8 @@ local function LayoutVertical(size, lineHeight)
 			rows[#rows + 1] = text
 		end
 	end
-	local textLeft = PADDING + BAR_HEIGHT + PADDING
+	local thickness = module.db.barThickness
+	local textLeft = PADDING + thickness + PADDING
 	local textWidth = math.floor(VERTICAL_TEXT_WIDTH * size / BASE_FONT_SIZE + 0.5)
 	for i, text in ipairs(rows) do
 		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + (i - 1) * (lineHeight + ROW_GAP)))
@@ -437,9 +469,10 @@ local function LayoutVertical(size, lineHeight)
 	local rowsHeight = #rows * lineHeight + (#rows - 1) * ROW_GAP
 	local bar = frame.Bar
 	bar:SetOrientation("VERTICAL")
-	bar:SetSize(BAR_HEIGHT, rowsHeight)
+	local barLength = BarLength() or rowsHeight
+	bar:SetSize(thickness, barLength)
 	bar:SetPoint("TOPLEFT", PADDING, -PADDING)
-	frame:SetSize(textLeft + textWidth + PADDING, rowsHeight + PADDING * 2)
+	frame:SetSize(textLeft + textWidth + PADDING, math.max(rowsHeight, barLength) + PADDING * 2)
 end
 
 -- Font, layout and size follow the text size and the shown rows.
@@ -460,7 +493,7 @@ end
 
 function module:OnOptionChanged(key)
 	if key == "fontSize" or key == "showQuestXP" or key == "backgroundOpacity" or key == "layout"
-		or key == "textOutline" or key == "textShadow" then
+		or key == "barLength" or key == "barThickness" or key == "textOutline" or key == "textShadow" then
 		self:ApplyLayout()
 	end
 	if key == "hideBlizzardBar" then
