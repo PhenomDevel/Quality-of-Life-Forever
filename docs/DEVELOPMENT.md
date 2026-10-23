@@ -84,5 +84,5 @@ update the `.toc`, otherwise the client flags the addon as out of date.
 
 ## License
 
-GPL-3.0, see [`LICENSE`](../LICENSE). The embedded libraries keep their own
+MIT, see [`LICENSE`](../LICENSE). The embedded libraries keep their own
 licenses (see *Libraries*).
