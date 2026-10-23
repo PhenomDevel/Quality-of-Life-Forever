@@ -58,6 +58,7 @@ Modules\CooldownManager\CooldownKeybinds.lua
 # Character
 Modules\Character\CustomPlayerName.lua
 Modules\Character\HidePlayerName.lua
+Modules\Character\UnitFrameText.lua
 
 # Reminders
 Modules\Reminders\DurabilityWarning.lua
