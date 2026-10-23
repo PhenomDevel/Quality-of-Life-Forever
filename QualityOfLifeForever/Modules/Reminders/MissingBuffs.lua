@@ -334,7 +334,7 @@ function module:OnEnable()
 		self:ApplyLayout()
 	end
 	lastMissing = {}
-	optionsShown = ns:IsOptionsShown()
+	optionsShown = ns:IsOptionsPreviewShown()
 	if not self.editModeHooked then
 		self.editModeHooked = true
 		LibEditMode:RegisterCallback("enter", function()

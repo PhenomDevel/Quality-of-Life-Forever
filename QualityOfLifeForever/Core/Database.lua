@@ -13,6 +13,7 @@ local GLOBAL_DEFAULTS = {
 	debug = false,
 	minimapButton = true,
 	minimapAngle = 225,
+	optionsPreview = true,
 	whatsNew = true,
 	-- [overlay key][Edit Mode layout name] = { point, x, y, scale }
 	overlays = {},
@@ -37,7 +38,7 @@ end
 	Layout of QualityOfLifeForeverDB (account wide):
 	{
 		version = 1,
-		global = { printMessages = true, notices = true, stackWidgets = false, debug = false, minimapButton = true, minimapAngle = 225, whatsNew = true, lastVersion = "v0.11.0", overlays = {} },
+		global = { printMessages = true, notices = true, stackWidgets = false, debug = false, minimapButton = true, minimapAngle = 225, optionsPreview = true, whatsNew = true, lastVersion = "v0.11.0", overlays = {} },
 		modules = {
 			AutoRepair = { enabled = true, useGuildFunds = true },
 			...

@@ -239,7 +239,7 @@ function module:OnEnable()
 	self:ApplyLayout()
 	self:RegisterEvent("UNIT_POWER_FREQUENT")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	optionsShown = ns:IsOptionsShown()
+	optionsShown = ns:IsOptionsPreviewShown()
 	if not self.editModeHooked then
 		self.editModeHooked = true
 		LibEditMode:RegisterCallback("enter", function()
