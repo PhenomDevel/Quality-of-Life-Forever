@@ -115,7 +115,6 @@ local ICON_GAP = 4
 local HEADER_GAP = 4
 
 local IsSecret = ns.Utils.IsSecret
-local LibEditMode = ns.LibEditMode
 local pending
 local frame
 -- Secure action buttons, created out of combat only and reused.
@@ -335,17 +334,14 @@ function module:OnEnable()
 	end
 	lastMissing = {}
 	optionsShown = ns:IsOptionsPreviewShown()
-	if not self.editModeHooked then
-		self.editModeHooked = true
-		LibEditMode:RegisterCallback("enter", function()
-			editing = true
-			self:QueueUpdate()
-		end)
-		LibEditMode:RegisterCallback("exit", function()
-			editing = false
-			self:QueueUpdate()
-		end)
-	end
+	self:RegisterEditModeCallback("enter", function()
+		editing = true
+		self:QueueUpdate()
+	end)
+	self:RegisterEditModeCallback("exit", function()
+		editing = false
+		self:QueueUpdate()
+	end)
 	self:RegisterEvent("UNIT_AURA", function(_, unit)
 		if unit == "player" then
 			self:QueueUpdate()

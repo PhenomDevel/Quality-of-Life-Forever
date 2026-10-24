@@ -29,6 +29,7 @@ L.CATEGORY_WIDGETS = "Widgets"
 -- Options window
 L.SETTINGS_GENERAL_HEADER = "Allgemein"
 L.SETTINGS_ENABLE_FOR_OPTIONS = "Weitere Optionen erscheinen nach dem Aktivieren."
+L.SETTINGS_UNLOAD_ON_RELOAD = "Aus. Wird beim nächsten |cffffd100/reload|r vollständig entladen."
 L.SETTING_PRINT_MESSAGES = "Chatnachrichten anzeigen"
 L.SETTING_PRINT_MESSAGES_DESC = "Zeigt Rückmeldungen der Module im Chatfenster an (z. B. Reparaturkosten, verkaufter Plunder)."
 L.SETTING_MINIMAP_BUTTON = "Minimap-Button"
@@ -52,6 +53,7 @@ L.OPTIONS_PREVIEW_DESC = "Zeigt bei offenem Fenster alle Widgets und Erinnerunge
 L.SETTINGS_PAGE_TEXT = "Die Optionen haben ein eigenes Fenster. Du öffnest es auch mit |cffffd100/qol|r oder über das Addon-Menü an der Minimap."
 L.SETTINGS_PAGE_BUTTON = "Optionen öffnen"
 L.RELOAD_REQUIRED = "%s benötigt ein Neuladen der Oberfläche, damit die Änderung vollständig greift. Jetzt neu laden?"
+L.RELOAD_TO_UNLOAD = "%s ist aus. Oberfläche jetzt neu laden, um es vollständig zu entladen? Bis dahin ist es nur stummgeschaltet."
 L.COMBAT_QUEUED = "%s wird nach dem Kampf aktualisiert."
 
 -- XP session

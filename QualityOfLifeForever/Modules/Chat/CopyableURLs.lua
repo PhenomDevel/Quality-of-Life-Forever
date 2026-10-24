@@ -71,7 +71,7 @@ local function Filter(_, _, text, ...)
 end
 
 local function OnSetItemRef(_, link)
-	if not module.enabled or type(link) ~= "string" then
+	if type(link) ~= "string" then
 		return
 	end
 	local url = link:match(LINK_PATTERN)
@@ -102,13 +102,14 @@ function module:OnInitialize()
 		whileDead = 1,
 		hideOnEscape = 1,
 	}
-	EventRegistry:RegisterCallback("SetItemRef", OnSetItemRef, self)
 end
 
 function module:OnEnable()
 	ns.Chat.AddFilters(EVENTS, Filter)
+	EventRegistry:RegisterCallback("SetItemRef", OnSetItemRef, self)
 end
 
 function module:OnDisable()
 	ns.Chat.RemoveFilters(EVENTS, Filter)
+	EventRegistry:UnregisterCallback("SetItemRef", self)
 end

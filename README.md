@@ -4,7 +4,9 @@ Small quality-of-life improvements for World of Warcraft **Forever** in one
 addon. Every feature can be switched on and off on its own; almost all are off
 until you turn them on. Features that change game settings or act without
 asking are marked in the options, and turning them off restores your previous
-settings.
+settings. A feature that is off runs no code at all: it sets nothing up until
+you turn it on, and if you turn it off again, the addon offers a reload to
+unload it completely.
 
 **Open the options:** `/qol`, the button at the minimap, or the addon menu
 next to the minimap. The options have their own window: features on the left,

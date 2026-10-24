@@ -1,4 +1,4 @@
--- luacheck: read globals TooltipDataProcessor Enum
+-- luacheck: read globals Enum
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -27,15 +27,14 @@ local module = ns:NewModule("TooltipIDs", {
 })
 
 local function AddID(format)
-	return function(tooltip, data)
-		if module.enabled and data and data.id ~= nil and not ns.Utils.IsSecret(data.id) then
+	return function(_, tooltip, data)
+		if data and data.id ~= nil and not ns.Utils.IsSecret(data.id) then
 			tooltip:AddLine(format:format(data.id), 0.6, 0.6, 0.6)
 		end
 	end
 end
 
 function module:OnInitialize()
-	-- Post-calls can't be removed: they check module.enabled.
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, AddID(L.ITEM_ID))
-	TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Spell, AddID(L.SPELL_ID))
+	self:AddTooltipPostCall(Enum.TooltipDataType.Item, AddID(L.ITEM_ID))
+	self:AddTooltipPostCall(Enum.TooltipDataType.Spell, AddID(L.SPELL_ID))
 end
