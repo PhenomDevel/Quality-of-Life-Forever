@@ -201,3 +201,18 @@ function Utils.SessionResetValues()
 		{ value = "MANUAL", label = L.SESSION_RESET_MANUAL },
 	}
 end
+
+-- Option values for a dropdown of the nine anchor points.
+function Utils.AnchorPointValues()
+	local L = ns.L
+	local values = {}
+	for _, point in ipairs({ "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT" }) do
+		values[#values + 1] = { value = point, label = L["ANCHOR_" .. point] }
+	end
+	return values
+end
+
+-- Slider format for pixel values.
+function Utils.FormatPixels(value)
+	return ("%d px"):format(value)
+end

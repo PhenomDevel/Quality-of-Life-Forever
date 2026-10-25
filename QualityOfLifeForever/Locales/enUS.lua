@@ -69,6 +69,17 @@ L.SESSION_RESET_LOGIN = "On login"
 L.SESSION_RESET_DAILY = "Daily"
 L.SESSION_RESET_MANUAL = "Manually"
 
+-- Anchor points (position dropdowns)
+L.ANCHOR_TOPLEFT = "Top left"
+L.ANCHOR_TOP = "Top"
+L.ANCHOR_TOPRIGHT = "Top right"
+L.ANCHOR_LEFT = "Left"
+L.ANCHOR_CENTER = "Center"
+L.ANCHOR_RIGHT = "Right"
+L.ANCHOR_BOTTOMLEFT = "Bottom left"
+L.ANCHOR_BOTTOM = "Bottom"
+L.ANCHOR_BOTTOMRIGHT = "Bottom right"
+
 -- Slash commands
 L.SLASH_HELP_HEADER = "Commands:"
 L.SLASH_HELP_CONFIG = "|cffffd100/qol|r - open the options"

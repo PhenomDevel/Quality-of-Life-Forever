@@ -95,6 +95,8 @@ doesn't take others down.
 | `self.db`                                 | The module's saved data (account-wide) |
 | `ns.Utils.FormatMoney(copper)`            | Money string with coin icons |
 | `ns.Utils.IsSecret(value)`                | Checks for secret values (see below) |
+| `ns.Utils.AnchorPointValues()`            | Dropdown values for the nine anchor points (`TOPLEFT` … `BOTTOMRIGHT`) |
+| `ns.Utils.FormatPixels(value)`            | Slider format `"%d px"` |
 
 ## Overlays (2.0)
 

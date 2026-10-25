@@ -19,15 +19,6 @@ local L = ns.NewLocale({
 		OFFSET_X_DESC = "Moves the keybind to the right (positive) or left (negative), in pixels.",
 		OFFSET_Y = "Vertical offset",
 		OFFSET_Y_DESC = "Moves the keybind up (positive) or down (negative), in pixels.",
-		TOPLEFT = "Top left",
-		TOP = "Top",
-		TOPRIGHT = "Top right",
-		LEFT = "Left",
-		CENTER = "Center",
-		RIGHT = "Right",
-		BOTTOMLEFT = "Bottom left",
-		BOTTOM = "Bottom",
-		BOTTOMRIGHT = "Bottom right",
 		PRESS = "Key press",
 		PRESS_HIGHLIGHT = "Highlight on key press",
 		PRESS_HIGHLIGHT_DESC = "Lights up the icon while you hold down the key of the action button that holds the spell.",
@@ -52,15 +43,6 @@ local L = ns.NewLocale({
 		OFFSET_X_DESC = "Verschiebt die Taste nach rechts (positiv) oder links (negativ), in Pixeln.",
 		OFFSET_Y = "Vertikaler Versatz",
 		OFFSET_Y_DESC = "Verschiebt die Taste nach oben (positiv) oder unten (negativ), in Pixeln.",
-		TOPLEFT = "Oben links",
-		TOP = "Oben",
-		TOPRIGHT = "Oben rechts",
-		LEFT = "Links",
-		CENTER = "Mitte",
-		RIGHT = "Rechts",
-		BOTTOMLEFT = "Unten links",
-		BOTTOM = "Unten",
-		BOTTOMRIGHT = "Unten rechts",
 		PRESS = "Tastendruck",
 		PRESS_HIGHLIGHT = "Bei Tastendruck aufleuchten",
 		PRESS_HIGHLIGHT_DESC = "Lässt das Symbol aufleuchten, solange die Taste der Aktionstaste mit dem Zauber gedrückt ist.",
@@ -69,21 +51,6 @@ local L = ns.NewLocale({
 		RANGE_INDICATOR_DESC = "Wie auf den Aktionsleisten: Die Taste wird rot und das Symbol grau, solange dein Ziel außerhalb der Reichweite des Zaubers ist.",
 	},
 })
-
-local POSITIONS = {
-	"TOPLEFT", "TOP", "TOPRIGHT",
-	"LEFT", "CENTER", "RIGHT",
-	"BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT",
-}
-
-local positionValues = {}
-for _, point in ipairs(POSITIONS) do
-	positionValues[#positionValues + 1] = { value = point, label = L[point] }
-end
-
-local function FormatPixels(value)
-	return ("%d px"):format(value)
-end
 
 -- Each viewer has its own settings, stored as <prefix>, <prefix>Size, …
 local VIEWERS = {
@@ -102,10 +69,10 @@ for _, viewer in ipairs(VIEWERS) do
 	for _, option in ipairs({
 		{ type = "header", label = viewer.label },
 		{ key = p, type = "checkbox", label = L.SHOW, tooltip = viewer.showDesc },
-		{ key = p .. "Size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 38, step = 2, format = FormatPixels },
-		{ key = p .. "Position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
-		{ key = p .. "X", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -30, max = 30, step = 1, format = FormatPixels },
-		{ key = p .. "Y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -30, max = 30, step = 1, format = FormatPixels },
+		{ key = p .. "Size", type = "slider", label = L.SIZE, tooltip = L.SIZE_DESC, min = 8, max = 38, step = 2, format = ns.Utils.FormatPixels },
+		{ key = p .. "Position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = ns.Utils.AnchorPointValues() },
+		{ key = p .. "X", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -30, max = 30, step = 1, format = ns.Utils.FormatPixels },
+		{ key = p .. "Y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -30, max = 30, step = 1, format = ns.Utils.FormatPixels },
 	}) do
 		options[#options + 1] = option
 	end
