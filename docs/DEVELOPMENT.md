@@ -70,8 +70,9 @@ redesign are started on the `2.0` branch and must be alpha or beta versions. The
 changelog has a `## <version>` section and the tag is new, creates the tag,
 lints and runs the [BigWigs packager](https://github.com/BigWigsMods/packager),
 which uploads to CurseForge (project ID 1748279 via `## X-Curse-Project-ID`,
-secret `CF_API_KEY`) and GitHub releases. The CurseForge upload is skipped
-without ID or secret. Pushing a `v*` tag manually triggers the same workflow.
+secret `CF_API_KEY`), Wago Addons (project ID L6JbyQ6v via `## X-Wago-ID`, secret
+`WAGO_API_TOKEN`) and GitHub releases. Each upload is skipped without its ID or
+secret. Pushing a `v*` tag manually triggers the same workflow.
 
 Local test build without upload (zip in `.release/`):
 
