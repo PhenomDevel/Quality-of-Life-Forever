@@ -2,10 +2,8 @@
 name: Bug report
 about: Something doesn't work as expected
 labels: bug
+assignees: PhenomDevel
 ---
-
-**Module**
-Which module is affected (e.g. Auto sell junk)?
 
 **What happened / what did you expect?**
 
@@ -13,9 +11,9 @@ Which module is affected (e.g. Auto sell junk)?
 1.
 
 **Lua error**
-If there is one, paste it here (enable with `/console scriptErrors 1`).
+If there is one, paste it here (enable with `/console scriptErrors 1` or use BugSack).
 
 **Versions**
 - Addon version (shown in the AddOns list):
-- Game build (`/dump GetBuildInfo()`):
+- Game client and build (`/dump GetBuildInfo()`):
 - Game client language:

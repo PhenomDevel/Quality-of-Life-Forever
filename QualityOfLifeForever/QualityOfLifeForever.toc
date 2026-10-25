@@ -29,15 +29,17 @@ Core\Utils.lua
 Core\Chat.lua
 Core\Database.lua
 Core\ModuleManager.lua
-Core\OptionsWidgets.lua
-Core\OptionsWindow.lua
-Core\Settings.lua
 Core\SlashCommands.lua
-Core\MinimapButton.lua
-Core\Overlays.lua
-Core\Notices.lua
 Core\XPSession.lua
-Core\WhatsNew.lua
+
+# UI
+UI\Widgets.lua
+UI\Window.lua
+UI\Settings.lua
+UI\MinimapButton.lua
+UI\Overlays.lua
+UI\Notices.lua
+UI\WhatsNew.lua
 
 # Modules: one section per category, alphabetical within a section
 # Interface

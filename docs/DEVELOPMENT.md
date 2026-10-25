@@ -5,13 +5,16 @@
 ```
 QualityOfLifeForever/        addon folder (the only thing that gets installed)
   QualityOfLifeForever.toc   load order, interface version, SavedVariables
-  Locales/                   enUS (base) + deDE
-  Core/                      DB, module registry/lifecycle, settings panel, slash commands
-  Modules/<Category>/        one file per module
   Libs/                      embedded third-party libraries (unmodified)
-  Media/                     Logo.tga (64x64, 32-bit TGA from docs/media/logo.png)
-docs/                        module API, template, roadmap, logo source
-tools/update-libs.sh         refreshes Libs/ from pinned upstream versions
+  Locales/                   enUS (base) + deDE, What's new notes
+  Media/                     Logo.tga (addon icon, 64x64, 32-bit TGA from docs/logo/logo.png)
+  Core/                      setup (Init.lua), DB, module registry/lifecycle, slash commands
+  UI/                        options window, widgets, settings panel, minimap button,
+                             overlays, notices, What's new
+  Modules/<Category>/        one file per module
+docs/                        developer docs, module API, template, roadmap, release process,
+                             logo/ (logo.svg, README logo)
+tools/                       update-libs.sh (refreshes Libs/ from pinned upstream versions)
 .pkgmeta                     packaging config (BigWigs packager)
 ```
 
