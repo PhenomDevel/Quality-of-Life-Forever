@@ -6,7 +6,9 @@ including the Midnight addon restrictions (secret values). Do not assume the
 old Classic Era API.
 
 ## Layout
-- Dev setup, release and checks: `docs/DEVELOPMENT.md`.
+- Dev setup and checks: `docs/DEVELOPMENT.md`. Release (same process in all
+  PhenomDevel addons): `docs/RELEASE.md`; every user-facing change adds a line
+  under `## Unreleased` in `CHANGELOG.md`.
 - `QualityOfLifeForever/` is the addon folder that gets installed; everything
   else (docs, tools, CI) stays in the repo only.
 - Load order is defined in `QualityOfLifeForever.toc`: Locales → Core → Modules → `Core/Bootstrap.lua` (last).
