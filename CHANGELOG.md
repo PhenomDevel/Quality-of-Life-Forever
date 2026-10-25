@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.13.1 (2026-10-25)
+
+- Maintenance release: internal cleanup (code structure, unused code removed). No functional changes.
+
 ## v0.13.0 (2026-10-25)
 
 ### Options
