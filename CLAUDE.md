@@ -14,13 +14,6 @@ old Classic Era API.
 - Every feature is a module created with `ns:NewModule(name, info)` in
   `Modules/<Category>/<Name>.lua`. API reference: `docs/MODULES.md`, template: `docs/ModuleTemplate.lua`.
 
-## Branches
-- `main`: released addon. `2.0`: redesign (own options window, minimap button,
-  movable overlays) that may never ship – Kevin decides.
-- Redesign work: feature branch from `origin/2.0`, PR against `2.0`. Merge
-  `main` into `2.0` regularly (merge commit, Kevin as author).
-- Everything else keeps going through `main`.
-
 ## Original code only (strict)
 - Every line of code, data table and asset in this repo must be written
   independently – except the embedded libraries in `QualityOfLifeForever/Libs/`

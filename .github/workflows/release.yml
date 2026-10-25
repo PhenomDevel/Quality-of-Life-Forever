@@ -24,7 +24,7 @@ concurrency: release
 env:
   # Branches besides the default branch that may ship alpha/beta releases
   # (space-separated).
-  PRERELEASE_BRANCHES: "2.0"
+  PRERELEASE_BRANCHES: ""
 
 jobs:
   release:

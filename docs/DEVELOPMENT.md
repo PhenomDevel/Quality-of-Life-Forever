@@ -64,9 +64,7 @@ in-game; there are no automated tests.
 
 Rename `## Unreleased` in `CHANGELOG.md` to `## vX.Y.Z (YYYY-MM-DD)`, merge
 it, then run *Actions → Release → Run workflow* on `main` with the version
-(`v0.14.0`, or `v0.14.0-beta1` / `-alpha1` for test releases). Test releases
-of the 2.0 redesign are started on `2.0` and must be alpha or beta versions.
-The workflow tags the commit and uploads to CurseForge, Wago and GitHub. Details,
+(`v0.14.0`, or `v0.14.0-beta1` / `-alpha1` for test releases). The workflow tags the commit and uploads to CurseForge, Wago and GitHub. Details,
 including the "What's new" notes and the local test build:
 [`RELEASE.md`](RELEASE.md) (same process in all PhenomDevel addons).
 
