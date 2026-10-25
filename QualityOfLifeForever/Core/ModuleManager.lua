@@ -52,7 +52,7 @@ function Module:Print(...)
 	ns:Notify(...)
 end
 
--- Popup out of combat (see Core/Notices.lua); key defaults to the module, so
+-- Popup out of combat (see UI/Notices.lua); key defaults to the module, so
 -- a newer notice of the same module replaces an older one.
 function Module:Notice(text, icon, key)
 	ns:ShowNotice({ key = key or self.name, title = self.title, text = text, icon = icon })

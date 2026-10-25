@@ -1,7 +1,8 @@
 ---
 name: Feature request
-about: Suggest a new quality-of-life improvement
+about: Suggest a new feature or an improvement
 labels: enhancement
+assignees: PhenomDevel
 ---
 
 **What should the addon do?**

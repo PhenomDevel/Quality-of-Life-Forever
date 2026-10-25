@@ -5,7 +5,7 @@ local L = ns.L
 
 --[[
 	Entry in Blizzard's settings (Options > AddOns). The options live in our
-	own window (OptionsWindow.lua); this page only points there.
+	own window (UI/Window.lua); this page only points there.
 ]]
 
 local function CreatePanel()

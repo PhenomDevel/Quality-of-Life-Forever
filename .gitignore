@@ -1,7 +1,12 @@
+# Packager output
 .release/
 *.zip
+
+# OS and editor files
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/*
+
+# Shared VS Code settings
 !.vscode/settings.json

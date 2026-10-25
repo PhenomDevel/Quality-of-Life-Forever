@@ -2,7 +2,7 @@
 local _, ns = ...
 
 --[[
-	Flat building blocks for the options window (OptionsWindow.lua): colors,
+	Flat building blocks for the options window (UI/Window.lua): colors,
 	fonts, backgrounds, borders and the controls (toggle switch, slider,
 	dropdown, button). No Blizzard templates, so the look is fully ours.
 ]]
