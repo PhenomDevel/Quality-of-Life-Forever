@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.13.0 (2026-10-25)
+
+### Options
+- Features that are off run no code at all: nothing is set up until you turn
+  them on; turning one off again offers a reload to unload it completely
+
+### Bags & items
+- Bag slots: choose between free and used slots on the backpack button
+
+### Downloads
+- Now also available on [Wago Addons](https://addons.wago.io)
+
 ## v0.12.0 (2026-10-23)
 
 ### Options

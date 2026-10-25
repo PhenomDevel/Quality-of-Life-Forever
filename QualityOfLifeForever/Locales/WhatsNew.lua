@@ -5,6 +5,25 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "0.13",
+		enUS = {
+			"# Options",
+			"Features that are off run no code at all; turning one off offers a reload to unload it completely",
+			"# Bags & items",
+			"Bag slots: show free or used slots on the backpack button",
+			"# Downloads",
+			"Now also on Wago Addons",
+		},
+		deDE = {
+			"# Optionen",
+			"Ausgeschaltete Funktionen führen keinerlei Code aus; beim Ausschalten wird ein Neuladen angeboten, um sie ganz zu entladen",
+			"# Taschen & Gegenstände",
+			"Taschenplätze: freie oder belegte Plätze am Rucksack-Button anzeigen",
+			"# Downloads",
+			"Jetzt auch auf Wago Addons",
+		},
+	},
+	{
 		version = "0.12",
 		enUS = {
 			"# Options",
