@@ -98,7 +98,7 @@ doesn't take others down.
 | `ns.Utils.AnchorPointValues()`            | Dropdown values for the nine anchor points (`TOPLEFT` … `BOTTOMRIGHT`) |
 | `ns.Utils.FormatPixels(value)`            | Slider format `"%d px"` |
 
-## Overlays (2.0)
+## Overlays
 
 Small frames the player drags directly or moves and scales in Blizzard's Edit
 Mode (via the embedded LibEditMode). Position and scale are stored

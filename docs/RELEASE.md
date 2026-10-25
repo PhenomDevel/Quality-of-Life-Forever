@@ -61,9 +61,7 @@ curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh
 
 ## This repository
 
-- Default branch: `main`. `2.0` (redesign) ships alpha/beta releases only
-  (`PRERELEASE_BRANCHES` in `release.yml`); it needs the current `release.yml`
-  from `main`, so merge `main` into `2.0` before a test release.
+- Default branch: `main`. No prerelease branches.
 - [CurseForge](https://www.curseforge.com/projects/1748279) 1748279,
   [Wago](https://addons.wago.io/addons/L6JbyQ6v) `L6JbyQ6v`.
 - What's new: `QualityOfLifeForever/Locales/WhatsNew.lua`, newest first,
