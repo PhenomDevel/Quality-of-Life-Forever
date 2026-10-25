@@ -2,33 +2,18 @@
 
 <img src="docs/media/logo.png" alt="Quality of Life Forever logo" width="96" align="right">
 
-[![CI](https://github.com/PhenomDevel/Quality-of-Life-Forever/actions/workflows/ci.yml/badge.svg)](https://github.com/PhenomDevel/Quality-of-Life-Forever/actions/workflows/ci.yml)
-[![Release](https://github.com/PhenomDevel/Quality-of-Life-Forever/actions/workflows/release.yml/badge.svg)](https://github.com/PhenomDevel/Quality-of-Life-Forever/actions/workflows/release.yml)
 [![Version](https://img.shields.io/github/v/release/PhenomDevel/Quality-of-Life-Forever?label=version)](https://github.com/PhenomDevel/Quality-of-Life-Forever/releases/latest)
 [![CurseForge](https://img.shields.io/curseforge/dt/1748279?label=CurseForge)](https://www.curseforge.com/projects/1748279)
 [![License](https://img.shields.io/github/license/PhenomDevel/Quality-of-Life-Forever)](LICENSE)
 
 **Many small quality-of-life improvements for World of Warcraft Forever, each switchable on its own.**
 
-Every feature can be switched on and off on its own; almost all are off
-until you turn them on. Features that change game settings or act without
-asking are marked in the options, and turning them off restores your previous
-settings. A feature that is off runs no code at all: it sets nothing up until
-you turn it on, and if you turn it off again, the addon offers a reload to
-unload it completely.
+Almost every feature is off until you turn it on. Features that change game
+settings or act without asking are marked in the options, and turning them
+off restores your previous settings. A feature that is off runs no code at
+all.
 
-## Installation
-
-1. Install it with the CurseForge or Wago app, or download the zip from
-   [GitHub releases](https://github.com/PhenomDevel/Quality-of-Life-Forever/releases).
-2. For a manual install, extract `QualityOfLifeForever` into the game
-   client's `Interface/AddOns/` folder (currently `_classic_beta_` for
-   the Forever beta).
-3. Log in and type `/qol`.
-
-Changes per version: [CHANGELOG.md](CHANGELOG.md).
-
-## Supported clients
+## Supported versions
 
 | Client | Interface |
 | --- | --- |
@@ -36,32 +21,17 @@ Changes per version: [CHANGELOG.md](CHANGELOG.md).
 
 Retail, Classic Era and other clients are not supported.
 
-## Usage
+## Installation
 
-**Open the options:** `/qol`, the button at the minimap, or the addon menu
-next to the minimap. The options have their own window: features on the left,
-the settings of the selected one on the right, plus a search. Drag its corner to
-resize it.
+1. Install it with the [CurseForge](https://www.curseforge.com/projects/1748279)
+   or [Wago](https://addons.wago.io/addons/L6JbyQ6v) app, or download the zip
+   from [GitHub releases](https://github.com/PhenomDevel/Quality-of-Life-Forever/releases/latest).
+2. Manual install: extract `QualityOfLifeForever` into
+   `World of Warcraft/<client>/Interface/AddOns/` (currently `_classic_beta_`
+   for the Forever beta).
+3. Log in and type `/qol`.
 
-**Move widgets:** while the options are open, every widget and a sample
-reminder are shown with their names, so you can drag them into place; the
-*Preview* switch in the title bar turns this off. Right-click the minimap button
-(or *Esc → Edit Mode*) to scale them.
-
-**What's new:** after an update to a new version, a window shows the most
-important changes once (can be turned off under *General*; `/qol news` opens
-it again).
-
-### Commands
-
-| Command | Effect |
-|---------|--------|
-| `/qol` | Open options |
-| `/qol list` | Show all features and their state |
-| `/qol toggle <feature>` | Turn a feature on/off (also `enable`, `disable`) |
-| `/qol minimap` | Show/hide the minimap button |
-| `/qol news` | Show what's new in this version |
-| `/qol reset` | Reset all settings |
+What changed: [CHANGELOG.md](CHANGELOG.md)
 
 ## Features
 
@@ -85,21 +55,31 @@ it again).
 
 \* on by default
 
-## Feedback & support
+- **Options:** `/qol`, the minimap button or the addon menu next to the
+  minimap. Features on the left, their settings on the right, plus a search.
+- **Move widgets:** while the options are open, every widget is shown with
+  its name so you can drag it into place. Right-click the minimap button (or
+  *Esc → Edit Mode*) to scale them.
+- **What's new:** after an update, a window shows the most important changes
+  once.
 
-- Bugs: [GitHub issues](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues).
+### Commands
+
+| Command | Effect |
+|---------|--------|
+| `/qol` | Open options |
+| `/qol list` | Show all features and their state |
+| `/qol toggle <feature>` | Turn a feature on/off (also `enable`, `disable`) |
+| `/qol minimap` | Show/hide the minimap button |
+| `/qol news` | Show what's new in this version |
+| `/qol reset` | Reset all settings |
+
+## Support
+
+- Bugs: [GitHub issues](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues)
 - Missing a feature? [Request it on GitHub](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues/new).
-- If you like the addon, star it on GitHub :)
-
-## Development
-
-- Layout, libraries, local setup and checks: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
-- Module API: [`docs/MODULES.md`](docs/MODULES.md), roadmap: [`docs/IDEAS.md`](docs/IDEAS.md)
-- Release (same process in all PhenomDevel addons): [`docs/RELEASE.md`](docs/RELEASE.md)
-
-## License
-
-[MIT](LICENSE)
+- If you like the addon, star it on GitHub or leave a tip on
+  [Streamlabs](https://streamlabs.com/phenombutbetter/tip).
 
 ---
 
