@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/github/v/release/PhenomDevel/Quality-of-Life-Forever?label=version)](https://github.com/PhenomDevel/Quality-of-Life-Forever/releases/latest)
 [![CurseForge](https://img.shields.io/curseforge/dt/1748279?label=CurseForge)](https://www.curseforge.com/projects/1748279)
-[![License](https://img.shields.io/github/license/PhenomDevel/Quality-of-Life-Forever)](LICENSE)
+[![License](https://img.shields.io/github/license/PhenomDevel/Quality-of-Life-Forever)](https://github.com/PhenomDevel/Quality-of-Life-Forever/blob/main/LICENSE)
 
 **Many small quality-of-life improvements for World of Warcraft Forever, each switchable on its own.**
 
@@ -31,7 +31,7 @@ Retail, Classic Era and other clients are not supported.
    for the Forever beta).
 3. Log in and type `/qol`.
 
-What changed: [CHANGELOG.md](CHANGELOG.md)
+What changed: [CHANGELOG.md](https://github.com/PhenomDevel/Quality-of-Life-Forever/blob/main/CHANGELOG.md)
 
 ## Features
 
