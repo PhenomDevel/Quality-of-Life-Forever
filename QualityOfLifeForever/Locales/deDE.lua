@@ -64,6 +64,17 @@ L.SESSION_RESET_LOGIN = "Beim Einloggen"
 L.SESSION_RESET_DAILY = "Täglich"
 L.SESSION_RESET_MANUAL = "Manuell"
 
+-- Ankerpunkte (Positions-Auswahl)
+L.ANCHOR_TOPLEFT = "Oben links"
+L.ANCHOR_TOP = "Oben"
+L.ANCHOR_TOPRIGHT = "Oben rechts"
+L.ANCHOR_LEFT = "Links"
+L.ANCHOR_CENTER = "Mitte"
+L.ANCHOR_RIGHT = "Rechts"
+L.ANCHOR_BOTTOMLEFT = "Unten links"
+L.ANCHOR_BOTTOM = "Unten"
+L.ANCHOR_BOTTOMRIGHT = "Unten rechts"
+
 -- Slash commands
 L.SLASH_HELP_HEADER = "Befehle:"
 L.SLASH_HELP_CONFIG = "|cffffd100/qol|r - Optionen öffnen"

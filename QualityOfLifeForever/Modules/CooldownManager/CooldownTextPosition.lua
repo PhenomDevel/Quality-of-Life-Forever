@@ -12,15 +12,6 @@ local L = ns.NewLocale({
 		OFFSET_X_DESC = "Moves the text to the right (positive) or left (negative), in pixels.",
 		OFFSET_Y = "Vertical offset",
 		OFFSET_Y_DESC = "Moves the text up (positive) or down (negative), in pixels.",
-		TOPLEFT = "Top left",
-		TOP = "Top",
-		TOPRIGHT = "Top right",
-		LEFT = "Left",
-		CENTER = "Center",
-		RIGHT = "Right",
-		BOTTOMLEFT = "Bottom left",
-		BOTTOM = "Bottom",
-		BOTTOMRIGHT = "Bottom right",
 	},
 	deDE = {
 		TITLE = "Position des Abklingzeit-Texts",
@@ -32,32 +23,8 @@ local L = ns.NewLocale({
 		OFFSET_X_DESC = "Verschiebt den Text nach rechts (positiv) oder links (negativ), in Pixeln.",
 		OFFSET_Y = "Vertikaler Versatz",
 		OFFSET_Y_DESC = "Verschiebt den Text nach oben (positiv) oder unten (negativ), in Pixeln.",
-		TOPLEFT = "Oben links",
-		TOP = "Oben",
-		TOPRIGHT = "Oben rechts",
-		LEFT = "Links",
-		CENTER = "Mitte",
-		RIGHT = "Rechts",
-		BOTTOMLEFT = "Unten links",
-		BOTTOM = "Unten",
-		BOTTOMRIGHT = "Unten rechts",
 	},
 })
-
-local POSITIONS = {
-	"TOPLEFT", "TOP", "TOPRIGHT",
-	"LEFT", "CENTER", "RIGHT",
-	"BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT",
-}
-
-local positionValues = {}
-for _, point in ipairs(POSITIONS) do
-	positionValues[#positionValues + 1] = { value = point, label = L[point] }
-end
-
-local function FormatPixels(value)
-	return ("%d px"):format(value)
-end
 
 local module = ns:NewModule("CooldownTextPosition", {
 	title = L.TITLE,
@@ -71,9 +38,9 @@ local module = ns:NewModule("CooldownTextPosition", {
 		y = 0,
 	},
 	options = {
-		{ key = "position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = positionValues },
-		{ key = "x", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
-		{ key = "y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -20, max = 20, step = 1, format = FormatPixels },
+		{ key = "position", type = "dropdown", label = L.POSITION, tooltip = L.POSITION_DESC, values = ns.Utils.AnchorPointValues() },
+		{ key = "x", type = "slider", label = L.OFFSET_X, tooltip = L.OFFSET_X_DESC, min = -20, max = 20, step = 1, format = ns.Utils.FormatPixels },
+		{ key = "y", type = "slider", label = L.OFFSET_Y, tooltip = L.OFFSET_Y_DESC, min = -20, max = 20, step = 1, format = ns.Utils.FormatPixels },
 	},
 })
 
