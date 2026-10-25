@@ -59,26 +59,13 @@ in-game; there are no automated tests.
 
 ## Release
 
-Add a section for the version to `CHANGELOG.md` (the whole file is uploaded
-as release notes, so keep it user-facing). For a new minor or major version,
-also add a short entry (enUS + deDE) to `QualityOfLifeForever/Locales/WhatsNew.lua`:
-players updating from an older minor version see it once in the "What's new"
-window. Merge it, then run *Actions →
-Release → Run workflow* on `main` with the version (`v0.1.0`, or
-`v0.1.0-beta1` / `-alpha1` for test releases). Test releases of the 2.0
-redesign are started on the `2.0` branch and must be alpha or beta versions. The workflow checks that the
-changelog has a `## <version>` section and the tag is new, creates the tag,
-lints and runs the [BigWigs packager](https://github.com/BigWigsMods/packager),
-which uploads to CurseForge (project ID 1748279 via `## X-Curse-Project-ID`,
-secret `CF_API_KEY`), Wago Addons (project ID L6JbyQ6v via `## X-Wago-ID`, secret
-`WAGO_API_TOKEN`) and GitHub releases. Each upload is skipped without its ID or
-secret. Pushing a `v*` tag manually triggers the same workflow.
-
-Local test build without upload (zip in `.release/`):
-
-```bash
-curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -d
-```
+Rename `## Unreleased` in `CHANGELOG.md` to `## vX.Y.Z (YYYY-MM-DD)`, merge
+it, then run *Actions → Release → Run workflow* on `main` with the version
+(`v0.14.0`, or `v0.14.0-beta1` / `-alpha1` for test releases). Test releases
+of the 2.0 redesign are started on `2.0` and must be alpha or beta versions.
+The workflow tags the commit and uploads to CurseForge, Wago and GitHub. Details,
+including the "What's new" notes and the local test build:
+[`RELEASE.md`](RELEASE.md) (same process in all PhenomDevel addons).
 
 ## Interface version
 
