@@ -44,10 +44,6 @@ local Module = {}
 Module.__index = Module
 ns.ModulePrototype = Module
 
-function Module:IsEnabled()
-	return self.enabled
-end
-
 function Module:Print(...)
 	ns:Notify(...)
 end
@@ -316,10 +312,6 @@ function ns:FindModule(name)
 		end
 	end
 	return nil
-end
-
-function ns:IterateModules()
-	return ipairs(ns.moduleOrder)
 end
 
 local function CompareTitles(a, b)
