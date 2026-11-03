@@ -5,6 +5,19 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.0",
+		enUS = {
+			"First stable release, just in time for the launch of WoW Forever",
+			"All features from the beta versions, each one can still be turned on and off on its own",
+			"Thanks for testing! Ideas and bug reports are welcome on CurseForge, Wago or GitHub",
+		},
+		deDE = {
+			"Erste stabile Version, pünktlich zum Start von WoW Forever",
+			"Alle Funktionen aus den Beta-Versionen, jede weiterhin einzeln ein- und ausschaltbar",
+			"Danke fürs Testen! Ideen und Fehlermeldungen gerne auf CurseForge, Wago oder GitHub",
+		},
+	},
+	{
 		version = "0.13",
 		enUS = {
 			"# Options",
