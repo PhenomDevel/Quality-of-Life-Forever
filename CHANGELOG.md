@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.0 (2026-11-03)
+
+- First stable release for the launch of World of Warcraft Forever. No functional changes since v0.13.1.
+
 ## v0.13.1 (2026-10-25)
 
 - Maintenance release: internal cleanup (code structure, unused code removed). No functional changes.
