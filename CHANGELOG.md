@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 (2026-11-06)
 
 ### Widgets
 - XP widget: shows how long you have been on your current level (played time,
