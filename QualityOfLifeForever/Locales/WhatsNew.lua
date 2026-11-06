@@ -5,6 +5,19 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.3",
+		enUS = {
+			"# Widgets",
+			"Junk widget: right-click an item to never list it again (reset under Show)",
+			"Junk widget: the white items option never lists fishing poles, profession tools, bags, ammo or reagents",
+		},
+		deDE = {
+			"# Widgets",
+			"Plunder-Widget: Rechtsklick auf einen Gegenstand blendet ihn dauerhaft aus (zurücksetzen unter Anzeigen)",
+			"Plunder-Widget: bei weißen Gegenständen werden Angeln, Berufswerkzeuge, Taschen, Munition und Reagenzien nie aufgelistet",
+		},
+	},
+	{
 		version = "1.2",
 		enUS = {
 			"# Widgets",
