@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.3.0 (2026-11-06)
 
 ### Widgets
 - Junk widget: the white items option never lists fishing poles, profession
