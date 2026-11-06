@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.2",
+		enUS = {
+			"# Widgets",
+			"Junk widget: can also list white items that sell to a vendor (option Include white items, off by default)",
+		},
+		deDE = {
+			"# Widgets",
+			"Plunder-Widget: listet auf Wunsch auch weiße Gegenstände, die ein Händler ankauft (Option Weiße Gegenstände einbeziehen, standardmäßig aus)",
+		},
+	},
+	{
 		version = "1.1",
 		enUS = {
 			"# Widgets",

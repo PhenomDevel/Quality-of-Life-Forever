@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.2.0 (2026-11-06)
 
 ### Widgets
 - Junk widget: can also list white items that sell to a vendor (off by default;
