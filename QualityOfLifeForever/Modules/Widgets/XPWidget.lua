@@ -1,11 +1,11 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo GetTime SecondsToTime RequestTimePlayed GetFramesRegisteredForEvent
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "XP widget",
 		NOTE = "Small movable XP display",
-		DESC = "A compact XP bar with level, progress, rested XP, XP from completed quests, XP per hour and time to level. Drag it to move it; scale it in {Edit Mode} (Esc > {Edit Mode}, or right-click the minimap button). Hidden at max level.",
+		DESC = "A compact XP bar with level, progress, rested XP, XP from completed quests, XP per hour, time to level and time spent on the current level. Drag it to move it; scale it in {Edit Mode} (Esc > {Edit Mode}, or right-click the minimap button). Hidden at max level.",
 		EDIT_MODE_NAME = "QoL Forever: XP widget",
 		SECTION_SHOW = "Show",
 		SECTION_LOOK = "Appearance",
@@ -21,6 +21,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		SHOW_LEVEL_TIME = "Time on this level",
+		SHOW_LEVEL_TIME_DESC = "Shows how long you have played on your current level (played time, as in /played). Requested once on login without the chat message.",
 		LAYOUT = "Layout",
 		LAYOUT_DESC = "Horizontal: wide, with the bar between the text rows. Vertical: narrow, with the bar on the left filling from bottom to top and the texts stacked next to it.",
 		LAYOUT_HORIZONTAL = "Horizontal",
@@ -41,11 +43,12 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s rested",
 		QUESTS = "+%s from %d |4quest:quests;",
+		LEVEL_TIME = "%s on this level",
 	},
 	deDE = {
 		TITLE = "EP-Widget",
 		NOTE = "Kleine verschiebbare EP-Anzeige",
-		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP aus abgeschlossenen Quests, EP pro Stunde und Zeit bis Level-up. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus} (Esc > {Bearbeitungsmodus} oder Rechtsklick auf den Minimap-Button). Auf Maximalstufe ausgeblendet.",
+		DESC = "Eine kompakte EP-Leiste mit Stufe, Fortschritt, Erholungsbonus, EP aus abgeschlossenen Quests, EP pro Stunde, Zeit bis Level-up und Spielzeit auf der aktuellen Stufe. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus} (Esc > {Bearbeitungsmodus} oder Rechtsklick auf den Minimap-Button). Auf Maximalstufe ausgeblendet.",
 		EDIT_MODE_NAME = "QoL Forever: EP-Widget",
 		SECTION_SHOW = "Anzeigen",
 		SECTION_LOOK = "Darstellung",
@@ -61,6 +64,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		SHOW_LEVEL_TIME = "Zeit auf dieser Stufe",
+		SHOW_LEVEL_TIME_DESC = "Zeigt, wie lange du schon auf deiner aktuellen Stufe spielst (Spielzeit wie bei /played). Wird beim Einloggen einmal abgefragt, ohne Chatnachricht.",
 		LAYOUT = "Ausrichtung",
 		LAYOUT_DESC = "Horizontal: breit, die Leiste zwischen den Textzeilen. Vertikal: schmal, die Leiste links wird von unten nach oben gefüllt, die Texte stehen untereinander daneben.",
 		LAYOUT_HORIZONTAL = "Horizontal",
@@ -81,6 +86,7 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s erholt",
 		QUESTS = "+%s aus %d |4Quest:Quests;",
+		LEVEL_TIME = "%s auf dieser Stufe",
 	},
 })
 
@@ -106,6 +112,7 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
+		showLevelTime = true,
 		sessionReset = "LOGIN",
 		layout = "HORIZONTAL",
 		fontSize = 11,
@@ -122,6 +129,7 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ key = "showLevelTime", type = "checkbox", label = L.SHOW_LEVEL_TIME, tooltip = L.SHOW_LEVEL_TIME_DESC },
 		{ type = "header", label = L.SECTION_BAR },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
@@ -219,6 +227,8 @@ local function CreateWidget()
 	frame.Rested:SetTextColor(RESTED_COLOR[1], RESTED_COLOR[2], RESTED_COLOR[3])
 	frame.Quests = CreateText(frame, "RIGHT")
 	frame.Quests:SetTextColor(QUEST_COLOR[1], QUEST_COLOR[2], QUEST_COLOR[3])
+	frame.LevelTime = CreateText(frame, "LEFT")
+	frame.LevelTime:SetTextColor(0.72, 0.72, 0.74)
 end
 
 local function IsVertical()
@@ -300,13 +310,81 @@ function module:QueueQuestScan()
 	end)
 end
 
+-- Time on this level ----------------------------------------------------------
+-- Played time on the level comes only from TIME_PLAYED_MSG. It is requested
+-- once per login; the chat frames are unregistered from the event meanwhile, so
+-- the request doesn't print /played into chat. A /played typed by the player (or
+-- another addon's request) also updates the value and is printed as usual.
+-- Online time since the answer is added locally.
+
+local LEVEL_TIME_TIMEOUT = 10
+-- levelSeconds: played seconds on the level at levelMark (GetTime()).
+local levelSeconds, levelMark
+local levelTimeRequested
+local mutedChatFrames
+
+local function RestoreChatFrames()
+	if not mutedChatFrames then
+		return
+	end
+	for _, chatFrame in ipairs(mutedChatFrames) do
+		chatFrame:RegisterEvent("TIME_PLAYED_MSG")
+	end
+	mutedChatFrames = nil
+end
+
+function module:RequestLevelTime()
+	if levelTimeRequested or not self.db.showLevelTime or ns.Utils.IsAtMaxLevel() then
+		return
+	end
+	levelTimeRequested = true
+	mutedChatFrames = {}
+	for _, registered in ipairs({ GetFramesRegisteredForEvent("TIME_PLAYED_MSG") }) do
+		-- Only chat frames; other addons still get the event.
+		if registered.AddMessage then
+			registered:UnregisterEvent("TIME_PLAYED_MSG")
+			mutedChatFrames[#mutedChatFrames + 1] = registered
+		end
+	end
+	RequestTimePlayed()
+	-- No answer (e.g. throttled): give the chat its event back anyway.
+	C_Timer.After(LEVEL_TIME_TIMEOUT, RestoreChatFrames)
+end
+
+function module:OnTimePlayed(_, levelPlayed)
+	-- The chat frames missed this event, so they are restored only afterwards.
+	C_Timer.After(0, RestoreChatFrames)
+	if type(levelPlayed) ~= "number" or ns.Utils.IsSecret(levelPlayed) then
+		return
+	end
+	levelSeconds, levelMark = levelPlayed, GetTime()
+	self:Update()
+end
+
+function module:OnLevelUp()
+	levelSeconds, levelMark = 0, GetTime()
+end
+
+local function FormatLevelTime()
+	if not levelSeconds then
+		return nil
+	end
+	local seconds = levelSeconds + GetTime() - levelMark
+	if seconds < 60 then
+		return ns.L.XP_UNDER_A_MINUTE
+	end
+	return SecondsToTime(seconds, true, false, 2)
+end
+
 -- Rows that are shown decide the size: in the horizontal layout only a 4th
--- row for quest XP below rested XP, in the vertical one every optional row.
+-- row for quest XP below rested XP and the level time, in the vertical one
+-- every optional row.
 function module:GetLayoutKey()
 	if IsVertical() then
-		return ("V%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0, HasText(frame.Rate) and 1 or 0)
+		return ("V%d%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0,
+			HasText(frame.Rate) and 1 or 0, HasText(frame.LevelTime) and 1 or 0)
 	end
-	return (HasText(frame.Rested) and HasText(frame.Quests)) and "H4" or "H3"
+	return ("H%d%d"):format((HasText(frame.Rested) and HasText(frame.Quests)) and 1 or 0, HasText(frame.LevelTime) and 1 or 0)
 end
 
 function module:Update()
@@ -337,6 +415,8 @@ function module:Update()
 	else
 		frame.Rate:SetText("")
 	end
+	local levelTime = self.db.showLevelTime and FormatLevelTime()
+	frame.LevelTime:SetText(levelTime and L.LEVEL_TIME:format(levelTime) or "")
 
 	local layoutKey = self:GetLayoutKey()
 	if layoutKey ~= self.layoutKey then
@@ -349,7 +429,7 @@ function module:Update()
 end
 
 function module:UpdateTicker()
-	local wanted = self.enabled and self.db.showRate
+	local wanted = self.enabled and (self.db.showRate or self.db.showLevelTime)
 	if wanted and not ticker then
 		ticker = C_Timer.NewTicker(REFRESH_SECONDS, function()
 			self:Update()
@@ -430,8 +510,8 @@ local function PlaceText(text, justify, width, ...)
 	text:SetPoint(...)
 end
 
--- Horizontal: level and rate, the bar, then values with rested XP and quest XP
--- (in a 4th row below rested XP when both are shown).
+-- Horizontal: level and rate, the bar, then values with rested XP and quest XP;
+-- a 4th row holds the level time (left) and quest XP below rested XP (right).
 local function LayoutHorizontal(size, lineHeight)
 	local bar = frame.Bar
 	local barTop = PADDING + lineHeight + 2
@@ -444,12 +524,17 @@ local function LayoutHorizontal(size, lineHeight)
 	PlaceText(frame.Rate, "RIGHT", 0, "TOPRIGHT", -PADDING, -PADDING)
 	PlaceText(frame.Values, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
 	PlaceText(frame.Rested, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
-	local height = barTop + thickness + 4 + lineHeight + PADDING
+	PlaceText(frame.LevelTime, "LEFT", 0, "TOPLEFT", frame.Values, "BOTTOMLEFT", 0, -ROW_GAP)
+	local fourthRow = HasText(frame.LevelTime)
 	if HasText(frame.Rested) and HasText(frame.Quests) then
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -ROW_GAP)
-		height = height + lineHeight + ROW_GAP
+		fourthRow = true
 	else
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
+	end
+	local height = barTop + thickness + 4 + lineHeight + PADDING
+	if fourthRow then
+		height = height + lineHeight + ROW_GAP
 	end
 	local length = BarLength()
 	frame:SetSize(length and length + PADDING * 2 or math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
@@ -459,7 +544,7 @@ end
 -- length of its own; empty optional rows take no space.
 local function LayoutVertical(size, lineHeight)
 	local rows = { frame.Level, frame.Values }
-	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate }) do
+	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate, frame.LevelTime }) do
 		if HasText(text) then
 			rows[#rows + 1] = text
 		end
@@ -484,7 +569,7 @@ function module:ApplyLayout()
 	local size = self.db.fontSize
 	ns:SetOverlayFont(self.font, size, self.db)
 	frame.Bar:ClearAllPoints()
-	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests }) do
+	for _, text in ipairs({ frame.Level, frame.Rate, frame.Values, frame.Rested, frame.Quests, frame.LevelTime }) do
 		text:ClearAllPoints()
 	end
 	if IsVertical() then
@@ -506,6 +591,9 @@ function module:OnOptionChanged(key)
 	end
 	if key == "showQuestXP" then
 		self:QueueQuestScan()
+	end
+	if key == "showLevelTime" then
+		self:RequestLevelTime()
 	end
 	self:UpdateTicker()
 	self:Update()
@@ -531,6 +619,7 @@ function module:OnEnable()
 	-- XPSession only reports gains; these cover level-ups, rested and resets.
 	self:RegisterEvent("PLAYER_XP_UPDATE", self.Update)
 	self:RegisterEvent("PLAYER_LEVEL_UP", function()
+		self:OnLevelUp()
 		C_Timer.After(0, function()
 			self:Update()
 		end)
@@ -538,7 +627,9 @@ function module:OnEnable()
 	self:RegisterEvent("UPDATE_EXHAUSTION", self.Update)
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.QueueQuestScan)
 	self:RegisterEvent("QUEST_TURNED_IN", self.QueueQuestScan)
+	self:RegisterEvent("TIME_PLAYED_MSG", self.OnTimePlayed)
 	self:QueueQuestScan()
+	self:RequestLevelTime()
 	self:UpdateTicker()
 	self:Update()
 	self:HookContainers()
@@ -547,6 +638,7 @@ end
 
 function module:OnDisable()
 	XPSession.RegisterListener(self, nil)
+	RestoreChatFrames()
 	self:UpdateTicker()
 	self:UpdateBlizzardBar()
 	frame:Hide()
