@@ -6,12 +6,14 @@ local L = ns.NewLocale({
 		TITLE = "Junk widget",
 		NOTE = "Cheapest gray items, click to delete",
 		DESC = "A small movable list of the cheapest gray (junk) items in your bags, cheapest first by vendor value of the whole stack. Click an item to delete it and free a bag slot out in the world, where you can't sell. Hidden while you carry no gray items. Drag the widget's edge to move it; scale it in {Edit Mode}.",
-		NOTICE = "A click deletes the item right away, without asking. Only gray items are listed.",
+		NOTICE = "A click deletes the item right away, without asking. Only gray items are listed, plus white ones if you turn that on.",
 		EDIT_MODE_NAME = "QoL Forever: Junk widget",
 		SECTION_SHOW = "Show",
 		SECTION_LOOK = "Appearance",
 		COUNT = "Items shown",
-		COUNT_DESC = "How many of the cheapest gray items are listed.",
+		COUNT_DESC = "How many of the cheapest items are listed.",
+		INCLUDE_COMMON = "Include white items",
+		INCLUDE_COMMON_DESC = "Also lists white (common) items that sell to a vendor, e.g. cloth, food or white gear. Quest items and items without a vendor value (like your Hearthstone) are never listed.",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text and icons. The widget grows with it.",
 		BG_OPACITY = "Background opacity",
@@ -24,12 +26,14 @@ local L = ns.NewLocale({
 		TITLE = "Plunder-Widget",
 		NOTE = "Günstigste graue Gegenstände, Klick löscht",
 		DESC = "Eine kleine verschiebbare Liste der günstigsten grauen Gegenstände (Plunder) in deinen Taschen, aufsteigend nach Händlerwert des ganzen Stapels. Ein Klick löscht den Gegenstand und macht unterwegs, wo du nichts verkaufen kannst, einen Taschenplatz frei. Ausgeblendet, solange du keine grauen Gegenstände dabei hast. Zum Verschieben am Rand ziehen; skalieren im {Bearbeitungsmodus}.",
-		NOTICE = "Ein Klick löscht den Gegenstand sofort und ohne Nachfrage. Es werden nur graue Gegenstände angezeigt.",
+		NOTICE = "Ein Klick löscht den Gegenstand sofort und ohne Nachfrage. Es werden nur graue Gegenstände angezeigt, auf Wunsch auch weiße.",
 		EDIT_MODE_NAME = "QoL Forever: Plunder-Widget",
 		SECTION_SHOW = "Anzeigen",
 		SECTION_LOOK = "Darstellung",
 		COUNT = "Angezeigte Gegenstände",
-		COUNT_DESC = "Wie viele der günstigsten grauen Gegenstände aufgelistet werden.",
+		COUNT_DESC = "Wie viele der günstigsten Gegenstände aufgelistet werden.",
+		INCLUDE_COMMON = "Weiße Gegenstände einbeziehen",
+		INCLUDE_COMMON_DESC = "Listet auch weiße (gewöhnliche) Gegenstände, die ein Händler ankauft, z. B. Stoff, Essen oder weiße Ausrüstung. Questgegenstände und Gegenstände ohne Händlerwert (wie dein Ruhestein) werden nie aufgelistet.",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Größe von Text und Symbolen des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
@@ -53,6 +57,7 @@ local module = ns:NewModule("JunkWidget", {
 	order = 60,
 	defaults = {
 		count = 3,
+		includeCommon = false,
 		fontSize = 11,
 		backgroundOpacity = 92,
 		textOutline = "NONE",
@@ -62,6 +67,7 @@ local module = ns:NewModule("JunkWidget", {
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
 		{ key = "count", type = "slider", label = L.COUNT, tooltip = L.COUNT_DESC, min = 1, max = 5, step = 1 },
+		{ key = "includeCommon", type = "checkbox", label = L.INCLUDE_COMMON, tooltip = L.INCLUDE_COMMON_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		ns:TextOutlineOption(),
@@ -77,7 +83,10 @@ local BASE_WIDTH = 220
 local PADDING = 6
 local ICON_GAP = 4
 local ROW_GAP = 3
-local NAME_COLOR = { 0.62, 0.62, 0.62 }
+local NAME_COLORS = {
+	[Enum.ItemQuality.Poor] = { 0.62, 0.62, 0.62 },
+	[Enum.ItemQuality.Common] = { 1, 1, 1 },
+}
 local PRICE_COLOR = { 0.9, 0.9, 0.9 }
 
 local IsSecret = ns.Utils.IsSecret
@@ -91,14 +100,27 @@ local function Scaled(value)
 	return math.floor(value * module.db.fontSize / BASE_FONT_SIZE + 0.5)
 end
 
--- Gray items in the bags with the vendor value of the whole stack, cheapest
--- first: { bag, slot, itemID, link, icon, value }.
+-- Gray items, and optionally white ones that sell to a vendor and aren't
+-- quest items (keeps Hearthstone, quest starters etc. off the list).
+local function IsListed(info, bag, slot)
+	if info.quality == Enum.ItemQuality.Poor then
+		return true
+	end
+	if not module.db.includeCommon or info.quality ~= Enum.ItemQuality.Common or info.hasNoValue then
+		return false
+	end
+	local questInfo = C_Container.GetContainerItemQuestInfo(bag, slot)
+	return not (questInfo and (questInfo.isQuestItem or questInfo.questID))
+end
+
+-- Listed items in the bags with the vendor value of the whole stack, cheapest
+-- first: { bag, slot, itemID, link, icon, quality, value }.
 local function CollectJunk()
 	local junk = {}
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, C_Container.GetContainerNumSlots(bag) do
 			local info = C_Container.GetContainerItemInfo(bag, slot)
-			if info and info.quality == Enum.ItemQuality.Poor and not IsSecret(info.itemID) then
+			if info and not IsSecret(info.itemID) and IsListed(info, bag, slot) then
 				local sellPrice = not info.hasNoValue and select(11, C_Item.GetItemInfo(info.itemID)) or 0
 				junk[#junk + 1] = {
 					bag = bag,
@@ -106,6 +128,7 @@ local function CollectJunk()
 					itemID = info.itemID,
 					link = info.hyperlink,
 					icon = info.iconFileID,
+					quality = info.quality,
 					value = (sellPrice or 0) * info.stackCount,
 				}
 			end
@@ -126,7 +149,7 @@ function module:Delete(entry)
 		return
 	end
 	local info = C_Container.GetContainerItemInfo(entry.bag, entry.slot)
-	if not info or info.itemID ~= entry.itemID or info.quality ~= Enum.ItemQuality.Poor or info.isLocked then
+	if not info or info.itemID ~= entry.itemID or info.isLocked or not IsListed(info, entry.bag, entry.slot) then
 		self:Update()
 		return
 	end
@@ -182,7 +205,6 @@ local function GetRow(index)
 		row.Name:SetFontObject(module.font)
 		row.Name:SetJustifyH("LEFT")
 		row.Name:SetWordWrap(false)
-		row.Name:SetTextColor(unpack(NAME_COLOR))
 		rows[index] = row
 	end
 	return row
@@ -229,6 +251,7 @@ function module:Update()
 		row.Name:SetPoint("LEFT", row.Icon, "RIGHT", Scaled(ICON_GAP), 0)
 		row.Name:SetPoint("RIGHT", row.Price, "LEFT", -Scaled(ICON_GAP), 0)
 		row.Name:SetText(C_Item.GetItemNameByID(entry.itemID) or entry.link or "")
+		row.Name:SetTextColor(unpack(NAME_COLORS[entry.quality]))
 		row:Show()
 	end
 	frame:SetSize(width, PADDING * 2 + count * iconSize + (count - 1) * ROW_GAP)

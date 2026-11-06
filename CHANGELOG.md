@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- Junk widget: can also list white items that sell to a vendor (off by default;
+  quest items and items without a vendor value are never listed)
+
 ## v1.1.0 (2026-11-06)
 
 ### Widgets
