@@ -5,7 +5,7 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Junk widget",
 		NOTE = "Cheapest gray items, click to delete",
-		DESC = "A small movable list of the cheapest gray (junk) items in your bags, cheapest first by vendor value of the whole stack. Click an item to delete it and free a bag slot out in the world, where you can't sell. Hidden while you carry no gray items. Drag the widget's edge to move it; scale it in {Edit Mode}.",
+		DESC = "A small movable list of the cheapest gray (junk) items in your bags, cheapest first by vendor value of the whole stack. Click an item to delete it and free a bag slot out in the world, where you can't sell; right-click it to never list it again. Hidden while you carry no gray items. Drag the widget's edge to move it; scale it in {Edit Mode}.",
 		NOTICE = "A click deletes the item right away, without asking. Only gray items are listed, plus white ones if you turn that on.",
 		EDIT_MODE_NAME = "QoL Forever: Junk widget",
 		SECTION_SHOW = "Show",
@@ -13,7 +13,13 @@ local L = ns.NewLocale({
 		COUNT = "Items shown",
 		COUNT_DESC = "How many of the cheapest items are listed.",
 		INCLUDE_COMMON = "Include white items",
-		INCLUDE_COMMON_DESC = "Also lists white (common) items that sell to a vendor, e.g. cloth, food or white gear. Quest items and items without a vendor value (like your Hearthstone) are never listed.",
+		INCLUDE_COMMON_DESC = "Also lists white (common) items that sell to a vendor, e.g. cloth, food or white gear. Never listed: quest items, items without a vendor value (like your Hearthstone), fishing poles, profession tools, bags, ammo and reagents.",
+		IGNORED = "Ignored items",
+		IGNORED_DESC = "Right-click an item in the widget to never list it again. This forgets all of them.",
+		IGNORED_RESET = "Reset",
+		IGNORED_RESET_DONE = "Ignored items reset.",
+		RIGHT_CLICK_TO_IGNORE = "Right-click to never list this item",
+		IGNORE_ADDED = "No longer listed: %s",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text and icons. The widget grows with it.",
 		BG_OPACITY = "Background opacity",
@@ -25,7 +31,7 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Plunder-Widget",
 		NOTE = "Günstigste graue Gegenstände, Klick löscht",
-		DESC = "Eine kleine verschiebbare Liste der günstigsten grauen Gegenstände (Plunder) in deinen Taschen, aufsteigend nach Händlerwert des ganzen Stapels. Ein Klick löscht den Gegenstand und macht unterwegs, wo du nichts verkaufen kannst, einen Taschenplatz frei. Ausgeblendet, solange du keine grauen Gegenstände dabei hast. Zum Verschieben am Rand ziehen; skalieren im {Bearbeitungsmodus}.",
+		DESC = "Eine kleine verschiebbare Liste der günstigsten grauen Gegenstände (Plunder) in deinen Taschen, aufsteigend nach Händlerwert des ganzen Stapels. Ein Klick löscht den Gegenstand und macht unterwegs, wo du nichts verkaufen kannst, einen Taschenplatz frei, ein Rechtsklick blendet ihn dauerhaft aus. Ausgeblendet, solange du keine grauen Gegenstände dabei hast. Zum Verschieben am Rand ziehen; skalieren im {Bearbeitungsmodus}.",
 		NOTICE = "Ein Klick löscht den Gegenstand sofort und ohne Nachfrage. Es werden nur graue Gegenstände angezeigt, auf Wunsch auch weiße.",
 		EDIT_MODE_NAME = "QoL Forever: Plunder-Widget",
 		SECTION_SHOW = "Anzeigen",
@@ -33,7 +39,13 @@ local L = ns.NewLocale({
 		COUNT = "Angezeigte Gegenstände",
 		COUNT_DESC = "Wie viele der günstigsten Gegenstände aufgelistet werden.",
 		INCLUDE_COMMON = "Weiße Gegenstände einbeziehen",
-		INCLUDE_COMMON_DESC = "Listet auch weiße (gewöhnliche) Gegenstände, die ein Händler ankauft, z. B. Stoff, Essen oder weiße Ausrüstung. Questgegenstände und Gegenstände ohne Händlerwert (wie dein Ruhestein) werden nie aufgelistet.",
+		INCLUDE_COMMON_DESC = "Listet auch weiße (gewöhnliche) Gegenstände, die ein Händler ankauft, z. B. Stoff, Essen oder weiße Ausrüstung. Nie aufgelistet: Questgegenstände, Gegenstände ohne Händlerwert (wie dein Ruhestein), Angelruten, Berufswerkzeuge, Taschen, Munition und Reagenzien.",
+		IGNORED = "Ignorierte Gegenstände",
+		IGNORED_DESC = "Rechtsklick auf einen Gegenstand im Widget blendet ihn dauerhaft aus. Hiermit werden alle wieder angezeigt.",
+		IGNORED_RESET = "Zurücksetzen",
+		IGNORED_RESET_DONE = "Ignorierte Gegenstände zurückgesetzt.",
+		RIGHT_CLICK_TO_IGNORE = "Rechtsklick, um diesen Gegenstand nie mehr anzuzeigen",
+		IGNORE_ADDED = "Wird nicht mehr angezeigt: %s",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Größe von Text und Symbolen des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
@@ -58,6 +70,7 @@ local module = ns:NewModule("JunkWidget", {
 	defaults = {
 		count = 3,
 		includeCommon = false,
+		ignored = {},
 		fontSize = 11,
 		backgroundOpacity = 92,
 		textOutline = "NONE",
@@ -68,6 +81,17 @@ local module = ns:NewModule("JunkWidget", {
 		{ type = "header", label = L.SECTION_SHOW },
 		{ key = "count", type = "slider", label = L.COUNT, tooltip = L.COUNT_DESC, min = 1, max = 5, step = 1 },
 		{ key = "includeCommon", type = "checkbox", label = L.INCLUDE_COMMON, tooltip = L.INCLUDE_COMMON_DESC },
+		{
+			type = "button",
+			label = L.IGNORED,
+			buttonText = L.IGNORED_RESET,
+			tooltip = L.IGNORED_DESC,
+			onClick = function(self)
+				self.db.ignored = {}
+				self:Update()
+				self:Print(L.IGNORED_RESET_DONE)
+			end,
+		},
 		{ type = "header", label = L.SECTION_LOOK },
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		ns:TextOutlineOption(),
@@ -100,17 +124,56 @@ local function Scaled(value)
 	return math.floor(value * module.db.fontSize / BASE_FONT_SIZE + 0.5)
 end
 
+-- White items of these classes are useful even though they sell.
+local PROTECTED_CLASSES = {
+	[Enum.ItemClass.Container] = true,
+	[Enum.ItemClass.Reagent] = true,
+	[Enum.ItemClass.Projectile] = true,
+	[Enum.ItemClass.Quiver] = true,
+	[Enum.ItemClass.Questitem] = true,
+	[Enum.ItemClass.Key] = true,
+	[Enum.ItemClass.Profession] = true,
+}
+
+-- Profession tools that are plain trade goods (item IDs from wowhead.com/classic).
+local PROTECTED_ITEMS = {
+	[2901] = true, -- Mining Pick
+	[5956] = true, -- Blacksmith Hammer
+	[6218] = true, -- Runed Copper Rod
+	[6219] = true, -- Arclight Spanner
+	[6339] = true, -- Runed Silver Rod
+	[7005] = true, -- Skinning Knife
+	[10498] = true, -- Gyromatic Micro-Adjustor
+	[11130] = true, -- Runed Golden Rod
+	[11145] = true, -- Runed Truesilver Rod
+	[16207] = true, -- Runed Arcanite Rod
+}
+
+local function IsProtected(itemID, bag, slot)
+	if PROTECTED_ITEMS[itemID] then
+		return true
+	end
+	local _, _, _, _, _, classID, subclassID = C_Item.GetItemInfoInstant(itemID)
+	if PROTECTED_CLASSES[classID] or (classID == Enum.ItemClass.Weapon and subclassID == Enum.ItemWeaponSubclass.Fishingpole) then
+		return true
+	end
+	local questInfo = C_Container.GetContainerItemQuestInfo(bag, slot)
+	return questInfo and (questInfo.isQuestItem or questInfo.questID) and true or false
+end
+
 -- Gray items, and optionally white ones that sell to a vendor and aren't
--- quest items (keeps Hearthstone, quest starters etc. off the list).
+-- protected (Hearthstone, tools, bags, ammo …); never items the player ignored.
 local function IsListed(info, bag, slot)
+	if module.db.ignored[info.itemID] then
+		return false
+	end
 	if info.quality == Enum.ItemQuality.Poor then
 		return true
 	end
 	if not module.db.includeCommon or info.quality ~= Enum.ItemQuality.Common or info.hasNoValue then
 		return false
 	end
-	local questInfo = C_Container.GetContainerItemQuestInfo(bag, slot)
-	return not (questInfo and (questInfo.isQuestItem or questInfo.questID))
+	return not IsProtected(info.itemID, bag, slot)
 end
 
 -- Listed items in the bags with the vendor value of the whole stack, cheapest
@@ -163,8 +226,20 @@ function module:Delete(entry)
 	end
 end
 
-local function OnRowClick(row)
-	if row.entry then
+function module:Ignore(entry)
+	self.db.ignored[entry.itemID] = true
+	self:Print(L.IGNORE_ADDED:format(entry.link or ""))
+	GameTooltip:Hide()
+	self:Update()
+end
+
+local function OnRowClick(row, button)
+	if not row.entry then
+		return
+	end
+	if button == "RightButton" then
+		module:Ignore(row.entry)
+	else
 		module:Delete(row.entry)
 	end
 end
@@ -176,6 +251,7 @@ local function OnRowEnter(row)
 	GameTooltip:SetOwner(row, "ANCHOR_RIGHT")
 	GameTooltip:SetBagItem(row.entry.bag, row.entry.slot)
 	GameTooltip:AddLine(L.CLICK_TO_DELETE, 1, 0.45, 0.45)
+	GameTooltip:AddLine(L.RIGHT_CLICK_TO_IGNORE, 0.6, 0.6, 0.6)
 	GameTooltip:Show()
 end
 
@@ -187,7 +263,7 @@ local function GetRow(index)
 	local row = rows[index]
 	if not row then
 		row = CreateFrame("Button", nil, frame)
-		row:RegisterForClicks("LeftButtonUp")
+		row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row:SetScript("OnClick", OnRowClick)
 		row:SetScript("OnEnter", OnRowEnter)
 		row:SetScript("OnLeave", OnRowLeave)
