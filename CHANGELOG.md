@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- XP widget: shows how long you have been on your current level (played time,
+  as in /played); can be turned off under *Show*
+
 ## v1.0.0 (2026-11-03)
 
 - First stable release for the launch of World of Warcraft Forever. No functional changes since v0.13.1.
