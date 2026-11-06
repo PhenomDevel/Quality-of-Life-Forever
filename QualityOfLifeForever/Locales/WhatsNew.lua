@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.1",
+		enUS = {
+			"# Widgets",
+			"XP widget: shows how long you have been on your current level (played time); can be turned off under Show",
+		},
+		deDE = {
+			"# Widgets",
+			"EP-Widget: zeigt, wie lange du schon auf deiner aktuellen Stufe bist (gespielte Zeit); abschaltbar unter Anzeigen",
+		},
+	},
+	{
 		version = "1.0",
 		enUS = {
 			"First stable release, just in time for the launch of WoW Forever",
