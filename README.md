@@ -50,7 +50,7 @@ What changed: [CHANGELOG.md](https://github.com/PhenomDevel/Quality-of-Life-Fore
 | **Reminders** | Small popups, only out of combat: new skills at your trainer on level-up · unspent talent points (on login and an hour after a level-up) · missing self-buffs as clickable icons that cast the buff · low durability · unhappy pet |
 | **Social** | Auto-accept invites and summons · auto-decline duels and guild invites |
 | **Tooltip** | Position, scale and background opacity · guild rank, target, class color · item/spell IDs |
-| **Widgets** | Movable overlays, optionally combined into one column, each with optional title, text outline and shadow: XP (rested and quest XP, XP per hour, time on the current level, adjustable bar size) · gold (session, gold per hour) · reputation · FPS & latency · ammo & reagents · five second rule with countdown · cheapest gray (optionally also white) items, click to delete |
+| **Widgets** | Movable overlays, optionally combined into one column, each with optional title, text outline and shadow: XP (rested and quest XP, XP per hour, time on the current level, adjustable bar size) · gold (session, gold per hour) · reputation · FPS & latency · ammo & reagents · five second rule with countdown · cheapest gray (optionally also white) items, click to delete, right-click to ignore |
 | **World map** | Movable, scalable map · zone level ranges, also on the minimap |
 
 \* on by default

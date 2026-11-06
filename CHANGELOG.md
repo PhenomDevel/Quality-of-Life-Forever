@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- Junk widget: the white items option never lists fishing poles, profession
+  tools, bags, ammo or reagents; right-click an item to never list it again
+  (reset under *Show*)
+
 ## v1.2.0 (2026-11-06)
 
 ### Widgets
