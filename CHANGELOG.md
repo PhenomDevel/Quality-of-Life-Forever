@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- XP widget: rested XP is visible on the bar again when you also have quest
+  XP, and uses the same purple as its text
+
 ## v1.3.0 (2026-11-06)
 
 ### Widgets
