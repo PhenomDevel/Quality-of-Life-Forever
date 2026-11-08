@@ -4,6 +4,8 @@
 
 ### Reminders
 - Missing self-buffs: Thorns counts as a druid buff
+- Missing self-buffs: Divine Spirit counts as a priest buff (once the talent
+  is learned)
 
 ### Widgets
 - XP widget: rested XP is visible on the bar again when you also have quest
