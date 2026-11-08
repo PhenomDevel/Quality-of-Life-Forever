@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.4.0 (2026-11-08)
 
 ### Reminders
 - Missing self-buffs: Thorns counts as a druid buff

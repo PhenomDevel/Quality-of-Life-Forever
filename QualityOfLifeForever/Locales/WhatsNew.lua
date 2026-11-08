@@ -5,6 +5,21 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.4",
+		enUS = {
+			"# Reminders",
+			"Missing self-buffs: Thorns (druid) and Divine Spirit (priest, once learned) count as buffs",
+			"# Widgets",
+			"XP widget: rested XP is visible on the bar again when you also have quest XP",
+		},
+		deDE = {
+			"# Erinnerungen",
+			"Fehlende Selbst-Buffs: Dornen (Druide) und Göttlicher Willen (Priester, sobald erlernt) zählen als Buffs",
+			"# Widgets",
+			"EP-Widget: erholte EP sind wieder auf der Leiste sichtbar, wenn du auch Quest-EP hast",
+		},
+	},
+	{
 		version = "1.3",
 		enUS = {
 			"# Widgets",
