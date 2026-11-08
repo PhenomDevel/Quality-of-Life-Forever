@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Options
+- Minimap button: now a standard LibDBIcon button, so minimap addons
+  (SexyMap, Leatrix Plus, button collectors …) hide it until you hover the
+  minimap, like other addons' buttons. Position and the show/hide setting are
+  kept.
+
 ### Reminders
 - Missing self-buffs: Thorns counts as a druid buff
 - Missing self-buffs: Divine Spirit counts as a priest buff (once the talent

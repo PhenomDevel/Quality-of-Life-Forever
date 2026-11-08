@@ -2,6 +2,12 @@
 .release/
 *.zip
 
+# Libraries from .pkgmeta externals (tools/update-libs.sh for local dev)
+QualityOfLifeForever/Libs/LibStub/
+QualityOfLifeForever/Libs/CallbackHandler-1.0/
+QualityOfLifeForever/Libs/LibDataBroker-1.1/
+QualityOfLifeForever/Libs/LibDBIcon-1.0/
+
 # OS and editor files
 .DS_Store
 Thumbs.db

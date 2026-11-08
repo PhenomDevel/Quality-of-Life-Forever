@@ -1,71 +1,20 @@
--- luacheck: read globals Minimap GetCursorPosition GetMinimapShape CreateColorFromHexString
+-- luacheck: read globals LibStub
 local _, ns = ...
 
 local L = ns.L
 
 --[[
-	Flat round button on the minimap rim: left-click opens the options,
-	right-click Edit Mode (to move overlays), drag moves it around the rim. The angle (degrees, 0 = right, counterclockwise)
-	and visibility are stored account-wide in ns.db.global.
+	Minimap button via LibDBIcon, so minimap addons (SexyMap, Leatrix Plus,
+	button collectors …) can hide, fade or collect it like other addons'
+	buttons. Left-click opens the options, right-click Edit Mode (to move
+	overlays), drag moves it around the rim. The angle (degrees, 0 = right,
+	counterclockwise) and visibility are stored account-wide in ns.db.global.
 ]]
 
-local SIZE = 30
-local ICON_SIZE = 20
-local RING_ALPHA, RING_ALPHA_HOVER = 0.75, 1
-local CIRCLE_MASK = "Interface\\CharacterFrame\\TempPortraitAlphaMask"
-local ACCENT = CreateColorFromHexString("ff" .. ns.color)
+local NAME = "QualityOfLifeForever"
+local ICON = "Interface\\AddOns\\QualityOfLifeForever\\Media\\Logo"
 
-local button
-
--- Minimap shapes that have square instead of round corners, by quadrant
--- (top right, top left, bottom left, bottom right). GetMinimapShape is set by
--- minimap addons; the default minimap is round.
-local SQUARE_QUADRANTS = {
-	["SQUARE"] = { true, true, true, true },
-	["CORNER-TOPRIGHT"] = { true, false, false, false },
-	["CORNER-TOPLEFT"] = { false, true, false, false },
-	["CORNER-BOTTOMLEFT"] = { false, false, true, false },
-	["CORNER-BOTTOMRIGHT"] = { false, false, false, true },
-	["SIDE-TOP"] = { true, true, false, false },
-	["SIDE-LEFT"] = { false, true, true, false },
-	["SIDE-BOTTOM"] = { false, false, true, true },
-	["SIDE-RIGHT"] = { true, false, false, true },
-	["TRICORNER-TOPRIGHT"] = { true, true, false, true },
-	["TRICORNER-TOPLEFT"] = { true, true, true, false },
-	["TRICORNER-BOTTOMLEFT"] = { false, true, true, true },
-	["TRICORNER-BOTTOMRIGHT"] = { true, false, true, true },
-}
-
-local function UpdatePosition()
-	local angle = math.rad(ns.db.global.minimapAngle)
-	local x, y = math.cos(angle), math.sin(angle)
-	local quadrant = (x >= 0 and (y >= 0 and 1 or 4)) or (y >= 0 and 2 or 3)
-	local shape = GetMinimapShape and GetMinimapShape() or "ROUND"
-	local square = SQUARE_QUADRANTS[shape]
-	-- Centered on the rim; on square corners pushed out to the edge.
-	local radius = Minimap:GetWidth() / 2
-	if square and square[quadrant] then
-		local scale = 1 / math.max(math.abs(x), math.abs(y))
-		x, y = x * scale, y * scale
-	end
-	button:ClearAllPoints()
-	button:SetPoint("CENTER", Minimap, "CENTER", x * radius, y * radius)
-end
-
-local function OnDragUpdate()
-	local centerX, centerY = Minimap:GetCenter()
-	local scale = Minimap:GetEffectiveScale()
-	local cursorX, cursorY = GetCursorPosition()
-	local angle = math.deg(math.atan2(cursorY / scale - centerY, cursorX / scale - centerX))
-	ns.db.global.minimapAngle = math.floor(angle % 360 + 0.5)
-	UpdatePosition()
-end
-
-local function SetHovered(hovered)
-	button.Ring:SetAlpha(hovered and RING_ALPHA_HOVER or RING_ALPHA)
-	local brightness = hovered and 1 or 0.9
-	button.Icon:SetVertexColor(brightness, brightness, brightness)
-end
+local LibDBIcon = LibStub("LibDBIcon-1.0")
 
 local function ShowTooltip(self)
 	local version = "|cffb8b8bc" .. L.OPTIONS_VERSION:format(ns.version) .. "|r"
@@ -73,70 +22,52 @@ local function ShowTooltip(self)
 	ns.OptionsWidgets.ShowTooltipAt(self, "TOPRIGHT", "BOTTOMLEFT", 0, 0, ns.title, body)
 end
 
-local function AddCircle(layer, sublevel, size)
-	local texture = button:CreateTexture(nil, layer, nil, sublevel)
-	texture:SetSize(size, size)
-	texture:SetPoint("CENTER")
-	local mask = button:CreateMaskTexture()
-	mask:SetTexture(CIRCLE_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-	mask:SetAllPoints(texture)
-	texture:AddMaskTexture(mask)
-	return texture
-end
-
-local function CreateButton()
-	button = CreateFrame("Button", "QualityOfLifeForeverMinimapButton", Minimap)
-	button:SetSize(SIZE, SIZE)
-	button:SetFrameStrata("MEDIUM")
-	button:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	button:RegisterForDrag("LeftButton")
-
-	-- Accent ring = accent circle with a slightly smaller dark circle on top.
-	button.Ring = AddCircle("BACKGROUND", 0, SIZE)
-	button.Ring:SetColorTexture(ACCENT:GetRGB())
-	local background = AddCircle("BACKGROUND", 1, SIZE - 4)
-	background:SetColorTexture(0.07, 0.07, 0.08, 1)
-	button.Icon = AddCircle("ARTWORK", 0, ICON_SIZE)
-	button.Icon:SetTexture("Interface\\AddOns\\QualityOfLifeForever\\Media\\Logo")
-
-	button:SetScript("OnClick", function(_, mouseButton)
-		if mouseButton == "RightButton" then
-			ns:OpenEditMode()
+-- LibDBIcon's db, mapped onto the existing saved settings.
+local db = setmetatable({}, {
+	__index = function(_, key)
+		if key == "minimapPos" then
+			return ns.db.global.minimapAngle
+		elseif key == "hide" then
+			return not ns.db.global.minimapButton
+		end
+	end,
+	__newindex = function(store, key, value)
+		if key == "minimapPos" then
+			ns.db.global.minimapAngle = value
+		elseif key == "hide" then
+			ns.db.global.minimapButton = not value
 		else
-			ns:ToggleSettings()
+			rawset(store, key, value)
 		end
-	end)
-	button:SetScript("OnEnter", function(self)
-		SetHovered(true)
-		ShowTooltip(self)
-	end)
-	button:SetScript("OnLeave", function()
-		SetHovered(false)
-		ns.OptionsWidgets.HideTooltip()
-	end)
-	button:SetScript("OnDragStart", function(self)
-		ns.OptionsWidgets.HideTooltip()
-		self:SetScript("OnUpdate", OnDragUpdate)
-	end)
-	button:SetScript("OnDragStop", function(self)
-		self:SetScript("OnUpdate", nil)
-	end)
+	end,
+})
 
-	SetHovered(false)
+local function Register()
+	local object = LibStub("LibDataBroker-1.1"):NewDataObject(NAME, {
+		type = "launcher",
+		icon = ICON,
+		OnClick = function(_, mouseButton)
+			if mouseButton == "RightButton" then
+				ns:OpenEditMode()
+			else
+				ns:ToggleSettings()
+			end
+		end,
+		OnEnter = ShowTooltip,
+		OnLeave = function()
+			ns.OptionsWidgets.HideTooltip()
+		end,
+	})
+	LibDBIcon:Register(NAME, object, db)
 end
 
--- Creates the button on first use, so a hidden button costs nothing.
 function ns:UpdateMinimapButton()
-	if not ns.db.global.minimapButton then
-		if button then
-			button:Hide()
-		end
-		return
+	if not LibDBIcon:IsRegistered(NAME) then
+		Register()
 	end
-	if not button then
-		CreateButton()
+	if ns.db.global.minimapButton then
+		LibDBIcon:Show(NAME)
+	else
+		LibDBIcon:Hide(NAME)
 	end
-	UpdatePosition()
-	button:Show()
 end

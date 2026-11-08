@@ -35,10 +35,14 @@ old Classic Era API.
 
 ## Libraries
 - Only libraries Kevin approved: currently **LibEditMode** (frames in Blizzard's
-  Edit Mode). No Ace3 – the options window, minimap button and widgets are our own.
-- Embedded unmodified in `QualityOfLifeForever/Libs/<Name>/` with their license
-  file, loaded first in the `.toc`. Update them only via `tools/update-libs.sh`
-  (pinned versions); never edit a library file.
+  Edit Mode) and **LibDBIcon-1.0** with LibDataBroker-1.1, LibStub and
+  CallbackHandler-1.0 (minimap button, so minimap addons can hide/collect it).
+  No other Ace3 – the options window and widgets are our own.
+- All live in `QualityOfLifeForever/Libs/<Name>/`, loaded first in the `.toc`;
+  never edit a library file. LibEditMode is committed unmodified with its
+  license file (pinned in `tools/update-libs.sh`). The LibDBIcon set is
+  git-ignored: `.pkgmeta` externals for releases, `tools/update-libs.sh` for
+  local dev.
 - LibEditMode is embedded namespaced (`ns.LibEditMode`), without LibStub.
 - Libraries are excluded from luacheck.
 
