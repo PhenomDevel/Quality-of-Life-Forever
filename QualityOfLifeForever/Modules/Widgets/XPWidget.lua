@@ -177,7 +177,7 @@ local PADDING = 7
 local MIN_BAR_LENGTH = 60
 local REFRESH_SECONDS = 3
 local ACCENT = CreateColorFromHexString("ff" .. ns.color)
-local RESTED_COLOR = { 0.72, 0.5, 1, 0.65 }
+local RESTED_COLOR = { 0.72, 0.5, 1, 1 }
 local QUEST_COLOR = { 1, 0.78, 0.25, 0.8 }
 local QUEST_SCAN_DELAY = 0.5
 
@@ -214,7 +214,8 @@ local function CreateWidget()
 	local track = bar:CreateTexture(nil, "BACKGROUND")
 	track:SetAllPoints()
 	track:SetColorTexture(0.22, 0.22, 0.24, 1)
-	-- Segments after the current XP: completed quests on top of rested XP.
+	-- Segments after the current XP; both start at the current XP, and Update
+	-- draws the shorter one on top so the longer one still shows past its end.
 	bar.Rested = bar:CreateTexture(nil, "ARTWORK", nil, -2)
 	bar.Rested:SetColorTexture(unpack(RESTED_COLOR))
 	bar.Quests = bar:CreateTexture(nil, "ARTWORK", nil, -1)
@@ -426,6 +427,9 @@ function module:Update()
 	-- After the layout, which sets the bar length.
 	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
 	SetSegment(frame.Bar.Quests, xp, quests, maxXP)
+	local restedOnTop = (rested or 0) <= (quests or 0)
+	frame.Bar.Rested:SetDrawLayer("ARTWORK", restedOnTop and -1 or -2)
+	frame.Bar.Quests:SetDrawLayer("ARTWORK", restedOnTop and -2 or -1)
 end
 
 function module:UpdateTicker()
