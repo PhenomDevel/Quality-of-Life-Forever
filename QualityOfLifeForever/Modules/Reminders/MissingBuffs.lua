@@ -137,9 +137,30 @@ local function IsKnown(spellID)
 	return C_SpellBook.IsSpellKnown(spellID) == true
 end
 
-local function HasBuff(name)
-	local aura = C_UnitAuras.GetAuraDataBySpellName("player", name, "HELPFUL")
-	return aura ~= nil and not IsSecret(aura)
+-- Names and spell IDs of the player's buffs. Walks the aura list instead of
+-- C_UnitAuras.GetAuraDataBySpellName, which missed active buffs in Forever.
+-- `unknown` is set when a buff can't be read (secret values); nothing is
+-- reported missing then, to avoid false alarms.
+local function GetActiveBuffs()
+	local names, ids, unknown = {}, {}, false
+	local index = 1
+	local aura = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+	while aura do
+		local name, spellID = aura.name, aura.spellId
+		if IsSecret(name) or IsSecret(spellID) then
+			unknown = true
+		else
+			if name then
+				names[name] = true
+			end
+			if spellID then
+				ids[spellID] = true
+			end
+		end
+		index = index + 1
+		aura = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+	end
+	return names, ids, unknown
 end
 
 -- { spellID, name, icon } of the first known spell of each buff group, all of
@@ -147,6 +168,7 @@ end
 local function Collect(missingOnly)
 	local _, class = UnitClass("player")
 	local list = {}
+	local activeNames, activeIDs, unknown = GetActiveBuffs()
 	for _, group in ipairs(BUFFS[class] or {}) do
 		local known, active = nil, false
 		for _, spellID in ipairs(group) do
@@ -155,7 +177,7 @@ local function Collect(missingOnly)
 				if not known and IsKnown(spellID) then
 					known = { spellID = spellID, name = name, icon = C_Spell.GetSpellTexture(spellID) }
 				end
-				if HasBuff(name) then
+				if unknown or activeNames[name] or activeIDs[spellID] then
 					active = true
 				end
 			end
