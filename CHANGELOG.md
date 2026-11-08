@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Reminders
+- Missing self-buffs: active buffs are no longer listed as missing
+
 ## v1.4.0 (2026-11-08)
 
 ### Reminders
