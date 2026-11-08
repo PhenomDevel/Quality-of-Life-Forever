@@ -1,6 +1,19 @@
 # BigWigs packager config, see .github/workflows/release.yml.
 package-as: QualityOfLifeForever
 
+enable-nolib-creation: no
+
+# LibStub, CallbackHandler, LibDataBroker and LibDBIcon are not committed (see
+# docs/DEVELOPMENT.md); local dev uses tools/update-libs.sh.
+externals:
+  QualityOfLifeForever/Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+  QualityOfLifeForever/Libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+  QualityOfLifeForever/Libs/LibDataBroker-1.1:
+    url: https://github.com/tekkub/libdatabroker-1-1
+    # GitHub repo, so name the CurseForge project for the embedded-library relation.
+    curse-slug: libdatabroker-1-1
+  QualityOfLifeForever/Libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
+
 # The addon lives in a subfolder; move it to the zip root.
 move-folders:
   QualityOfLifeForever/QualityOfLifeForever: QualityOfLifeForever
@@ -10,6 +23,7 @@ ignore:
   - CLAUDE.md
   - docs
   - tools
+  - QualityOfLifeForever/Libs/LibDataBroker-1.1/README.textile
 
 manual-changelog:
   filename: CHANGELOG.md

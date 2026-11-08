@@ -30,10 +30,16 @@ tools/                       update-libs.sh (refreshes Libs/ from pinned upstrea
 | Library | Version | Purpose | License |
 |---------|---------|---------|---------|
 | [LibEditMode](https://github.com/p3lim-wow/LibEditMode) | 18 | Movable frames in Blizzard's Edit Mode | Own license, may be embedded unmodified (`Libs/LibEditMode/LICENSE.txt`) |
+| LibStub | Ace3 trunk | Library registry for the libraries below | Public domain |
+| CallbackHandler-1.0 | Ace3 trunk | Required by LibDataBroker and LibDBIcon | BSD |
+| [LibDataBroker-1.1](https://github.com/tekkub/libdatabroker-1-1) | master | Launcher data object for the minimap button | See upstream |
+| LibDBIcon-1.0 | CurseForge SVN trunk | Minimap button that minimap addons can hide, fade or collect | See the CurseForge project |
 
-Libraries are committed unmodified so the linked addon folder works without a
-build step. To update one, bump its version in `tools/update-libs.sh`, run it
-and commit the result. LibEditMode is loaded namespaced (`namespaced.lua`
+LibEditMode is committed unmodified. To update it, bump its version in
+`tools/update-libs.sh`, run it and commit the result. LibStub,
+CallbackHandler, LibDataBroker and LibDBIcon are git-ignored and come from the
+`.pkgmeta` externals in release builds; run `tools/update-libs.sh` (Git Bash on
+Windows) once after cloning, otherwise the linked addon folder errors on load. LibEditMode is loaded namespaced (`namespaced.lua`
 before `embed.xml`), so it lives in `ns.LibEditMode` and needs no LibStub.
 
 ## Local setup
