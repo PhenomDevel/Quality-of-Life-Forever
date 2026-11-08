@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Reminders
+- Missing self-buffs: Divine Spirit counts as a priest buff (once the talent
+  is learned)
+
 ## v1.3.0 (2026-11-06)
 
 ### Widgets

@@ -99,6 +99,7 @@ local BUFFS = {
 	PRIEST = {
 		{ 1243 }, -- Power Word: Fortitude
 		{ 588 }, -- Inner Fire
+		{ 14752 }, -- Divine Spirit (Discipline talent)
 	},
 	SHAMAN = {
 		{ 324 }, -- Lightning Shield
