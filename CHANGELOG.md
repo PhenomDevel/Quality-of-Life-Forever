@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Reminders
+- Missing self-buffs: Thorns counts as a druid buff
 - Missing self-buffs: Divine Spirit counts as a priest buff (once the talent
   is learned)
 

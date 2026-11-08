@@ -85,6 +85,7 @@ local module = ns:NewModule("MissingBuffs", {
 local BUFFS = {
 	DRUID = {
 		{ 1126 }, -- Mark of the Wild
+		{ 467 }, -- Thorns
 	},
 	HUNTER = {
 		{ 13165, 13163 }, -- Aspect of the Hawk, Aspect of the Monkey
