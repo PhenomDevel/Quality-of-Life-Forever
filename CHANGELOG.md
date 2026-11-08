@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Reminders
+- Missing self-buffs: Thorns counts as a druid buff
+
 ## v1.3.0 (2026-11-06)
 
 ### Widgets
