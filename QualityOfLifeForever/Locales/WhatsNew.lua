@@ -5,6 +5,21 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.5",
+		enUS = {
+			"# Options",
+			"New About page: who made the addon, version, and links to Discord, CurseForge, Wago and GitHub, ready to copy",
+			"# Reminders",
+			"Missing self-buffs: active buffs are no longer listed as missing",
+		},
+		deDE = {
+			"# Optionen",
+			"Neue Seite Über: wer das Addon entwickelt, Version und Links zu Discord, CurseForge, Wago und GitHub zum Kopieren",
+			"# Erinnerungen",
+			"Fehlende Selbst-Buffs: aktive Buffs werden nicht mehr als fehlend angezeigt",
+		},
+	},
+	{
 		version = "1.4",
 		enUS = {
 			"# Reminders",
