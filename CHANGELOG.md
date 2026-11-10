@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Options
+- New "About" page: who made the addon (Phenom), version, and links to Discord, CurseForge, Wago, GitHub and bug reports, ready to copy
+
 ### Reminders
 - Missing self-buffs: active buffs are no longer listed as missing
 

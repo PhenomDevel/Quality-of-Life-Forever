@@ -12,13 +12,13 @@ local Markup = ns.Utils.Markup
 	┌ header: logo, title, search, close ─────────────────────────────────┐
 	│ sidebar: General +  │ page title + subtitle                         │
 	│ one entry per       │ module list      │ options of the selected    │
-	│ category            │ (title, note,    │ module in one full-width   │
+	│ category + About    │ (title, note,    │ module in one full-width   │
 	│                     │  switch)         │ card (scrolls)             │
 	└─────────────────────┴──────────────────┴─────────────── resize grip ┘
 
 	Category and search pages list their modules on the left, all the same
 	height, and show the selected one's options on the right; the General
-	page has no list. The selection is remembered per page.
+	and About pages have no list. The selection is remembered per page.
 	Pages are rebuilt from pooled frames whenever the layout changes (page,
 	search, selection, a module turned on/off). Value changes from elsewhere
 	(slash commands, SetOption) only refresh the visible controls.
@@ -43,6 +43,7 @@ local TEXTAREA_HEIGHT = 64
 local SCROLL_STEP = 48
 
 local GENERAL = "GENERAL"
+local ABOUT = "ABOUT"
 
 -- Derived from the window width by UpdateLayout() before every render.
 local columnWidth, rowWidth
@@ -191,12 +192,11 @@ rowTypes.button = {
 	end,
 }
 
--- Single-line text ("text" option).
+-- Single-line text ("text" option; { readOnly, width } for a link to copy).
 rowTypes.text = {
 	create = function(parent)
 		local row = CreateRowBase(parent)
 		row.Control = Widgets.CreateInput(row, false)
-		row.Control:SetWidth(INPUT_WIDTH)
 		row.Control:SetPoint("RIGHT", row, "TOPRIGHT", 0, -ROW_HEIGHT / 2)
 		Widgets.ForwardHover(row.Control.EditBox, row)
 		row.Update = function(self)
@@ -205,8 +205,10 @@ rowTypes.text = {
 		return row
 	end,
 	setup = function(row, spec)
-		row.Control:SetBinding(spec.get, spec.set, spec.placeholder, spec.maxLetters)
-		return SetupRow(row, spec, INPUT_WIDTH, ROW_HEIGHT)
+		row.Control:SetBinding(spec.get, spec.set, spec.placeholder, spec.maxLetters, spec.readOnly)
+		local width = spec.width or INPUT_WIDTH
+		row.Control:SetWidth(width)
+		return SetupRow(row, spec, width, ROW_HEIGHT)
 	end,
 }
 
@@ -692,6 +694,9 @@ local function GetPage()
 	if state.search ~= "" then
 		return SearchPage()
 	end
+	if state.page == ABOUT then
+		return ns:GetAboutPage()
+	end
 	if state.page ~= GENERAL then
 		for _, category in ipairs(ns.categories) do
 			if category.id == state.page then
@@ -937,6 +942,9 @@ local function CreateSidebar(parent)
 			y = y + 28
 		end
 	end
+	y = y + 12
+	AddSidebarButton(ABOUT, L.ABOUT, y)
+	y = y + 28
 	return y + 10
 end
 

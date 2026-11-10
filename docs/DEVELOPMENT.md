@@ -9,8 +9,8 @@ QualityOfLifeForever/        addon folder (the only thing that gets installed)
   Locales/                   enUS (base) + deDE, What's new notes
   Media/                     Logo.tga (addon icon, 64x64, 32-bit TGA from docs/logo/logo.png)
   Core/                      setup (Init.lua), DB, module registry/lifecycle, slash commands
-  UI/                        options window, widgets, settings panel, minimap button,
-                             overlays, notices, What's new
+  UI/                        options window, widgets, settings panel, About page,
+                             minimap button, overlays, notices, What's new
   Modules/<Category>/        one file per module
 docs/                        developer docs, module API, template, roadmap, release process,
                              logo/ (logo.svg, README logo)

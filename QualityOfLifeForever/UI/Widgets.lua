@@ -370,9 +370,10 @@ function Widgets.CreateButton(parent)
 end
 
 -- Text input -------------------------------------------------------------------
--- input:SetBinding(getValue, setValue, placeholder, maxLetters). The value is
--- committed on Enter and when the field loses focus; Esc restores it.
--- Multi-line inputs wrap and scroll; line breaks are not kept.
+-- input:SetBinding(getValue, setValue, placeholder, maxLetters, readOnly). The
+-- value is committed on Enter and when the field loses focus; Esc restores it.
+-- Multi-line inputs wrap and scroll; line breaks are not kept. Read-only
+-- inputs select their whole text on focus, ready to be copied.
 
 local INPUT_INSET = 8
 
@@ -389,6 +390,9 @@ local function UpdatePlaceholder(input)
 end
 
 local function Commit(input)
+	if input.readOnly then
+		return
+	end
 	local editBox = input.EditBox
 	local text = strtrim((editBox:GetText():gsub("[\r\n]+", " ")))
 	if text ~= editBox:GetText() then
@@ -453,9 +457,12 @@ function Widgets.CreateInput(parent, multiline)
 	input.Placeholder = Widgets.Text(input, fonts.dim)
 	input.Placeholder:SetPoint("TOPLEFT", INPUT_INSET, multiline and -6 or -5)
 
-	editBox:SetScript("OnEditFocusGained", function()
+	editBox:SetScript("OnEditFocusGained", function(self)
 		SetInputFocused(input, true)
 		UpdatePlaceholder(input)
+		if input.readOnly then
+			self:HighlightText()
+		end
 	end)
 	editBox:SetScript("OnEditFocusLost", function(self)
 		self:HighlightText(0, 0)
@@ -468,12 +475,18 @@ function Widgets.CreateInput(parent, multiline)
 		ResetInput(input)
 		self:ClearFocus()
 	end)
-	editBox:SetScript("OnTextChanged", function()
+	editBox:SetScript("OnTextChanged", function(self, userInput)
+		-- Typing into a read-only field puts its text back.
+		if userInput and input.readOnly then
+			ResetInput(input)
+			self:HighlightText()
+			return
+		end
 		UpdatePlaceholder(input)
 	end)
 
-	input.SetBinding = function(self, getValue, setValue, placeholder, maxLetters)
-		self.getValue, self.setValue = getValue, setValue
+	input.SetBinding = function(self, getValue, setValue, placeholder, maxLetters, readOnly)
+		self.getValue, self.setValue, self.readOnly = getValue, setValue, readOnly
 		self.Placeholder:SetText(placeholder or "")
 		self.EditBox:SetMaxLetters(maxLetters or 0)
 		ResetInput(self)
