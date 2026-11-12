@@ -21,6 +21,8 @@ local LibEditMode = ns.LibEditMode
 ]]
 
 local overlays = {}
+-- Overlay frame by key, to look up another overlay's default position.
+local framesByKey = {}
 
 -- Shared look: flat dark panel with a 1 px border, like the options window.
 local BACKGROUND = { 0.07, 0.07, 0.08, 0.92 }
@@ -98,6 +100,16 @@ local STACK_ORDER = {
 local STACK_GAP = 2
 local stackAnchor
 
+-- Key the overlay's position is stored under: its own, or the one of the
+-- overlay whose place it takes (see ns:SetOverlayPositionKey).
+local function PositionKey(overlay)
+	return overlay.positionKey or overlay.key
+end
+
+local function StackOrder(overlay)
+	return STACK_ORDER[PositionKey(overlay)] or STACK_ORDER[overlay.key]
+end
+
 local function IsStacked(frame)
 	local overlay = overlays[frame]
 	return overlay ~= nil and STACK_ORDER[overlay.key] ~= nil and ns.db.global.stackWidgets
@@ -113,12 +125,12 @@ local function Restack()
 	end
 	local shown = {}
 	for frame, overlay in pairs(overlays) do
-		if STACK_ORDER[overlay.key] and frame:IsShown() then
+		if StackOrder(overlay) and frame:IsShown() then
 			shown[#shown + 1] = frame
 		end
 	end
 	table.sort(shown, function(a, b)
-		return STACK_ORDER[overlays[a].key] < STACK_ORDER[overlays[b].key]
+		return StackOrder(overlays[a]) < StackOrder(overlays[b])
 	end)
 	-- Sizes in the anchor's coordinates; each widget keeps its own scale.
 	local anchorScale = stackAnchor:GetEffectiveScale()
@@ -147,13 +159,21 @@ local function Apply(frame, layoutName)
 		Restack()
 		return
 	end
-	local position = data.point and data or overlay.default
+	local positionKey = PositionKey(overlay)
+	local position = data
+	if positionKey ~= overlay.key then
+		position = layoutName and GetLayoutData(positionKey, layoutName) or {}
+	end
+	if not position.point then
+		local source = framesByKey[positionKey]
+		position = source and overlays[source].default or overlay.default
+	end
 	frame:ClearAllPoints()
 	frame:SetPoint(position.point, UIParent, position.point, position.x, position.y)
 end
 
 local function OnPositionChanged(frame, layoutName, point, x, y)
-	local data = GetLayoutData(overlays[frame].key, layoutName, true)
+	local data = GetLayoutData(PositionKey(overlays[frame]), layoutName, true)
 	data.point, data.x, data.y = point, x, y
 	Apply(frame, layoutName)
 end
@@ -241,6 +261,7 @@ function ns:CreateOverlay(key, info)
 	ns:AddPanelBackground(frame)
 
 	overlays[frame] = { key = key, default = info.default, module = info.module }
+	framesByKey[key] = frame
 
 	if not info.noTitle then
 		frame.Title = frame:CreateFontString(nil, "OVERLAY")
@@ -290,6 +311,21 @@ function ns:CreateOverlay(key, info)
 
 	Apply(frame, LibEditMode:GetActiveLayoutName())
 	return frame
+end
+
+-- Places `frame` where the overlay `key` is saved (per Edit Mode layout), so
+-- it takes that overlay's place; moving it then moves that place. Scale stays
+-- its own. nil returns it to its own position.
+function ns:SetOverlayPositionKey(frame, key)
+	local overlay = overlays[frame]
+	if key == overlay.key then
+		key = nil
+	end
+	if overlay.positionKey == key then
+		return
+	end
+	overlay.positionKey = key
+	Apply(frame, LibEditMode:GetActiveLayoutName())
 end
 
 -- Called once on login, before the modules create their widgets.
