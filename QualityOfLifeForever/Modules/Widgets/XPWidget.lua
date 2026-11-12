@@ -181,6 +181,8 @@ local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
 -- Text column of the vertical layout at the default text size.
 local VERTICAL_TEXT_WIDTH = 150
 local ROW_GAP = 3
+-- Minimum space between a left and a right text in the same row.
+local TEXT_GAP = 8
 local PADDING = 7
 local MIN_BAR_LENGTH = 60
 local REFRESH_SECONDS = 3
@@ -394,15 +396,39 @@ local function FormatLevelTime()
 	return SecondsToTime(seconds, true, false, 2)
 end
 
+-- Custom bar length in pixels, or nil for Auto.
+local function BarLength()
+	local length = module.db.barLength
+	return length > 0 and math.max(length, MIN_BAR_LENGTH) or nil
+end
+
+-- Frame width of the horizontal layout.
+local function HorizontalWidth()
+	local length = BarLength()
+	return length and length + PADDING * 2 or math.floor(BASE_WIDTH * module.db.fontSize / BASE_FONT_SIZE + 0.5)
+end
+
+-- Horizontal layout: quest XP sits below rested XP, next to the level time.
+-- When both don't fit side by side (long durations, percentages, bigger
+-- text), the level time gets a 5th row of its own.
+local function LevelTimeOwnRow()
+	if not (HasText(frame.Rested) and HasText(frame.Quests) and HasText(frame.LevelTime)) then
+		return false
+	end
+	local available = HorizontalWidth() - PADDING * 2 - TEXT_GAP
+	return frame.LevelTime:GetStringWidth() + frame.Quests:GetStringWidth() > available
+end
+
 -- Rows that are shown decide the size: in the horizontal layout only a 4th
--- row for quest XP below rested XP and the level time, in the vertical one
--- every optional row.
+-- row for quest XP below rested XP and the level time (and a 5th when those
+-- two don't fit side by side), in the vertical one every optional row.
 function module:GetLayoutKey()
 	if IsVertical() then
 		return ("V%d%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0,
 			HasText(frame.Rate) and 1 or 0, HasText(frame.LevelTime) and 1 or 0)
 	end
-	return ("H%d%d"):format((HasText(frame.Rested) and HasText(frame.Quests)) and 1 or 0, HasText(frame.LevelTime) and 1 or 0)
+	return ("H%d%d%d"):format((HasText(frame.Rested) and HasText(frame.Quests)) and 1 or 0,
+		HasText(frame.LevelTime) and 1 or 0, LevelTimeOwnRow() and 1 or 0)
 end
 
 function module:Update()
@@ -519,12 +545,6 @@ function module:HookContainers()
 	end
 end
 
--- Custom bar length in pixels, or nil for Auto.
-local function BarLength()
-	local length = module.db.barLength
-	return length > 0 and math.max(length, MIN_BAR_LENGTH) or nil
-end
-
 local function PlaceText(text, justify, width, ...)
 	text:SetJustifyH(justify)
 	text:SetWidth(width)
@@ -532,8 +552,9 @@ local function PlaceText(text, justify, width, ...)
 end
 
 -- Horizontal: level and rate, the bar, then values with rested XP and quest XP;
--- a 4th row holds the level time (left) and quest XP below rested XP (right).
-local function LayoutHorizontal(size, lineHeight)
+-- a 4th row holds the level time (left) and quest XP below rested XP (right),
+-- or only quest XP with the level time in a 5th row when they don't fit.
+local function LayoutHorizontal(lineHeight)
 	local bar = frame.Bar
 	local barTop = PADDING + lineHeight + 2
 	local thickness = module.db.barThickness
@@ -545,7 +566,9 @@ local function LayoutHorizontal(size, lineHeight)
 	PlaceText(frame.Rate, "RIGHT", 0, "TOPRIGHT", -PADDING, -PADDING)
 	PlaceText(frame.Values, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
 	PlaceText(frame.Rested, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
-	PlaceText(frame.LevelTime, "LEFT", 0, "TOPLEFT", frame.Values, "BOTTOMLEFT", 0, -ROW_GAP)
+	local ownRow = LevelTimeOwnRow()
+	local levelTimeOffset = ownRow and -(ROW_GAP * 2 + lineHeight) or -ROW_GAP
+	PlaceText(frame.LevelTime, "LEFT", 0, "TOPLEFT", frame.Values, "BOTTOMLEFT", 0, levelTimeOffset)
 	local fourthRow = HasText(frame.LevelTime)
 	if HasText(frame.Rested) and HasText(frame.Quests) then
 		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -ROW_GAP)
@@ -557,8 +580,11 @@ local function LayoutHorizontal(size, lineHeight)
 	if fourthRow then
 		height = height + lineHeight + ROW_GAP
 	end
-	local length = BarLength()
-	frame:SetSize(length and length + PADDING * 2 or math.floor(BASE_WIDTH * size / BASE_FONT_SIZE + 0.5), height)
+	if ownRow then
+		height = height + lineHeight + ROW_GAP
+	end
+	frame:SetWidth(HorizontalWidth())
+	frame:SetHeight(height)
 end
 
 -- Vertical: the bar on the left, as high as the text column unless it has a
@@ -596,7 +622,7 @@ function module:ApplyLayout()
 	if IsVertical() then
 		LayoutVertical(size, size + 2)
 	else
-		LayoutHorizontal(size, size + 2)
+		LayoutHorizontal(size + 2)
 	end
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
