@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.6.0 (2026-11-12)
 
 ### Widgets
 - XP widget: new option to also show rested XP and quest XP as a percentage of the current level, e.g. "+8.9K rested (12.5%)" (off by default)
