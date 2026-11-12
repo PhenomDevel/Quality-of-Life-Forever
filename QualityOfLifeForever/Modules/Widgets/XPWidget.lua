@@ -21,6 +21,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		SHOW_PERCENT = "Rested and quest XP in percent",
+		SHOW_PERCENT_DESC = "Also shows rested XP and quest XP as a percentage of the XP needed for the current level, e.g. +8.9K rested (12.5%).",
 		SHOW_LEVEL_TIME = "Time on this level",
 		SHOW_LEVEL_TIME_DESC = "Shows how long you have played on your current level (played time, as in /played). Requested once on login without the chat message.",
 		LAYOUT = "Layout",
@@ -44,6 +46,7 @@ local L = ns.NewLocale({
 		RESTED = "+%s rested",
 		QUESTS = "+%s from %d |4quest:quests;",
 		LEVEL_TIME = "%s on this level",
+		PERCENT = "%s (%.1f%%)",
 	},
 	deDE = {
 		TITLE = "EP-Widget",
@@ -64,6 +67,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		SHOW_PERCENT = "Erholungsbonus und Quest-EP in Prozent",
+		SHOW_PERCENT_DESC = "Zeigt Erholungsbonus und Quest-EP zusätzlich in Prozent der EP, die für die aktuelle Stufe nötig sind, z. B. +8,9K erholt (12,5 %).",
 		SHOW_LEVEL_TIME = "Zeit auf dieser Stufe",
 		SHOW_LEVEL_TIME_DESC = "Zeigt, wie lange du schon auf deiner aktuellen Stufe spielst (Spielzeit wie bei /played). Wird beim Einloggen einmal abgefragt, ohne Chatnachricht.",
 		LAYOUT = "Ausrichtung",
@@ -87,6 +92,7 @@ local L = ns.NewLocale({
 		RESTED = "+%s erholt",
 		QUESTS = "+%s aus %d |4Quest:Quests;",
 		LEVEL_TIME = "%s auf dieser Stufe",
+		PERCENT = "%s (%.1f %%)",
 	},
 })
 
@@ -112,6 +118,7 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
+		showPercent = false,
 		showLevelTime = true,
 		sessionReset = "LOGIN",
 		layout = "HORIZONTAL",
@@ -129,6 +136,7 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ key = "showPercent", type = "checkbox", label = L.SHOW_PERCENT, tooltip = L.SHOW_PERCENT_DESC },
 		{ key = "showLevelTime", type = "checkbox", label = L.SHOW_LEVEL_TIME, tooltip = L.SHOW_LEVEL_TIME_DESC },
 		{ type = "header", label = L.SECTION_BAR },
 		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
@@ -264,6 +272,15 @@ local function SetSegment(segment, xp, amount, maxXP)
 		segment:SetWidth(size)
 	end
 	segment:Show()
+end
+
+-- "+8.9K rested", with "(12.5%)" of the level's XP when showPercent is on.
+local function FormatGain(self, pattern, amount, maxXP, ...)
+	local text = pattern:format(Short(amount), ...)
+	if self.db.showPercent then
+		return L.PERCENT:format(text, amount / maxXP * 100)
+	end
+	return text
 end
 
 local function GetRested(self)
@@ -406,9 +423,9 @@ function module:Update()
 	frame.Bar:SetValue(xp)
 	frame.Values:SetText(L.VALUES:format(Short(xp), Short(maxXP)))
 	local rested = GetRested(self)
-	frame.Rested:SetText(rested and L.RESTED:format(Short(rested)) or "")
+	frame.Rested:SetText(rested and FormatGain(self, L.RESTED, rested, maxXP) or "")
 	local quests = self.db.showQuestXP and questXP > 0 and questXP or nil
-	frame.Quests:SetText(quests and L.QUESTS:format(Short(quests), questCount) or "")
+	frame.Quests:SetText(quests and FormatGain(self, L.QUESTS, quests, maxXP, questCount) or "")
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
 		local timeToLevel = XPSession.FormatTimeToLevel() or ""
