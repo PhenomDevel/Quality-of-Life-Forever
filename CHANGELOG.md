@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- Reputation widget: works like the XP widget now: horizontal or vertical
+  layout, adjustable bar length and thickness, progress in percent and a
+  "New session" setting (login, daily, manual)
+- Reputation widget: new option to take the XP widget's place at max level
+  (off by default)
+
 ## v1.6.0 (2026-11-12)
 
 ### Widgets
