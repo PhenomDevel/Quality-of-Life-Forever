@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.6",
+		enUS = {
+			"# Widgets",
+			"XP widget: new option to also show rested and quest XP as a percentage of your level (off by default)",
+		},
+		deDE = {
+			"# Widgets",
+			"EP-Widget: neue Option, erholte EP und Quest-EP zusätzlich in Prozent deiner Stufe anzuzeigen (standardmäßig aus)",
+		},
+	},
+	{
 		version = "1.5",
 		enUS = {
 			"# Options",
