@@ -8,6 +8,8 @@
   "New session" setting (login, daily, manual)
 - Reputation widget: new option to take the XP widget's place at max level
   (off by default)
+- XP widget: the time on this level no longer overlaps the quest XP; when
+  both don't fit side by side, it moves to its own row
 
 ## v1.6.0 (2026-11-12)
 
