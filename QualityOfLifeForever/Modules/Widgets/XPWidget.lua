@@ -178,8 +178,10 @@ local module = ns:NewModule("XPWidget", {
 local XPSession = ns.XPSession
 -- Width at the default text size of 11; it scales with the text size.
 local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
--- Text column of the vertical layout at the default text size.
+-- Minimum text column of the vertical layout at the default text size; it
+-- grows in steps of TEXT_WIDTH_STEP when a row is wider.
 local VERTICAL_TEXT_WIDTH = 150
+local TEXT_WIDTH_STEP = 10
 local ROW_GAP = 3
 -- Minimum space between a left and a right text in the same row.
 local TEXT_GAP = 8
@@ -419,13 +421,35 @@ local function LevelTimeOwnRow()
 	return frame.LevelTime:GetStringWidth() + frame.Quests:GetStringWidth() > available
 end
 
+-- Rows of the vertical layout, top to bottom; empty optional rows are left out.
+local function VerticalRows()
+	local rows = { frame.Level, frame.Values }
+	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate, frame.LevelTime }) do
+		if HasText(text) then
+			rows[#rows + 1] = text
+		end
+	end
+	return rows
+end
+
+-- Width of the vertical text column: the widest row, so nothing is cut, but
+-- at least the default column width for the text size.
+local function VerticalTextWidth()
+	local width = VERTICAL_TEXT_WIDTH * module.db.fontSize / BASE_FONT_SIZE
+	for _, text in ipairs(VerticalRows()) do
+		width = math.max(width, text:GetUnboundedStringWidth())
+	end
+	return math.ceil(width / TEXT_WIDTH_STEP) * TEXT_WIDTH_STEP
+end
+
 -- Rows that are shown decide the size: in the horizontal layout only a 4th
 -- row for quest XP below rested XP and the level time (and a 5th when those
--- two don't fit side by side), in the vertical one every optional row.
+-- two don't fit side by side), in the vertical one every optional row and the
+-- width of the widest row.
 function module:GetLayoutKey()
 	if IsVertical() then
-		return ("V%d%d%d%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0,
-			HasText(frame.Rate) and 1 or 0, HasText(frame.LevelTime) and 1 or 0)
+		return ("V%d%d%d%d:%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0,
+			HasText(frame.Rate) and 1 or 0, HasText(frame.LevelTime) and 1 or 0, VerticalTextWidth())
 	end
 	return ("H%d%d%d"):format((HasText(frame.Rested) and HasText(frame.Quests)) and 1 or 0,
 		HasText(frame.LevelTime) and 1 or 0, LevelTimeOwnRow() and 1 or 0)
@@ -588,24 +612,21 @@ local function LayoutHorizontal(lineHeight)
 end
 
 -- Vertical: the bar on the left, as high as the text column unless it has a
--- length of its own; empty optional rows take no space.
-local function LayoutVertical(size, lineHeight)
-	local rows = { frame.Level, frame.Values }
-	for _, text in ipairs({ frame.Rested, frame.Quests, frame.Rate, frame.LevelTime }) do
-		if HasText(text) then
-			rows[#rows + 1] = text
-		end
-	end
+-- length of its own; then the text column is centered next to it. Empty
+-- optional rows take no space, and the column is as wide as its widest row.
+local function LayoutVertical(lineHeight)
+	local rows = VerticalRows()
 	local thickness = module.db.barThickness
 	local textLeft = PADDING + thickness + PADDING
-	local textWidth = math.floor(VERTICAL_TEXT_WIDTH * size / BASE_FONT_SIZE + 0.5)
-	for i, text in ipairs(rows) do
-		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + (i - 1) * (lineHeight + ROW_GAP)))
-	end
+	local textWidth = VerticalTextWidth()
 	local rowsHeight = #rows * lineHeight + (#rows - 1) * ROW_GAP
+	local barLength = BarLength() or rowsHeight
+	local textTop = PADDING + math.floor(math.max(0, barLength - rowsHeight) / 2)
+	for i, text in ipairs(rows) do
+		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(textTop + (i - 1) * (lineHeight + ROW_GAP)))
+	end
 	local bar = frame.Bar
 	bar:SetOrientation("VERTICAL")
-	local barLength = BarLength() or rowsHeight
 	bar:SetSize(thickness, barLength)
 	bar:SetPoint("TOPLEFT", PADDING, -PADDING)
 	frame:SetSize(textLeft + textWidth + PADDING, math.max(rowsHeight, barLength) + PADDING * 2)
@@ -620,7 +641,7 @@ function module:ApplyLayout()
 		text:ClearAllPoints()
 	end
 	if IsVertical() then
-		LayoutVertical(size, size + 2)
+		LayoutVertical(size + 2)
 	else
 		LayoutHorizontal(size + 2)
 	end
