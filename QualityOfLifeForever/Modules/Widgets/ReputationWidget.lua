@@ -151,8 +151,10 @@ local module = ns:NewModule("ReputationWidget", {
 
 -- Width at the default text size of 11; it scales with the text size.
 local BASE_WIDTH, BASE_FONT_SIZE = 260, 11
--- Text column of the vertical layout at the default text size.
+-- Minimum text column of the vertical layout at the default text size; it
+-- grows in steps of TEXT_WIDTH_STEP when a row is wider.
 local VERTICAL_TEXT_WIDTH = 150
+local TEXT_WIDTH_STEP = 10
 local ROW_GAP = 3
 local PADDING = 7
 local MIN_BAR_LENGTH = 60
@@ -275,25 +277,43 @@ local function LayoutHorizontal(size, lineHeight)
 		barTop + thickness + 4 + lineHeight + PADDING)
 end
 
--- Vertical: the bar on the left, as high as the text column unless it has a
--- length of its own; empty rows take no space.
-local function LayoutVertical(size, lineHeight)
+-- Rows of the vertical layout, top to bottom; empty rows are left out.
+local function VerticalRows()
 	local rows = { frame.Name, frame.Standing }
 	for _, text in ipairs({ frame.Values, frame.Rate }) do
 		if HasText(text) then
 			rows[#rows + 1] = text
 		end
 	end
+	return rows
+end
+
+-- Width of the vertical text column: the widest row, so nothing is cut, but
+-- at least the default column width for the text size.
+local function VerticalTextWidth()
+	local width = VERTICAL_TEXT_WIDTH * module.db.fontSize / BASE_FONT_SIZE
+	for _, text in ipairs(VerticalRows()) do
+		width = math.max(width, text:GetUnboundedStringWidth())
+	end
+	return math.ceil(width / TEXT_WIDTH_STEP) * TEXT_WIDTH_STEP
+end
+
+-- Vertical: the bar on the left, as high as the text column unless it has a
+-- length of its own; then the text column is centered next to it. Empty rows
+-- take no space, and the column is as wide as its widest row.
+local function LayoutVertical(lineHeight)
+	local rows = VerticalRows()
 	local thickness = module.db.barThickness
 	local textLeft = PADDING + thickness + PADDING
-	local textWidth = math.floor(VERTICAL_TEXT_WIDTH * size / BASE_FONT_SIZE + 0.5)
-	for i, text in ipairs(rows) do
-		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(PADDING + (i - 1) * (lineHeight + ROW_GAP)))
-	end
+	local textWidth = VerticalTextWidth()
 	local rowsHeight = #rows * lineHeight + (#rows - 1) * ROW_GAP
+	local barLength = BarLength() or rowsHeight
+	local textTop = PADDING + math.floor(math.max(0, barLength - rowsHeight) / 2)
+	for i, text in ipairs(rows) do
+		PlaceText(text, "LEFT", textWidth, "TOPLEFT", textLeft, -(textTop + (i - 1) * (lineHeight + ROW_GAP)))
+	end
 	local bar = frame.Bar
 	bar:SetOrientation("VERTICAL")
-	local barLength = BarLength() or rowsHeight
 	bar:SetSize(thickness, barLength)
 	bar:SetPoint("TOPLEFT", PADDING, -PADDING)
 	frame:SetSize(textLeft + textWidth + PADDING, math.max(rowsHeight, barLength) + PADDING * 2)
@@ -308,17 +328,19 @@ function module:ApplyLayout()
 		text:ClearAllPoints()
 	end
 	if IsVertical() then
-		LayoutVertical(size, size + 2)
+		LayoutVertical(size + 2)
 	else
 		LayoutHorizontal(size, size + 2)
 	end
 	ns:SetOverlayBackgroundAlpha(frame, self.db.backgroundOpacity / 100)
 end
 
--- Only the vertical layout depends on which rows have text.
+-- Only the vertical layout depends on which rows have text and how wide the
+-- widest one is.
 function module:GetLayoutKey()
 	if IsVertical() then
-		return ("V%d%d"):format(HasText(frame.Values) and 1 or 0, HasText(frame.Rate) and 1 or 0)
+		return ("V%d%d:%d"):format(HasText(frame.Values) and 1 or 0, HasText(frame.Rate) and 1 or 0,
+			VerticalTextWidth())
 	end
 	return "H"
 end

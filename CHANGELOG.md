@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- XP and reputation widget, vertical layout: long rows (e.g. quest XP with
+  percent) are no longer cut off, the text column grows to fit; with a custom
+  bar length the texts are centered next to the bar instead of sitting at
+  the top
+
 ## v1.7.0 (2026-11-13)
 
 ### Widgets
