@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Quests
+- Auto-quests: new option "Skip escort quests" (on by default), so
+  everyone in the group can accept an escort before the NPC starts walking;
+  escorts are recognized by their objective text
+
 ### Widgets
 - XP and reputation widget, vertical layout: long rows (e.g. quest XP with
   percent) are no longer cut off, the text column grows to fit; with a custom
