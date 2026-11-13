@@ -5,6 +5,19 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.7",
+		enUS = {
+			"# Widgets",
+			"Reputation widget: works like the XP widget now (layout, bar size, percent, new session) and can take the XP widget's place at max level (off by default)",
+			"XP widget: the time on this level no longer overlaps the quest XP",
+		},
+		deDE = {
+			"# Widgets",
+			"Ruf-Widget: funktioniert jetzt wie das EP-Widget (Ausrichtung, Balkengröße, Prozent, neue Sitzung) und kann auf Maximalstufe den Platz des EP-Widgets übernehmen (standardmäßig aus)",
+			"EP-Widget: die Zeit auf dieser Stufe überlappt nicht mehr die Quest-EP",
+		},
+	},
+	{
 		version = "1.6",
 		enUS = {
 			"# Widgets",

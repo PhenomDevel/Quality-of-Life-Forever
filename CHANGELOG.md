@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.7.0 (2026-11-13)
 
 ### Widgets
 - Reputation widget: works like the XP widget now: horizontal or vertical
