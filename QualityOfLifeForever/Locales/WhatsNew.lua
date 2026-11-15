@@ -5,6 +5,21 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.8",
+		enUS = {
+			"# Quests",
+			"Auto-quests: new option to skip escort quests (on by default), so the whole group can accept them before the NPC starts walking",
+			"# Widgets",
+			"XP and reputation widget, vertical layout: long rows are no longer cut off",
+		},
+		deDE = {
+			"# Quests",
+			"Auto-Quests: neue Option, Eskortquests zu überspringen (standardmäßig an), damit die ganze Gruppe sie annehmen kann, bevor der NPC losläuft",
+			"# Widgets",
+			"EP- und Ruf-Widget, vertikale Ausrichtung: lange Zeilen werden nicht mehr abgeschnitten",
+		},
+	},
+	{
 		version = "1.7",
 		enUS = {
 			"# Widgets",
