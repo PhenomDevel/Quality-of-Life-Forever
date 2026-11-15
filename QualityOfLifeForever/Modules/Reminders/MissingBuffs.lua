@@ -1,4 +1,4 @@
--- luacheck: read globals C_Spell C_SpellBook C_UnitAuras C_Timer CreateFrame CreateFont STANDARD_TEXT_FONT GameTooltip UnitClass UnitIsDeadOrGhost IsMounted UnitOnTaxi IsResting InCombatLockdown PlaySound SOUNDKIT
+-- luacheck: read globals C_Spell C_SpellBook C_UnitAuras C_Secrets C_Timer CreateFrame CreateFont STANDARD_TEXT_FONT GameTooltip UnitClass UnitIsDeadOrGhost IsMounted UnitOnTaxi IsResting InCombatLockdown PlaySound SOUNDKIT
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -137,14 +137,34 @@ local function IsKnown(spellID)
 	return C_SpellBook.IsSpellKnown(spellID) == true
 end
 
+-- Aura reads can be restricted (secret auras, e.g. in instances or encounters):
+-- then C_UnitAuras.GetAuraDataByIndex raises an error for tainted callers
+-- instead of returning secret values, so ask C_Secrets first where it exists
+-- and call it protected as a fallback.
+local function AurasRestricted()
+	return C_Secrets ~= nil and C_Secrets.ShouldAurasBeSecret ~= nil and C_Secrets.ShouldAurasBeSecret() == true
+end
+
+local function ReadBuff(index)
+	local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, "player", index, "HELPFUL")
+	if not ok then
+		return nil, true
+	end
+	return aura, false
+end
+
 -- Names and spell IDs of the player's buffs. Walks the aura list instead of
 -- C_UnitAuras.GetAuraDataBySpellName, which missed active buffs in Forever.
--- `unknown` is set when a buff can't be read (secret values); nothing is
--- reported missing then, to avoid false alarms.
+-- `unknown` is set when the buffs can't be read (restricted or secret
+-- auras); nothing is reported missing then, to avoid false alarms.
 local function GetActiveBuffs()
-	local names, ids, unknown = {}, {}, false
+	local names, ids = {}, {}
+	if AurasRestricted() then
+		return names, ids, true
+	end
+	local unknown = false
 	local index = 1
-	local aura = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+	local aura, failed = ReadBuff(index)
 	while aura do
 		local name, spellID = aura.name, aura.spellId
 		if IsSecret(name) or IsSecret(spellID) then
@@ -158,9 +178,9 @@ local function GetActiveBuffs()
 			end
 		end
 		index = index + 1
-		aura = C_UnitAuras.GetAuraDataByIndex("player", index, "HELPFUL")
+		aura, failed = ReadBuff(index)
 	end
-	return names, ids, unknown
+	return names, ids, unknown or failed
 end
 
 -- { spellID, name, icon } of the first known spell of each buff group, all of

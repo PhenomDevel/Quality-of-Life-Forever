@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Reminders
+- Missing self-buffs: no more "Auras cannot be accessed when secret"
+  errors when your buffs are restricted (e.g. in instances); the reminder
+  then simply waits until they can be read again
+
 ## v1.8.0 (2026-11-15)
 
 ### Quests
