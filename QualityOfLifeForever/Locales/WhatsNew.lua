@@ -11,12 +11,16 @@ ns.whatsNew = {
 			"Auto-quests: new option to skip escort quests (on by default), so the whole group can accept them before the NPC starts walking",
 			"# Widgets",
 			"XP and reputation widget, vertical layout: long rows are no longer cut off",
+			"# Reminders",
+			"Missing self-buffs: no more errors when your buffs are restricted, e.g. in instances",
 		},
 		deDE = {
 			"# Quests",
 			"Auto-Quests: neue Option, Eskortquests zu überspringen (standardmäßig an), damit die ganze Gruppe sie annehmen kann, bevor der NPC losläuft",
 			"# Widgets",
 			"EP- und Ruf-Widget, vertikale Ausrichtung: lange Zeilen werden nicht mehr abgeschnitten",
+			"# Erinnerungen",
+			"Fehlende Selbst-Buffs: keine Fehlermeldungen mehr, wenn deine Buffs gesperrt sind, z. B. in Instanzen",
 		},
 	},
 	{

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.8.1 (2026-11-15)
 
 ### Reminders
 - Missing self-buffs: no more "Auras cannot be accessed when secret"
