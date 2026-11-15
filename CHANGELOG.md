@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.8.0 (2026-11-15)
 
 ### Quests
 - Auto-quests: new option "Skip escort quests" (on by default), so
