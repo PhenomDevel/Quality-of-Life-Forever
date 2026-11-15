@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo GetTime SecondsToTime RequestTimePlayed GetFramesRegisteredForEvent
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo GetTime SecondsToTime RequestTimePlayed GetFramesRegisteredForEvent C_UnitAuras C_Secrets
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -21,6 +21,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Marks rested XP on the bar and shows it in the text.",
 		SHOW_QUESTS = "XP from completed quests",
 		SHOW_QUESTS_DESC = "Marks the XP of quests that are ready to turn in on the bar (gold) and shows the sum and number of quests.",
+		QUEST_BUFFS = "XP buffs in quest XP",
+		QUEST_BUFFS_DESC = "Adds active XP buffs that also raise quest XP, such as Well-Rested from the Cozy Sleeping Bag (+1% per stack), to the XP from completed quests and shows the bonus, e.g. +5.2K from 3 quests (+3%). Rested XP doesn't count, as it only affects XP from kills.",
 		SHOW_PERCENT = "Rested and quest XP in percent",
 		SHOW_PERCENT_DESC = "Also shows rested XP and quest XP as a percentage of the XP needed for the current level, e.g. +8.9K rested (12.5%).",
 		SHOW_LEVEL_TIME = "Time on this level",
@@ -45,6 +47,7 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s rested",
 		QUESTS = "+%s from %d |4quest:quests;",
+		QUEST_BONUS = "%s (+%d%%)",
 		LEVEL_TIME = "%s on this level",
 		PERCENT = "%s (%.1f%%)",
 	},
@@ -67,6 +70,8 @@ local L = ns.NewLocale({
 		SHOW_RESTED_DESC = "Markiert den Erholungsbonus auf der Leiste und zeigt ihn im Text.",
 		SHOW_QUESTS = "EP aus abgeschlossenen Quests",
 		SHOW_QUESTS_DESC = "Markiert die EP von Quests, die abgegeben werden können, auf der Leiste (gold) und zeigt Summe und Anzahl der Quests.",
+		QUEST_BUFFS = "EP-Buffs in Quest-EP",
+		QUEST_BUFFS_DESC = "Rechnet aktive EP-Buffs, die auch Quest-EP erhöhen, etwa Well-Rested vom gemütlichen Schlafsack (+1 % pro Stapel), in die EP aus abgeschlossenen Quests ein und zeigt den Bonus, z. B. +5,2K aus 3 Quests (+3 %). Der Erholungsbonus zählt nicht, da er nur EP aus Kills erhöht.",
 		SHOW_PERCENT = "Erholungsbonus und Quest-EP in Prozent",
 		SHOW_PERCENT_DESC = "Zeigt Erholungsbonus und Quest-EP zusätzlich in Prozent der EP, die für die aktuelle Stufe nötig sind, z. B. +8,9K erholt (12,5 %).",
 		SHOW_LEVEL_TIME = "Zeit auf dieser Stufe",
@@ -91,6 +96,7 @@ local L = ns.NewLocale({
 		VALUES = "%s / %s",
 		RESTED = "+%s erholt",
 		QUESTS = "+%s aus %d |4Quest:Quests;",
+		QUEST_BONUS = "%s (+%d %%)",
 		LEVEL_TIME = "%s auf dieser Stufe",
 		PERCENT = "%s (%.1f %%)",
 	},
@@ -118,6 +124,7 @@ local module = ns:NewModule("XPWidget", {
 		showRate = true,
 		showRested = true,
 		showQuestXP = true,
+		questXPBuffs = true,
 		showPercent = false,
 		showLevelTime = true,
 		sessionReset = "LOGIN",
@@ -136,6 +143,7 @@ local module = ns:NewModule("XPWidget", {
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
 		{ key = "showRested", type = "checkbox", label = L.SHOW_RESTED, tooltip = L.SHOW_RESTED_DESC },
 		{ key = "showQuestXP", type = "checkbox", label = L.SHOW_QUESTS, tooltip = L.SHOW_QUESTS_DESC },
+		{ key = "questXPBuffs", type = "checkbox", label = L.QUEST_BUFFS, tooltip = L.QUEST_BUFFS_DESC },
 		{ key = "showPercent", type = "checkbox", label = L.SHOW_PERCENT, tooltip = L.SHOW_PERCENT_DESC },
 		{ key = "showLevelTime", type = "checkbox", label = L.SHOW_LEVEL_TIME, tooltip = L.SHOW_LEVEL_TIME_DESC },
 		{ type = "header", label = L.SECTION_BAR },
@@ -332,6 +340,63 @@ function module:QueueQuestScan()
 	end)
 end
 
+-- XP buffs on quest XP ---------------------------------------------------------
+-- Only buffs that raise quest XP count here; rested XP and Well Fed only
+-- affect kill XP. Percent per stack, by spell ID. Source: Warcraft Tavern's
+-- WoW Forever experience guide (Well-Rested, Cozy Sleeping Bag, 429959).
+
+local QUEST_XP_BUFFS = {
+	[429959] = 1, -- Well-Rested (Cozy Sleeping Bag), up to 3 stacks
+}
+
+local questBonus = 0
+
+-- Aura reads can be restricted (secret auras, e.g. in instances): then
+-- GetAuraDataByIndex raises an error for tainted callers, so ask C_Secrets
+-- first and call it protected as a fallback. Returns nil when unknown.
+local function ReadQuestBonus()
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret() == true then
+		return nil
+	end
+	local total, index = 0, 1
+	while true do
+		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, "player", index, "HELPFUL")
+		if not ok then
+			return nil
+		end
+		if not aura then
+			return total
+		end
+		local spellID, stacks = aura.spellId, aura.applications
+		if ns.Utils.IsSecret(spellID) or ns.Utils.IsSecret(stacks) then
+			return nil
+		end
+		local perStack = QUEST_XP_BUFFS[spellID]
+		if perStack then
+			total = total + perStack * math.max(1, stacks or 1)
+		end
+		index = index + 1
+	end
+end
+
+function module:UpdateQuestBonus()
+	local bonus = 0
+	if self.db.showQuestXP and self.db.questXPBuffs then
+		-- Unknown (restricted auras): keep the last known bonus.
+		bonus = ReadQuestBonus() or questBonus
+	end
+	if bonus ~= questBonus then
+		questBonus = bonus
+		self:Update()
+	end
+end
+
+function module:OnUnitAura(unit)
+	if unit == "player" then
+		self:UpdateQuestBonus()
+	end
+end
+
 -- Time on this level ----------------------------------------------------------
 -- Played time on the level comes only from TIME_PLAYED_MSG. It is requested
 -- once per login; the chat frames are unregistered from the event meanwhile, so
@@ -475,7 +540,16 @@ function module:Update()
 	local rested = GetRested(self)
 	frame.Rested:SetText(rested and FormatGain(self, L.RESTED, rested, maxXP) or "")
 	local quests = self.db.showQuestXP and questXP > 0 and questXP or nil
-	frame.Quests:SetText(quests and FormatGain(self, L.QUESTS, quests, maxXP, questCount) or "")
+	local questText = ""
+	if quests then
+		if questBonus > 0 then
+			quests = math.floor(quests * (100 + questBonus) / 100)
+			questText = L.QUEST_BONUS:format(FormatGain(self, L.QUESTS, quests, maxXP, questCount), questBonus)
+		else
+			questText = FormatGain(self, L.QUESTS, quests, maxXP, questCount)
+		end
+	end
+	frame.Quests:SetText(questText)
 	local perHour = self.db.showRate and XPSession.GetPerHour()
 	if perHour then
 		local timeToLevel = XPSession.FormatTimeToLevel() or ""
@@ -660,6 +734,9 @@ function module:OnOptionChanged(key)
 	if key == "showQuestXP" then
 		self:QueueQuestScan()
 	end
+	if key == "showQuestXP" or key == "questXPBuffs" then
+		self:UpdateQuestBonus()
+	end
 	if key == "showLevelTime" then
 		self:RequestLevelTime()
 	end
@@ -696,7 +773,9 @@ function module:OnEnable()
 	self:RegisterEvent("QUEST_LOG_UPDATE", self.QueueQuestScan)
 	self:RegisterEvent("QUEST_TURNED_IN", self.QueueQuestScan)
 	self:RegisterEvent("TIME_PLAYED_MSG", self.OnTimePlayed)
+	self:RegisterEvent("UNIT_AURA", self.OnUnitAura)
 	self:QueueQuestScan()
+	self:UpdateQuestBonus()
 	self:RequestLevelTime()
 	self:UpdateTicker()
 	self:Update()
