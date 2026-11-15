@@ -1,4 +1,4 @@
--- luacheck: read globals C_GossipInfo IsShiftKeyDown QuestGetAutoAccept AcknowledgeAutoAcceptQuest AcceptQuest IsQuestCompletable CompleteQuest GetNumQuestChoices GetQuestReward GetQuestMoneyToGet GetNumActiveQuests GetActiveTitle SelectActiveQuest GetNumAvailableQuests GetAvailableQuestInfo SelectAvailableQuest GetQuestID C_QuestLog UnitLevel UnitQuestTrivialLevelRange UnitExists GetTime C_Timer
+-- luacheck: read globals C_GossipInfo IsShiftKeyDown QuestGetAutoAccept AcknowledgeAutoAcceptQuest AcceptQuest IsQuestCompletable CompleteQuest GetNumQuestChoices GetQuestReward GetQuestMoneyToGet GetNumActiveQuests GetActiveTitle SelectActiveQuest GetNumAvailableQuests GetAvailableQuestInfo SelectAvailableQuest GetQuestID C_QuestLog UnitLevel UnitQuestTrivialLevelRange UnitExists GetTime C_Timer GetObjectiveText GetTitleText
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -14,6 +14,9 @@ local L = ns.NewLocale({
 		TURN_IN_DESC = "Turns in completed quests unless a reward has to be chosen.",
 		SKIP_TRIVIAL = "Skip gray quests",
 		SKIP_TRIVIAL_DESC = "Doesn't accept quests that are gray (far below your level).",
+		SKIP_ESCORT = "Skip escort quests",
+		SKIP_ESCORT_DESC = "Doesn't accept escort quests, so everyone in your group can accept them before the NPC starts walking. The game doesn't mark escort quests, so they are recognized by their objective (e.g. \"Escort …\", \"Protect …\").",
+		ESCORT_SKIPPED = "Escort quest not accepted automatically: %s",
 		HALTED = "Auto quests paused for this NPC: the game reported an error (e.g. quest log or bags full). Talk to the NPC again to continue.",
 	},
 	deDE = {
@@ -28,6 +31,9 @@ local L = ns.NewLocale({
 		TURN_IN_DESC = "Gibt abgeschlossene Quests ab, außer es muss eine Belohnung gewählt werden.",
 		SKIP_TRIVIAL = "Graue Quests auslassen",
 		SKIP_TRIVIAL_DESC = "Nimmt keine grauen Quests an (weit unter deiner Stufe).",
+		SKIP_ESCORT = "Eskortquests auslassen",
+		SKIP_ESCORT_DESC = "Nimmt keine Eskortquests an, damit alle in deiner Gruppe sie annehmen können, bevor der NPC losläuft. Das Spiel kennzeichnet Eskortquests nicht, daher werden sie an ihrem Ziel erkannt (z. B. „Eskortiert …“, „Beschützt …“).",
+		ESCORT_SKIPPED = "Eskortquest nicht automatisch angenommen: %s",
 		HALTED = "Automatische Quests für diesen NPC pausiert: Das Spiel hat einen Fehler gemeldet (z. B. Questlog oder Taschen voll). Sprich den NPC erneut an, um fortzufahren.",
 	},
 })
@@ -42,6 +48,7 @@ local module = ns:NewModule("AutoQuest", {
 		accept = true,
 		turnIn = true,
 		skipTrivial = true,
+		skipEscort = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_ACTIONS },
@@ -49,6 +56,7 @@ local module = ns:NewModule("AutoQuest", {
 		{ key = "turnIn", type = "checkbox", label = L.TURN_IN, tooltip = L.TURN_IN_DESC },
 		{ type = "header", label = L.SECTION_FILTER },
 		{ key = "skipTrivial", type = "checkbox", label = L.SKIP_TRIVIAL, tooltip = L.SKIP_TRIVIAL_DESC },
+		{ key = "skipEscort", type = "checkbox", label = L.SKIP_ESCORT, tooltip = L.SKIP_ESCORT_DESC },
 	},
 })
 
@@ -100,7 +108,33 @@ local function IsTrivial(questID, questLevel, flag)
 	return false
 end
 
+-- Escort quests. Neither the quest API nor the quest tags mark them, so the
+-- objective text of the open quest window is matched against the verbs
+-- escort quests use. Both client languages are checked, the words don't
+-- occur in the other language's objectives.
+local ESCORT_WORDS = {
+	"escort", "protect", "accompany",
+	"eskort", "beschütz", "begleit", "geleit",
+}
+
+local function IsEscort()
+	local text = ((GetObjectiveText() or "") .. " " .. (GetTitleText() or "")):lower()
+	for _, word in ipairs(ESCORT_WORDS) do
+		if text:find(word, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+-- Escort quests found in the quest window are remembered, so the NPC's quest
+-- list doesn't open them again when you go back to it.
+local skippedEscorts = {}
+
 function module:Skip(questID, questLevel, flag)
+	if self.db.skipEscort and questID and skippedEscorts[questID] then
+		return true
+	end
 	return self.db.skipTrivial and IsTrivial(questID, questLevel, flag)
 end
 
@@ -160,7 +194,15 @@ function module:QUEST_DETAIL()
 	end
 	if QuestGetAutoAccept() then
 		Act(AcknowledgeAutoAcceptQuest)
-	elseif not self:Skip(GetQuestID()) then
+		return
+	end
+	local questID = GetQuestID()
+	if self.db.skipEscort and IsEscort() then
+		if questID and not skippedEscorts[questID] then
+			skippedEscorts[questID] = true
+			self:Print(L.ESCORT_SKIPPED:format(GetTitleText() or ""))
+		end
+	elseif not self:Skip(questID) then
 		-- NPCs with a single quest open the quest window directly.
 		Act(AcceptQuest)
 	end
