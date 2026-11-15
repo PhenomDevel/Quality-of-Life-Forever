@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- XP widget: XP from completed quests now includes XP buffs that also
+  raise quest XP, such as Well-Rested from the Cozy Sleeping Bag (+1% per
+  stack), and shows the bonus, e.g. "+5.2K from 3 quests (+3%)"; new
+  option "XP buffs in quest XP" (on by default)
+
 ## v1.8.1 (2026-11-15)
 
 ### Reminders
