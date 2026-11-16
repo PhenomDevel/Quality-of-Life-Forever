@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.9",
+		enUS = {
+			"# Widgets",
+			"XP widget: quest XP now includes XP buffs that also raise quest XP (e.g. Well-Rested) and shows the bonus; new option \"XP buffs in quest XP\" (on by default)",
+		},
+		deDE = {
+			"# Widgets",
+			"EP-Widget: Quest-EP enthalten jetzt EP-Buffs, die auch Quest-EP erhöhen (z. B. Ausgeruht), und zeigen den Bonus an; neue Option „EP-Buffs in Quest-EP“ (standardmäßig an)",
+		},
+	},
+	{
 		version = "1.8",
 		enUS = {
 			"# Quests",
