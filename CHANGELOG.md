@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.9.0 (2026-11-16)
 
 ### Widgets
 - XP widget: XP from completed quests now includes XP buffs that also
