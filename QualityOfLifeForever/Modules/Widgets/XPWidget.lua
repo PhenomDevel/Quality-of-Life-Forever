@@ -260,17 +260,17 @@ local function HasText(text)
 	return (text:GetText() or "") ~= ""
 end
 
--- Shows `segment` from the current XP over `amount` more XP, clipped at the bar
+-- Shows `segment` from `start` XP over `amount` more XP, clipped at the bar
 -- end; along the width, or the height in the vertical layout.
-local function SetSegment(segment, xp, amount, maxXP)
-	if not amount or amount <= 0 then
+local function SetSegment(segment, start, amount, maxXP)
+	if not amount or amount <= 0 or start >= maxXP then
 		segment:Hide()
 		return
 	end
 	local vertical = IsVertical()
 	local length = vertical and frame.Bar:GetHeight() or frame.Bar:GetWidth()
-	local from = xp / maxXP * length
-	local size = math.max(1, math.min(1, (xp + amount) / maxXP) * length - from)
+	local from = start / maxXP * length
+	local size = math.max(1, math.min(1, (start + amount) / maxXP) * length - from)
 	segment:ClearAllPoints()
 	if vertical then
 		segment:SetPoint("LEFT")
@@ -566,11 +566,10 @@ function module:Update()
 		self:ApplyLayout()
 	end
 	-- After the layout, which sets the bar length.
-	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
+	-- Quest XP first, rested XP after it, so the two never overlap: turning in
+	-- quests doesn't use up rested XP, which then still applies to kills.
 	SetSegment(frame.Bar.Quests, xp, quests, maxXP)
-	local restedOnTop = (rested or 0) <= (quests or 0)
-	frame.Bar.Rested:SetDrawLayer("ARTWORK", restedOnTop and -1 or -2)
-	frame.Bar.Quests:SetDrawLayer("ARTWORK", restedOnTop and -2 or -1)
+	SetSegment(frame.Bar.Rested, xp + (quests or 0), rested, maxXP)
 end
 
 function module:UpdateTicker()
