@@ -5,6 +5,9 @@
 ### Widgets
 - XP widget: rested XP and XP from completed quests no longer overlap on
   the bar; quest XP is marked first and rested XP follows right after it
+- XP widget: texts below the bar no longer overlap; a text that doesn't
+  fit next to the one on its left (e.g. long quest XP next to the values)
+  moves down a row
 
 ## v1.9.0 (2026-11-16)
 
