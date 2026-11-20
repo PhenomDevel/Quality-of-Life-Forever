@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Widgets
+- Junk widget: new option "Display" switches between the list (icon,
+  name and value) and "Icons only", which shows the items side by side
+  as icons with their value below
+
 ## v1.9.0 (2026-11-16)
 
 ### Widgets

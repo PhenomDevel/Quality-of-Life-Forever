@@ -20,6 +20,10 @@ local L = ns.NewLocale({
 		IGNORED_RESET_DONE = "Ignored items reset.",
 		RIGHT_CLICK_TO_IGNORE = "Right-click to never list this item",
 		IGNORE_ADDED = "No longer listed: %s",
+		DISPLAY = "Display",
+		DISPLAY_DESC = "List: one row per item with icon, name and value. Icons only: the items side by side as icons, each with its value below.",
+		DISPLAY_LIST = "List",
+		DISPLAY_ICONS = "Icons only",
 		FONT_SIZE = "Text size",
 		FONT_SIZE_DESC = "Size of the widget's text and icons. The widget grows with it.",
 		BG_OPACITY = "Background opacity",
@@ -46,6 +50,10 @@ local L = ns.NewLocale({
 		IGNORED_RESET_DONE = "Ignorierte Gegenstände zurückgesetzt.",
 		RIGHT_CLICK_TO_IGNORE = "Rechtsklick, um diesen Gegenstand nie mehr anzuzeigen",
 		IGNORE_ADDED = "Wird nicht mehr angezeigt: %s",
+		DISPLAY = "Ansicht",
+		DISPLAY_DESC = "Liste: eine Zeile pro Gegenstand mit Symbol, Name und Wert. Nur Symbole: die Gegenstände nebeneinander als Symbole, jeweils mit ihrem Wert darunter.",
+		DISPLAY_LIST = "Liste",
+		DISPLAY_ICONS = "Nur Symbole",
 		FONT_SIZE = "Textgröße",
 		FONT_SIZE_DESC = "Größe von Text und Symbolen des Widgets. Das Widget wächst mit.",
 		BG_OPACITY = "Hintergrund-Deckkraft",
@@ -71,6 +79,7 @@ local module = ns:NewModule("JunkWidget", {
 		count = 3,
 		includeCommon = false,
 		ignored = {},
+		display = "LIST",
 		fontSize = 11,
 		backgroundOpacity = 92,
 		textOutline = "NONE",
@@ -93,6 +102,16 @@ local module = ns:NewModule("JunkWidget", {
 			end,
 		},
 		{ type = "header", label = L.SECTION_LOOK },
+		{
+			key = "display",
+			type = "dropdown",
+			label = L.DISPLAY,
+			tooltip = L.DISPLAY_DESC,
+			values = {
+				{ value = "LIST", label = L.DISPLAY_LIST },
+				{ value = "ICONS", label = L.DISPLAY_ICONS },
+			},
+		},
 		{ key = "fontSize", type = "slider", label = L.FONT_SIZE, tooltip = L.FONT_SIZE_DESC, min = 8, max = 20, step = 1 },
 		ns:TextOutlineOption(),
 		ns:TextShadowOption(),
@@ -107,6 +126,11 @@ local BASE_WIDTH = 220
 local PADDING = 6
 local ICON_GAP = 4
 local ROW_GAP = 3
+-- Icons-only view: icon size, minimum cell width and gaps at text size 11.
+local GRID_ICON_SIZE = 28
+local GRID_MIN_CELL_WIDTH = 36
+local GRID_CELL_GAP = 6
+local GRID_PRICE_GAP = 2
 local NAME_COLORS = {
 	[Enum.ItemQuality.Poor] = { 0.62, 0.62, 0.62 },
 	[Enum.ItemQuality.Common] = { 1, 1, 1 },
@@ -271,11 +295,9 @@ local function GetRow(index)
 		row:GetHighlightTexture():SetVertexColor(1, 1, 1, 0.08)
 		row.Icon = row:CreateTexture(nil, "ARTWORK")
 		row.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-		row.Icon:SetPoint("LEFT")
 		row.Price = row:CreateFontString(nil, "OVERLAY")
 		row.Price:SetFontObject(module.font)
-		row.Price:SetJustifyH("RIGHT")
-		row.Price:SetPoint("RIGHT")
+		row.Price:SetWordWrap(false)
 		row.Price:SetTextColor(unpack(PRICE_COLOR))
 		row.Name = row:CreateFontString(nil, "OVERLAY")
 		row.Name:SetFontObject(module.font)
@@ -307,11 +329,34 @@ function module:Update()
 		rows[i].entry = nil
 	end
 	if count == 0 then
-		frame:SetSize(Scaled(BASE_WIDTH), PADDING * 2 + self.db.fontSize + Scaled(5))
+		if self.db.display == "ICONS" then
+			-- Placeholder as large as a full row of icons.
+			local slots = self.db.count
+			frame:SetSize(
+				PADDING * 2 + slots * Scaled(GRID_MIN_CELL_WIDTH) + (slots - 1) * Scaled(GRID_CELL_GAP),
+				PADDING * 2 + Scaled(GRID_ICON_SIZE) + Scaled(GRID_PRICE_GAP) + self.db.fontSize
+			)
+		else
+			frame:SetSize(Scaled(BASE_WIDTH), PADDING * 2 + self.db.fontSize + Scaled(5))
+		end
 		frame:SetShown(editing or optionsShown)
 		return
 	end
 
+	if self.db.display == "ICONS" then
+		self:LayoutIcons(junk, count)
+	else
+		self:LayoutList(junk, count)
+	end
+	frame:Show()
+end
+
+local function PriceText(entry)
+	return entry.value > 0 and ns.Utils.FormatMoney(entry.value) or L.NO_VALUE
+end
+
+-- One row per item: icon, name, value right-aligned.
+function module:LayoutList(junk, count)
 	local iconSize = self.db.fontSize + Scaled(5)
 	local width = Scaled(BASE_WIDTH)
 	for i = 1, count do
@@ -320,18 +365,55 @@ function module:Update()
 		row:ClearAllPoints()
 		row:SetPoint("TOPLEFT", PADDING, -(PADDING + (i - 1) * (iconSize + ROW_GAP)))
 		row:SetSize(width - PADDING * 2, iconSize)
+		row.Icon:ClearAllPoints()
+		row.Icon:SetPoint("LEFT")
 		row.Icon:SetSize(iconSize, iconSize)
 		row.Icon:SetTexture(entry.icon)
-		row.Price:SetText(entry.value > 0 and ns.Utils.FormatMoney(entry.value) or L.NO_VALUE)
+		row.Price:ClearAllPoints()
+		row.Price:SetPoint("RIGHT")
+		row.Price:SetJustifyH("RIGHT")
+		row.Price:SetText(PriceText(entry))
 		row.Name:ClearAllPoints()
 		row.Name:SetPoint("LEFT", row.Icon, "RIGHT", Scaled(ICON_GAP), 0)
 		row.Name:SetPoint("RIGHT", row.Price, "LEFT", -Scaled(ICON_GAP), 0)
 		row.Name:SetText(C_Item.GetItemNameByID(entry.itemID) or entry.link or "")
 		row.Name:SetTextColor(unpack(NAME_COLORS[entry.quality]))
+		row.Name:Show()
 		row:Show()
 	end
 	frame:SetSize(width, PADDING * 2 + count * iconSize + (count - 1) * ROW_GAP)
-	frame:Show()
+end
+
+-- Items side by side as icons, each with its value centered below. All cells
+-- share the width of the widest value so the icons stay evenly spaced.
+function module:LayoutIcons(junk, count)
+	local iconSize = Scaled(GRID_ICON_SIZE)
+	local cellWidth = Scaled(GRID_MIN_CELL_WIDTH)
+	for i = 1, count do
+		local row = GetRow(i)
+		row.Price:SetText(PriceText(junk[i]))
+		cellWidth = math.max(cellWidth, math.ceil(row.Price:GetUnboundedStringWidth()))
+	end
+	local priceGap = Scaled(GRID_PRICE_GAP)
+	local cellHeight = iconSize + priceGap + self.db.fontSize
+	local cellGap = Scaled(GRID_CELL_GAP)
+	for i = 1, count do
+		local entry, row = junk[i], GetRow(i)
+		row.entry = entry
+		row:ClearAllPoints()
+		row:SetPoint("TOPLEFT", PADDING + (i - 1) * (cellWidth + cellGap), -PADDING)
+		row:SetSize(cellWidth, cellHeight)
+		row.Icon:ClearAllPoints()
+		row.Icon:SetPoint("TOP")
+		row.Icon:SetSize(iconSize, iconSize)
+		row.Icon:SetTexture(entry.icon)
+		row.Price:ClearAllPoints()
+		row.Price:SetPoint("TOP", row.Icon, "BOTTOM", 0, -priceGap)
+		row.Price:SetJustifyH("CENTER")
+		row.Name:Hide()
+		row:Show()
+	end
+	frame:SetSize(PADDING * 2 + count * cellWidth + (count - 1) * cellGap, PADDING * 2 + cellHeight)
 end
 
 -- Bag updates come in bursts; item info may arrive later for uncached items.
