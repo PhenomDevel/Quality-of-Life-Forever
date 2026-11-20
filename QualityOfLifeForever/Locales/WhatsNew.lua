@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.10",
+		enUS = {
+			"# Widgets",
+			"Junk widget: new option \"Display\" to show the items as icons only, side by side with their value below",
+		},
+		deDE = {
+			"# Widgets",
+			"Plunder-Widget: neue Option „Ansicht“, um die Gegenstände nur als Symbole nebeneinander mit ihrem Wert darunter anzuzeigen",
+		},
+	},
+	{
 		version = "1.9",
 		enUS = {
 			"# Widgets",
