@@ -260,17 +260,17 @@ local function HasText(text)
 	return (text:GetText() or "") ~= ""
 end
 
--- Shows `segment` from the current XP over `amount` more XP, clipped at the bar
+-- Shows `segment` from `start` XP over `amount` more XP, clipped at the bar
 -- end; along the width, or the height in the vertical layout.
-local function SetSegment(segment, xp, amount, maxXP)
-	if not amount or amount <= 0 then
+local function SetSegment(segment, start, amount, maxXP)
+	if not amount or amount <= 0 or start >= maxXP then
 		segment:Hide()
 		return
 	end
 	local vertical = IsVertical()
 	local length = vertical and frame.Bar:GetHeight() or frame.Bar:GetWidth()
-	local from = xp / maxXP * length
-	local size = math.max(1, math.min(1, (xp + amount) / maxXP) * length - from)
+	local from = start / maxXP * length
+	local size = math.max(1, math.min(1, (start + amount) / maxXP) * length - from)
 	segment:ClearAllPoints()
 	if vertical then
 		segment:SetPoint("LEFT")
@@ -475,15 +475,50 @@ local function HorizontalWidth()
 	return length and length + PADDING * 2 or math.floor(BASE_WIDTH * module.db.fontSize / BASE_FONT_SIZE + 0.5)
 end
 
--- Horizontal layout: quest XP sits below rested XP, next to the level time.
--- When both don't fit side by side (long durations, percentages, bigger
--- text), the level time gets a 5th row of its own.
-local function LevelTimeOwnRow()
-	if not (HasText(frame.Rested) and HasText(frame.Quests) and HasText(frame.LevelTime)) then
-		return false
-	end
+-- Horizontal layout, rows below the bar: the values on the left, rested XP and
+-- quest XP stacked on the right, the level time on the left of the first row
+-- after the values. A text that doesn't fit next to the one on the left of its
+-- row (long durations, percentages, bigger text) moves down a row.
+-- Returns the rows as { left = text or nil, right = text or nil }.
+local function HorizontalRows()
 	local available = HorizontalWidth() - PADDING * 2 - TEXT_GAP
-	return frame.LevelTime:GetStringWidth() + frame.Quests:GetStringWidth() > available
+	local function Fits(left, right)
+		return left:GetUnboundedStringWidth() + right:GetUnboundedStringWidth() <= available
+	end
+	local right = {}
+	for _, text in ipairs({ frame.Rested, frame.Quests }) do
+		if HasText(text) then
+			right[#right + 1] = text
+		end
+	end
+	local rows = { { left = frame.Values } }
+	local nextRight = 1
+	if right[1] and Fits(frame.Values, right[1]) then
+		rows[1].right = right[1]
+		nextRight = 2
+	end
+	local levelTime = HasText(frame.LevelTime) and frame.LevelTime or nil
+	for i = nextRight, #right do
+		local row = { right = right[i] }
+		if levelTime and Fits(levelTime, right[i]) then
+			row.left = levelTime
+			levelTime = nil
+		end
+		rows[#rows + 1] = row
+	end
+	if levelTime then
+		rows[#rows + 1] = { left = levelTime }
+	end
+	return rows
+end
+
+local function HorizontalRowsKey()
+	local key = ""
+	for _, row in ipairs(HorizontalRows()) do
+		key = key .. (row.left == frame.LevelTime and "T" or row.left and "V" or "-")
+			.. (row.right == frame.Rested and "R" or row.right and "Q" or "-")
+	end
+	return key
 end
 
 -- Rows of the vertical layout, top to bottom; empty optional rows are left out.
@@ -507,17 +542,15 @@ local function VerticalTextWidth()
 	return math.ceil(width / TEXT_WIDTH_STEP) * TEXT_WIDTH_STEP
 end
 
--- Rows that are shown decide the size: in the horizontal layout only a 4th
--- row for quest XP below rested XP and the level time (and a 5th when those
--- two don't fit side by side), in the vertical one every optional row and the
--- width of the widest row.
+-- Rows that are shown decide the size: in the horizontal layout which text
+-- sits in which row below the bar, in the vertical one every optional row and
+-- the width of the widest row.
 function module:GetLayoutKey()
 	if IsVertical() then
 		return ("V%d%d%d%d:%d"):format(HasText(frame.Rested) and 1 or 0, HasText(frame.Quests) and 1 or 0,
 			HasText(frame.Rate) and 1 or 0, HasText(frame.LevelTime) and 1 or 0, VerticalTextWidth())
 	end
-	return ("H%d%d%d"):format((HasText(frame.Rested) and HasText(frame.Quests)) and 1 or 0,
-		HasText(frame.LevelTime) and 1 or 0, LevelTimeOwnRow() and 1 or 0)
+	return "H" .. HorizontalRowsKey()
 end
 
 function module:Update()
@@ -566,11 +599,10 @@ function module:Update()
 		self:ApplyLayout()
 	end
 	-- After the layout, which sets the bar length.
-	SetSegment(frame.Bar.Rested, xp, rested, maxXP)
+	-- Quest XP first, rested XP after it, so the two never overlap: turning in
+	-- quests doesn't use up rested XP, which then still applies to kills.
 	SetSegment(frame.Bar.Quests, xp, quests, maxXP)
-	local restedOnTop = (rested or 0) <= (quests or 0)
-	frame.Bar.Rested:SetDrawLayer("ARTWORK", restedOnTop and -1 or -2)
-	frame.Bar.Quests:SetDrawLayer("ARTWORK", restedOnTop and -2 or -1)
+	SetSegment(frame.Bar.Rested, xp + (quests or 0), rested, maxXP)
 end
 
 function module:UpdateTicker()
@@ -649,9 +681,7 @@ local function PlaceText(text, justify, width, ...)
 	text:SetPoint(...)
 end
 
--- Horizontal: level and rate, the bar, then values with rested XP and quest XP;
--- a 4th row holds the level time (left) and quest XP below rested XP (right),
--- or only quest XP with the level time in a 5th row when they don't fit.
+-- Horizontal: level and rate, the bar, then the rows from HorizontalRows().
 local function LayoutHorizontal(lineHeight)
 	local bar = frame.Bar
 	local barTop = PADDING + lineHeight + 2
@@ -662,25 +692,17 @@ local function LayoutHorizontal(lineHeight)
 	bar:SetPoint("TOPRIGHT", -PADDING, -barTop)
 	PlaceText(frame.Level, "LEFT", 0, "TOPLEFT", PADDING, -PADDING)
 	PlaceText(frame.Rate, "RIGHT", 0, "TOPRIGHT", -PADDING, -PADDING)
-	PlaceText(frame.Values, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, -4)
-	PlaceText(frame.Rested, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
-	local ownRow = LevelTimeOwnRow()
-	local levelTimeOffset = ownRow and -(ROW_GAP * 2 + lineHeight) or -ROW_GAP
-	PlaceText(frame.LevelTime, "LEFT", 0, "TOPLEFT", frame.Values, "BOTTOMLEFT", 0, levelTimeOffset)
-	local fourthRow = HasText(frame.LevelTime)
-	if HasText(frame.Rested) and HasText(frame.Quests) then
-		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", frame.Rested, "BOTTOMRIGHT", 0, -ROW_GAP)
-		fourthRow = true
-	else
-		PlaceText(frame.Quests, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, -4)
+	local rows = HorizontalRows()
+	for i, row in ipairs(rows) do
+		local y = -(4 + (i - 1) * (lineHeight + ROW_GAP))
+		if row.left then
+			PlaceText(row.left, "LEFT", 0, "TOPLEFT", bar, "BOTTOMLEFT", 0, y)
+		end
+		if row.right then
+			PlaceText(row.right, "RIGHT", 0, "TOPRIGHT", bar, "BOTTOMRIGHT", 0, y)
+		end
 	end
-	local height = barTop + thickness + 4 + lineHeight + PADDING
-	if fourthRow then
-		height = height + lineHeight + ROW_GAP
-	end
-	if ownRow then
-		height = height + lineHeight + ROW_GAP
-	end
+	local height = barTop + thickness + 4 + #rows * lineHeight + (#rows - 1) * ROW_GAP + PADDING
 	frame:SetWidth(HorizontalWidth())
 	frame:SetHeight(height)
 end

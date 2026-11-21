@@ -3,6 +3,11 @@
 ## v1.10.0 (2026-11-21)
 
 ### Widgets
+- XP widget: rested XP and XP from completed quests no longer overlap on
+  the bar; quest XP is marked first and rested XP follows right after it
+- XP widget: texts below the bar no longer overlap; a text that doesn't
+  fit next to the one on its left (e.g. long quest XP next to the values)
+  moves down a row
 - Junk widget: new option "Display" switches between the list (icon,
   name and value) and "Icons only", which shows the items side by side
   as icons with their value below
