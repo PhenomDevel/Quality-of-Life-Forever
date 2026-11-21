@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.10.0 (2026-11-20)
+## v1.10.0 (2026-11-21)
 
 ### Widgets
 - Junk widget: new option "Display" switches between the list (icon,
