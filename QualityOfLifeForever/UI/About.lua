@@ -7,7 +7,7 @@ local L = ns.L
 	The same page (content and layout) exists in all addons by Phenom.
 ]]
 
-local DISCORD = "https://discord.gg/4fSVKCVJWy"
+local DISCORD = "https://discord.gg/nPZBw5dgUA"
 
 local function GetLinks()
 	return {

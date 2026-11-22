@@ -2,6 +2,9 @@
 
 ## v1.11.0 (2026-11-22)
 
+### General
+- About page: new Discord invite link
+
 ### Widgets
 - XP widget: rested XP and XP from completed quests no longer overlap on
   the bar; quest XP is marked first and rested XP follows right after it
