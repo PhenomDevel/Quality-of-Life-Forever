@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.10.0 (2026-11-21)
+## v1.11.0 (2026-11-22)
 
 ### Widgets
 - XP widget: rested XP and XP from completed quests no longer overlap on
@@ -11,6 +11,10 @@
 - XP widget: new option "Time this session" (off by default) shows how
   long the current session has been running, e.g. "1 hr 25 min this
   session"; when a session starts over follows "New session"
+
+## v1.10.0 (2026-11-21)
+
+### Widgets
 - Junk widget: new option "Display" switches between the list (icon,
   name and value) and "Icons only", which shows the items side by side
   as icons with their value below

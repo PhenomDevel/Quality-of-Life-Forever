@@ -5,6 +5,19 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.11",
+		enUS = {
+			"# Widgets",
+			"XP widget: new option \"Time this session\" shows how long your current session has been running",
+			"XP widget: rested XP and quest XP no longer overlap on the bar, and texts below the bar no longer overlap",
+		},
+		deDE = {
+			"# Widgets",
+			"EP-Widget: neue Option „Zeit dieser Sitzung“ zeigt, wie lange deine aktuelle Sitzung schon läuft",
+			"EP-Widget: Erholungs-EP und Quest-EP überlappen sich nicht mehr auf der Leiste, Texte unter der Leiste ebenfalls nicht",
+		},
+	},
+	{
 		version = "1.10",
 		enUS = {
 			"# Widgets",
