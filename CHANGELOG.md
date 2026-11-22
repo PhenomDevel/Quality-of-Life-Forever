@@ -14,7 +14,9 @@
 ### Widgets
 - New "Profession cooldowns widget": lists your profession cooldowns with
   a countdown until each is ready, including those of your other
-  characters (option "Other characters")
+  characters below their name (option "Other characters"); each
+  cooldown shows the icon of what it makes, e.g. Mooncloth or Arcanite
+  Bar, merged transmutes the Philosopher's Stone
 
 ## v1.10.0 (2026-11-21)
 

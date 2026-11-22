@@ -1,4 +1,4 @@
--- luacheck: read globals C_Spell C_Item C_Container C_TradeSkillUI C_Timer IsPlayerSpell InCombatLockdown GetTime time UnitGUID UnitName UnitClass GetRealmName GetNumTradeSkills GetTradeSkillInfo GetTradeSkillCooldown GetTradeSkillRecipeLink
+-- luacheck: read globals C_Spell C_Item C_Container C_TradeSkillUI C_Timer IsPlayerSpell InCombatLockdown GetTime time UnitGUID UnitName UnitClass GetRealmName GetNumTradeSkills GetTradeSkillInfo GetTradeSkillCooldown GetTradeSkillRecipeLink GetTradeSkillIcon
 local _, ns = ...
 
 --[[
@@ -15,7 +15,7 @@ local _, ns = ...
 	  by Forever) are picked up after their first craft.
 
 	Saved in ns.db.global.professionCooldowns:
-	[GUID] = { name, realm, class, learned = { [spellID] = true },
+	[GUID] = { name, realm, class, learned = { [spellID] = icon or true },
 	           entries = { [key] = { name, icon, readyAt, family } } }
 	readyAt is a time() timestamp (0 = ready), so it survives logouts.
 
@@ -25,26 +25,30 @@ local _, ns = ...
 local ProfessionCooldowns = {}
 ns.ProfessionCooldowns = ProfessionCooldowns
 
--- Spell IDs from Wowhead (Classic) and warcraft.wiki.gg.
+-- [spell ID] = item ID of what it makes, for the icon (the spell's own
+-- icon is the generic profession icon). IDs from Wowhead (Classic) and
+-- warcraft.wiki.gg.
 local KNOWN_SPELLS = {
-	18560, -- Tailoring: Mooncloth
-	11479, -- Alchemy: Transmute: Iron to Gold
-	11480, -- Alchemy: Transmute: Mithril to Truesilver
-	17187, -- Alchemy: Transmute: Arcanite
-	17559, -- Alchemy: Transmute: Air to Fire
-	17560, -- Alchemy: Transmute: Fire to Earth
-	17561, -- Alchemy: Transmute: Earth to Water
-	17562, -- Alchemy: Transmute: Water to Air
-	17563, -- Alchemy: Transmute: Undeath to Water
-	17564, -- Alchemy: Transmute: Water to Undeath
-	17565, -- Alchemy: Transmute: Life to Earth
-	17566, -- Alchemy: Transmute: Earth to Life
+	[18560] = 14342, -- Tailoring: Mooncloth
+	[11479] = 3577, -- Alchemy: Transmute: Iron to Gold -> Gold Bar
+	[11480] = 6037, -- Alchemy: Transmute: Mithril to Truesilver -> Truesilver Bar
+	[17187] = 12360, -- Alchemy: Transmute: Arcanite -> Arcanite Bar
+	[17559] = 7078, -- Alchemy: Transmute: Air to Fire -> Essence of Fire
+	[17560] = 7076, -- Alchemy: Transmute: Fire to Earth -> Essence of Earth
+	[17561] = 7080, -- Alchemy: Transmute: Earth to Water -> Essence of Water
+	[17562] = 7082, -- Alchemy: Transmute: Water to Air -> Essence of Air
+	[17563] = 7080, -- Alchemy: Transmute: Undeath to Water -> Essence of Water
+	[17564] = 12808, -- Alchemy: Transmute: Water to Undeath -> Essence of Undeath
+	[17565] = 7076, -- Alchemy: Transmute: Life to Earth -> Essence of Earth
+	[17566] = 12803, -- Alchemy: Transmute: Earth to Life -> Living Essence
 }
 local KNOWN_ITEMS = {
 	15846, -- Leatherworking: Salt Shaker (Refined Deeprock Salt)
 }
 -- Its name up to the colon ("Transmute") names the transmute family.
 local TRANSMUTE_SPELL = 17187
+-- Philosopher's Stone: icon of merged transmutes.
+local TRANSMUTE_ICON_ITEM = 9149
 
 -- Shorter cooldowns are the global cooldown or casts, not crafting cooldowns.
 local MIN_COOLDOWN = 2
@@ -135,6 +139,14 @@ local function Put(entries, old, key, name, icon, readyAt, transmute)
 	}
 end
 
+local function ItemIcon(itemID)
+	local icon = itemID and C_Item.GetItemIconByID(itemID)
+	if icon == nil or IsSecret(icon) then
+		return nil
+	end
+	return icon
+end
+
 local function SpellCooldown(spellID)
 	local info = C_Spell.GetSpellCooldown(spellID)
 	if type(info) ~= "table" then
@@ -151,14 +163,17 @@ local function ScanCharacter()
 	local transmute = TransmuteFamily()
 
 	local spells = {}
-	for _, spellID in ipairs(KNOWN_SPELLS) do
-		spells[spellID] = IsPlayerSpell(spellID) or nil
+	for spellID, itemID in pairs(KNOWN_SPELLS) do
+		if IsPlayerSpell(spellID) then
+			spells[spellID] = ItemIcon(itemID)
+		end
 	end
-	for spellID in pairs(record.learned) do
-		spells[spellID] = true
+	for spellID, icon in pairs(record.learned) do
+		spells[spellID] = spells[spellID] or (icon ~= true and icon) or ItemIcon(KNOWN_SPELLS[spellID])
+			or C_Spell.GetSpellTexture(spellID)
 	end
-	for spellID in pairs(spells) do
-		Put(entries, old, "spell:" .. spellID, C_Spell.GetSpellName(spellID), C_Spell.GetSpellTexture(spellID),
+	for spellID, icon in pairs(spells) do
+		Put(entries, old, "spell:" .. spellID, C_Spell.GetSpellName(spellID), icon ~= true and icon or nil,
 			SpellCooldown(spellID), transmute)
 	end
 
@@ -178,12 +193,15 @@ end
 
 -- Remembers recipes the open trade skill window shows with a running
 -- cooldown, with that cooldown. Supports both trade skill APIs.
-local function LearnRecipe(record, spellID, remaining)
+local function LearnRecipe(record, spellID, remaining, icon)
 	if type(spellID) ~= "number" or type(remaining) ~= "number" or not Readable(spellID, remaining)
 		or remaining <= MIN_COOLDOWN then
 		return
 	end
-	record.learned[spellID] = true
+	if icon == nil or IsSecret(icon) then
+		icon = nil
+	end
+	record.learned[spellID] = icon or true
 	local key = "spell:" .. spellID
 	record.entries[key] = record.entries[key] or {}
 	record.entries[key].readyAt = math.floor(time() + remaining + 0.5)
@@ -193,7 +211,8 @@ local function ScanTradeSkillWindow()
 	local record = CharacterRecord()
 	if C_TradeSkillUI and C_TradeSkillUI.GetAllRecipeIDs and C_TradeSkillUI.GetRecipeCooldown then
 		for _, recipeID in ipairs(C_TradeSkillUI.GetAllRecipeIDs() or {}) do
-			LearnRecipe(record, recipeID, (C_TradeSkillUI.GetRecipeCooldown(recipeID)))
+			local info = C_TradeSkillUI.GetRecipeInfo and C_TradeSkillUI.GetRecipeInfo(recipeID)
+			LearnRecipe(record, recipeID, (C_TradeSkillUI.GetRecipeCooldown(recipeID)), type(info) == "table" and info.icon or nil)
 		end
 	elseif GetNumTradeSkills and GetTradeSkillCooldown and GetTradeSkillRecipeLink then
 		for i = 1, GetNumTradeSkills() or 0 do
@@ -202,7 +221,7 @@ local function ScanTradeSkillWindow()
 				local link = GetTradeSkillRecipeLink(i)
 				local spellID = type(link) == "string" and not IsSecret(link)
 					and tonumber(link:match("enchant:(%d+)") or link:match("spell:(%d+)"))
-				LearnRecipe(record, spellID or nil, GetTradeSkillCooldown(i))
+				LearnRecipe(record, spellID or nil, GetTradeSkillCooldown(i), GetTradeSkillIcon and GetTradeSkillIcon(i))
 			end
 		end
 	end
@@ -325,6 +344,7 @@ function ProfessionCooldowns.GetCooldowns(record)
 		end
 		if merged then
 			merged.name = entry.family
+			merged.icon = ItemIcon(TRANSMUTE_ICON_ITEM) or merged.icon
 			merged.count = merged.count + 1
 		else
 			local item = { name = entry.name or "?", icon = entry.icon, readyAt = readyAt, count = 1 }
