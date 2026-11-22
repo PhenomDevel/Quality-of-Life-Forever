@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.12.0 (2026-11-22)
 
 ### Bags & items
 - Item level: the character and inspect frame now show the average item
