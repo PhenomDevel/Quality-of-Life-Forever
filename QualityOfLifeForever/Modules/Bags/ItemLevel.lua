@@ -1,11 +1,11 @@
--- luacheck: read globals C_Item C_AddOns ItemLocation Enum ITEM_QUALITY_COLORS InspectFrame GetInventoryItemLink GetInventoryItemQuality INVSLOT_BODY INVSLOT_TABARD INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED
+-- luacheck: read globals C_Item C_AddOns C_Timer CreateFrame ItemLocation Enum ITEM_QUALITY_COLORS InspectFrame InspectPaperDollFrame InspectModelFrame InspectModelScene PaperDollFrame CharacterModelScene CharacterModelFrame GetInventoryItemLink GetInventoryItemQuality INVSLOT_BODY INVSLOT_TABARD INVSLOT_MAINHAND INVSLOT_OFFHAND INVSLOT_FIRST_EQUIPPED INVSLOT_LAST_EQUIPPED
 local _, ns = ...
 
 local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Item level",
 		NOTE = "On equipment and in bags",
-		DESC = "Shows the item level on equipped items, equipment in your bags and on inspected players.",
+		DESC = "Shows the item level on equipped items, equipment in your bags and on inspected players, plus the average item level in the character and inspect frame.",
 		SECTION_SHOW = "Show on",
 		SECTION_DISPLAY = "Display",
 		CHARACTER = "Character frame",
@@ -16,11 +16,14 @@ local L = ns.NewLocale({
 		INSPECT_DESC = "Item level on the equipment of inspected players.",
 		QUALITY_COLOR = "Color by quality",
 		QUALITY_COLOR_DESC = "Colors the number like the item's quality instead of white.",
+		AVERAGE = "Average item level",
+		AVERAGE_DESC = "Shows the average item level of all equipment slots above the model in the character and inspect frame. Empty slots count as 0, a two-handed weapon counts twice while the off hand is empty.",
+		AVERAGE_TEXT = "Item level %.1f",
 	},
 	deDE = {
 		TITLE = "Gegenstandsstufe",
 		NOTE = "An Ausrüstung und in Taschen",
-		DESC = "Zeigt die Gegenstandsstufe auf angelegten Gegenständen, Ausrüstung in den Taschen und bei betrachteten Spielern.",
+		DESC = "Zeigt die Gegenstandsstufe auf angelegten Gegenständen, Ausrüstung in den Taschen und bei betrachteten Spielern, dazu die durchschnittliche Gegenstandsstufe im Charakter- und Betrachten-Fenster.",
 		SECTION_SHOW = "Anzeigen bei",
 		SECTION_DISPLAY = "Darstellung",
 		CHARACTER = "Charakterfenster",
@@ -31,6 +34,9 @@ local L = ns.NewLocale({
 		INSPECT_DESC = "Gegenstandsstufe auf der Ausrüstung betrachteter Spieler.",
 		QUALITY_COLOR = "Nach Qualität färben",
 		QUALITY_COLOR_DESC = "Färbt die Zahl in der Qualitätsfarbe des Gegenstands statt weiß.",
+		AVERAGE = "Durchschnittliche Gegenstandsstufe",
+		AVERAGE_DESC = "Zeigt die durchschnittliche Gegenstandsstufe aller Ausrüstungsplätze über dem Modell im Charakter- und Betrachten-Fenster. Leere Plätze zählen als 0, eine Zweihandwaffe zählt doppelt, solange die Nebenhand leer ist.",
+		AVERAGE_TEXT = "Gegenstandsstufe %.1f",
 	},
 })
 
@@ -45,6 +51,7 @@ local module = ns:NewModule("ItemLevel", {
 		bags = true,
 		inspect = true,
 		qualityColor = true,
+		average = true,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
@@ -53,6 +60,7 @@ local module = ns:NewModule("ItemLevel", {
 		{ key = "inspect", type = "checkbox", label = L.INSPECT, tooltip = L.INSPECT_DESC },
 		{ type = "header", label = L.SECTION_DISPLAY },
 		{ key = "qualityColor", type = "checkbox", label = L.QUALITY_COLOR, tooltip = L.QUALITY_COLOR_DESC },
+		{ key = "average", type = "checkbox", label = L.AVERAGE, tooltip = L.AVERAGE_DESC },
 	},
 })
 
@@ -99,6 +107,107 @@ local function UpdateLocation(button, location, enabled)
 	end
 end
 
+-- Average item level per frame ("character"/"inspect"): the slots are the
+-- equipment slot buttons that frame actually shows (seen via the update
+-- hooks), so the divisor follows the client's layout (e.g. a ranged slot).
+local averages = {
+	character = { slots = {}, levels = {} },
+	inspect = { slots = {}, levels = {} },
+}
+
+local function IsTwoHanded(link)
+	local equipLoc = link and select(4, C_Item.GetItemInfoInstant(link))
+	return equipLoc == "INVTYPE_2HWEAPON"
+end
+
+local function GetAverageText(average)
+	local holder = average.holder
+	if not holder then
+		local parent = average.getParent()
+		local anchor = average.getAnchor() or parent
+		-- Own frame above the model, whose background would cover a font
+		-- string on the paper doll frame itself.
+		holder = CreateFrame("Frame", nil, parent)
+		holder:SetAllPoints(anchor)
+		holder:SetFrameLevel(anchor:GetFrameLevel() + 10)
+		average.text = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+		average.text:SetPoint("TOP", holder, "TOP", 0, -6)
+		average.holder = holder
+	end
+	return average.text
+end
+
+local function RefreshAverage(average)
+	average.pending = false
+	local enabled = module.enabled and module.db.average
+	if not enabled then
+		if average.text then
+			average.text:Hide()
+		end
+		return
+	end
+	local unit = average.getUnit()
+	local total, count = 0, 0
+	for slot in pairs(average.slots) do
+		count = count + 1
+		local level = average.levels[slot]
+		if level == false then
+			-- Item not cached yet: the slot update after caching refreshes again.
+			if average.text then
+				average.text:Hide()
+			end
+			return
+		end
+		total = total + (level or 0)
+	end
+	if unit and average.slots[INVSLOT_MAINHAND] and average.slots[INVSLOT_OFFHAND]
+		and not GetInventoryItemLink(unit, INVSLOT_OFFHAND)
+		and IsTwoHanded(GetInventoryItemLink(unit, INVSLOT_MAINHAND)) then
+		total = total + (average.levels[INVSLOT_MAINHAND] or 0)
+	end
+	if count == 0 or total == 0 then
+		if average.text then
+			average.text:Hide()
+		end
+		return
+	end
+	local text = GetAverageText(average)
+	text:SetFormattedText(L.AVERAGE_TEXT, total / count)
+	text:Show()
+end
+
+-- Slot updates arrive one button at a time; recompute once per frame.
+-- level: number, nil for an empty slot, false while the item isn't cached.
+local function SetSlotLevel(average, slot, level)
+	average.slots[slot] = true
+	average.levels[slot] = level
+	if not average.pending then
+		average.pending = true
+		C_Timer.After(0, function()
+			RefreshAverage(average)
+		end)
+	end
+end
+
+averages.character.getUnit = function()
+	return "player"
+end
+averages.character.getParent = function()
+	return PaperDollFrame
+end
+averages.character.getAnchor = function()
+	return CharacterModelScene or CharacterModelFrame
+end
+averages.inspect.getUnit = function()
+	return InspectFrame and InspectFrame.unit
+end
+averages.inspect.getParent = function()
+	return InspectPaperDollFrame
+end
+averages.inspect.getAnchor = function()
+	return InspectModelScene or InspectModelFrame
+end
+
 -- The bag bar's slot buttons pass through PaperDollItemSlotButton_Update as
 -- well; only equipment slots count.
 local function UpdateCharacterButton(button)
@@ -107,7 +216,9 @@ local function UpdateCharacterButton(button)
 		return
 	end
 	updaters[button] = UpdateCharacterButton
-	UpdateLocation(button, ItemLocation:CreateFromEquipmentSlot(slot), module.db.character)
+	local location = ItemLocation:CreateFromEquipmentSlot(slot)
+	UpdateLocation(button, location, module.db.character)
+	SetSlotLevel(averages.character, slot, C_Item.DoesItemExist(location) and C_Item.GetCurrentItemLevel(location) or nil)
 end
 
 local function UpdateBagButton(button)
@@ -124,13 +235,15 @@ local function UpdateInspectButton(button)
 		return
 	end
 	updaters[button] = UpdateInspectButton
-	local link = module.db.inspect and GetInventoryItemLink(unit, slot)
-	if link then
-		-- Not cached yet: INSPECT_READY updates the slots again.
-		SetText(button, C_Item.GetDetailedItemLevelInfo(link), GetInventoryItemQuality(unit, slot))
+	local link = GetInventoryItemLink(unit, slot)
+	-- Not cached yet: INSPECT_READY updates the slots again.
+	local level = link and C_Item.GetDetailedItemLevelInfo(link)
+	if link and module.db.inspect then
+		SetText(button, level, GetInventoryItemQuality(unit, slot))
 	else
 		SetText(button)
 	end
+	SetSlotLevel(averages.inspect, slot, link and (level or false) or nil)
 end
 
 -- Bag item buttons pass through this global on every bag update. Only
@@ -185,6 +298,11 @@ end
 function module:OnDisable()
 	for _, text in pairs(texts) do
 		text:Hide()
+	end
+	for _, average in pairs(averages) do
+		if average.text then
+			average.text:Hide()
+		end
 	end
 end
 
