@@ -94,8 +94,9 @@ local STACK_ORDER = {
 	ReagentWidget = 4,
 	PerformanceWidget = 5,
 	JunkWidget = 6,
+	ProfessionCooldownWidget = 7,
 	-- Last: it shows and hides often and would move the others.
-	PowerTickWidget = 7,
+	PowerTickWidget = 8,
 }
 local STACK_GAP = 2
 local stackAnchor
