@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### General
+- About page: new Discord invite link
+
 ## v1.10.0 (2026-11-21)
 
 ### Widgets

@@ -76,6 +76,7 @@ What changed: [CHANGELOG.md](https://github.com/PhenomDevel/Quality-of-Life-Fore
 
 ## Support
 
+- Questions, ideas or problems? Join the [Discord](https://discord.gg/nPZBw5dgUA).
 - Bugs: [GitHub issues](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues)
 - Missing a feature? [Request it on GitHub](https://github.com/PhenomDevel/Quality-of-Life-Forever/issues/new).
 - If you like the addon, star it on GitHub or leave a tip on
