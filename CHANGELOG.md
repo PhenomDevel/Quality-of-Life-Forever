@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Tooltip
+- New module "Mana efficiency": spell tooltips show how much healing,
+  damage or absorption a spell gives per point of mana, e.g. "1.8 healing
+  per mana"; ranges count with their average, effects over time with
+  their total
+
 ## v1.12.0 (2026-11-22)
 
 ### Bags & items

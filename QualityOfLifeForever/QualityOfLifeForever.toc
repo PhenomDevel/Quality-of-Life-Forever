@@ -87,6 +87,7 @@ Modules\Reminders\TrainerReminder.lua
 Modules\Tooltip\TooltipAnchor.lua
 Modules\Tooltip\TooltipExtras.lua
 Modules\Tooltip\TooltipIDs.lua
+Modules\Tooltip\ManaEfficiency.lua
 
 # Camera & graphics
 Modules\Graphics\CameraZoom.lua
