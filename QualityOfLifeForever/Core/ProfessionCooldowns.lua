@@ -58,6 +58,11 @@ local SAME_COOLDOWN = 60
 -- Cooldowns are not always known right at login.
 local LOGIN_DELAY = 3
 local SCAN_THROTTLE = 1
+-- Start times of cooldowns that began before the client's GetTime() epoch
+-- come back wrapped by 2^32 ms (~49.7 days), i.e. in the future.
+local TIME_WRAP = 2 ^ 32 / 1000
+-- No crafting cooldown is longer; remembered times beyond this are bogus.
+local MAX_COOLDOWN = 14 * 86400
 
 local IsSecret = ns.Utils.IsSecret
 
@@ -87,7 +92,15 @@ local function ReadyAt(start, duration)
 		or duration <= MIN_COOLDOWN or start <= 0 then
 		return nil
 	end
-	return math.floor(time() + start + duration - GetTime() + 0.5)
+	local remaining = start + duration - GetTime()
+	if remaining > duration then
+		remaining = remaining - TIME_WRAP
+	end
+	remaining = math.min(remaining, duration)
+	if remaining <= 0 then
+		return 0
+	end
+	return math.floor(time() + remaining + 0.5)
 end
 
 local function TransmuteFamily()
@@ -127,6 +140,9 @@ local function Put(entries, old, key, name, icon, readyAt, transmute)
 	local previous = old[key]
 	if not readyAt then
 		readyAt = previous and previous.readyAt or 0
+		if readyAt > time() + MAX_COOLDOWN then
+			readyAt = 0
+		end
 	end
 	if readyAt <= time() then
 		readyAt = 0
