@@ -61,6 +61,12 @@ function XPSession.GetSessionXP()
 	return sessionXP
 end
 
+-- Online seconds of the current session.
+function XPSession.GetElapsed()
+	CheckDailyReset()
+	return Elapsed()
+end
+
 function XPSession.GetLastGain()
 	return lastGain
 end
