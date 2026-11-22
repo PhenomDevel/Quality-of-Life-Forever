@@ -5,6 +5,17 @@
 ### General
 - About page: new Discord invite link
 
+### Reminders
+- New module "Profession cooldowns": once after logging in, a popup lists
+  the profession cooldowns of this character that are ready, e.g.
+  Mooncloth, transmutes or the Salt Shaker; only recipes the character
+  knows count
+
+### Widgets
+- New "Profession cooldowns widget": lists your profession cooldowns with
+  a countdown until each is ready, including those of your other
+  characters (option "Other characters")
+
 ## v1.10.0 (2026-11-21)
 
 ### Widgets
