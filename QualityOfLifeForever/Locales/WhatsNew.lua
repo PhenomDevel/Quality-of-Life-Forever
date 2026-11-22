@@ -5,6 +5,17 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.12",
+		enUS = {
+			"# Bags & items",
+			"Item level: the character and inspect frame now show your average item level above the model (new option \"Average item level\", on by default)",
+		},
+		deDE = {
+			"# Taschen & Gegenstände",
+			"Gegenstandsstufe: Charakter- und Betrachten-Fenster zeigen jetzt die durchschnittliche Gegenstandsstufe über dem Modell (neue Option „Durchschnittliche Gegenstandsstufe“, standardmäßig an)",
+		},
+	},
+	{
 		version = "1.11",
 		enUS = {
 			"# Reminders",
