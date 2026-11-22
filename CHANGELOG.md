@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Bags & items
+- Item level: the character and inspect frame now show the average item
+  level of all equipment slots above the model (new option "Average item
+  level", on by default); empty slots count as 0, a two-handed weapon
+  counts twice while the off hand is empty
+
 ## v1.11.0 (2026-11-22)
 
 ### General
