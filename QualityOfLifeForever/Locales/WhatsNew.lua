@@ -5,6 +5,25 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.11",
+		enUS = {
+			"# Reminders",
+			"New module \"Profession cooldowns\": after logging in, a popup lists your profession cooldowns that are ready",
+			"# Widgets",
+			"New \"Profession cooldowns widget\" with a countdown for each cooldown, also for your other characters",
+			"XP widget: new option \"Time this session\" shows how long your current session has been running",
+			"XP widget: rested XP and quest XP no longer overlap on the bar, and texts below the bar no longer overlap",
+		},
+		deDE = {
+			"# Erinnerungen",
+			"Neues Modul „Berufs-Cooldowns“: nach dem Einloggen listet ein Popup deine Berufs-Cooldowns, die bereit sind",
+			"# Widgets",
+			"Neues „Berufs-Cooldown-Widget“ mit Countdown für jeden Cooldown, auch für deine anderen Charaktere",
+			"EP-Widget: neue Option „Zeit dieser Sitzung“ zeigt, wie lange deine aktuelle Sitzung schon läuft",
+			"EP-Widget: Erholungs-EP und Quest-EP überlappen sich nicht mehr auf der Leiste, Texte unter der Leiste ebenfalls nicht",
+		},
+	},
+	{
 		version = "1.10",
 		enUS = {
 			"# Widgets",

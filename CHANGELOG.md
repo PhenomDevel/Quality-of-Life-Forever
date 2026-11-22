@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.11.0 (2026-11-22)
 
 ### General
 - About page: new Discord invite link
@@ -17,10 +17,6 @@
   characters below their name (option "Other characters"); each
   cooldown shows the icon of what it makes, e.g. Mooncloth or Arcanite
   Bar, merged transmutes the Philosopher's Stone
-
-## v1.10.0 (2026-11-21)
-
-### Widgets
 - XP widget: rested XP and XP from completed quests no longer overlap on
   the bar; quest XP is marked first and rested XP follows right after it
 - XP widget: texts below the bar no longer overlap; a text that doesn't
@@ -29,6 +25,10 @@
 - XP widget: new option "Time this session" (off by default) shows how
   long the current session has been running, e.g. "1 hr 25 min this
   session"; when a session starts over follows "New session"
+
+## v1.10.0 (2026-11-21)
+
+### Widgets
 - Junk widget: new option "Display" switches between the list (icon,
   name and value) and "Icons only", which shows the items side by side
   as icons with their value below
