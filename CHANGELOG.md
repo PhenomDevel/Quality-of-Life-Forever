@@ -14,7 +14,9 @@
 ### Widgets
 - New "Profession cooldowns widget": lists your profession cooldowns with
   a countdown until each is ready, including those of your other
-  characters (option "Other characters")
+  characters below their name (option "Other characters"); each
+  cooldown shows the icon of what it makes, e.g. Mooncloth or Arcanite
+  Bar, merged transmutes the Philosopher's Stone
 - XP widget: rested XP and XP from completed quests no longer overlap on
   the bar; quest XP is marked first and rested XP follows right after it
 - XP widget: texts below the bar no longer overlap; a text that doesn't
