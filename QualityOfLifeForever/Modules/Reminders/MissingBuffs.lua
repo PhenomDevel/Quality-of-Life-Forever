@@ -5,7 +5,7 @@ local L = ns.NewLocale({
 	enUS = {
 		TITLE = "Missing self-buffs",
 		NOTE = "Your missing long-lasting buffs, click to cast",
-		DESC = "Out of combat, a small movable bar shows the icons of your class's long-lasting buffs that are missing, e.g. Arcane Intellect, Inner Fire, Mark of the Wild or Demon Skin. Click an icon to cast the buff; the bar disappears once you have them all. Only buffs you have learned count; for buffs with alternatives (armors, auras, aspects) any one of them is enough. Drag it to move it; scale it in {Edit Mode}.",
+		DESC = "Out of combat, a small movable bar shows the icons of your class's long-lasting buffs that are missing, e.g. Arcane Intellect, Inner Fire, Mark of the Wild or Demon Skin. Click an icon to cast the buff; the bar disappears once you have them all. Only buffs you have learned count; for buffs with alternatives (armors, auras, aspects) any one of them is enough, and the group version of a buff (e.g. Prayer of Fortitude, Arcane Brilliance) counts as well. Drag it to move it; scale it in {Edit Mode}.",
 		EDIT_MODE_NAME = "QoL Forever: Missing self-buffs",
 		NOTICE = "While this window or {Edit Mode} is open, all learned buffs of your class are shown so you can place the bar.",
 		SECTION_WHEN = "When to remind",
@@ -25,7 +25,7 @@ local L = ns.NewLocale({
 	deDE = {
 		TITLE = "Fehlende Selbst-Buffs",
 		NOTE = "Deine fehlenden lang anhaltenden Buffs, Klick zum Wirken",
-		DESC = "Außerhalb des Kampfes zeigt eine kleine verschiebbare Leiste die Symbole der lang anhaltenden Buffs deiner Klasse, die fehlen, z. B. Arkane Intelligenz, Inneres Feuer, Mal der Wildnis oder Dämonenhaut. Ein Klick auf ein Symbol wirkt den Buff; die Leiste verschwindet, sobald du alle hast. Es zählen nur Buffs, die du gelernt hast; bei Buffs mit Alternativen (Rüstungen, Auren, Aspekte) reicht einer davon. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
+		DESC = "Außerhalb des Kampfes zeigt eine kleine verschiebbare Leiste die Symbole der lang anhaltenden Buffs deiner Klasse, die fehlen, z. B. Arkane Intelligenz, Inneres Feuer, Mal der Wildnis oder Dämonenhaut. Ein Klick auf ein Symbol wirkt den Buff; die Leiste verschwindet, sobald du alle hast. Es zählen nur Buffs, die du gelernt hast; bei Buffs mit Alternativen (Rüstungen, Auren, Aspekte) reicht einer davon, und die Gruppenversion eines Buffs (z. B. Gebet der Seelenstärke, Arkane Brillanz) zählt ebenfalls. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
 		EDIT_MODE_NAME = "QoL Forever: Fehlende Selbst-Buffs",
 		NOTICE = "Solange dieses Fenster oder der {Bearbeitungsmodus} offen ist, werden alle gelernten Buffs deiner Klasse angezeigt, damit du die Leiste platzieren kannst.",
 		SECTION_WHEN = "Wann erinnern",
@@ -81,26 +81,28 @@ local module = ns:NewModule("MissingBuffs", {
 -- Long-lasting self-buffs by class file name; each entry lists alternatives,
 -- any one of them counts and the first known one is cast. Rank 1 spell IDs
 -- from wowhead.com (Classic); auras are matched and spells cast by name, so
--- every rank counts and the highest known rank is cast.
+-- every rank counts and the highest known rank is cast. Group versions
+-- (Gift of the Wild, Arcane Brilliance, Prayer of …) come after the single
+-- buff: an active group buff counts, but the reagent-free single one is cast.
 local BUFFS = {
 	DRUID = {
-		{ 1126 }, -- Mark of the Wild
+		{ 1126, 21849 }, -- Mark of the Wild, Gift of the Wild
 		{ 467 }, -- Thorns
 	},
 	HUNTER = {
 		{ 13165, 13163 }, -- Aspect of the Hawk, Aspect of the Monkey
 	},
 	MAGE = {
-		{ 1459 }, -- Arcane Intellect
+		{ 1459, 23028 }, -- Arcane Intellect, Arcane Brilliance
 		{ 7302, 168, 6117 }, -- Ice Armor (replaces Frost Armor), Frost Armor, Mage Armor
 	},
 	PALADIN = {
 		{ 465, 7294, 19746 }, -- Devotion, Retribution, Concentration Aura
 	},
 	PRIEST = {
-		{ 1243 }, -- Power Word: Fortitude
+		{ 1243, 21562 }, -- Power Word: Fortitude, Prayer of Fortitude
 		{ 588 }, -- Inner Fire
-		{ 14752 }, -- Divine Spirit (Discipline talent)
+		{ 14752, 27681 }, -- Divine Spirit, Prayer of Spirit (Discipline talent)
 	},
 	SHAMAN = {
 		{ 324 }, -- Lightning Shield
