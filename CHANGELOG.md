@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Reminders
+- Missing self-buffs: active group buffs (Prayer of Fortitude, Prayer of
+  Spirit, Gift of the Wild, Arcane Brilliance) now count, so the single
+  buff is no longer reported missing while the group version is up
+
 ### Tooltip
 - New module "Mana efficiency": spell tooltips show how much healing,
   damage or absorption a spell gives per point of mana, e.g. "1.8 healing
