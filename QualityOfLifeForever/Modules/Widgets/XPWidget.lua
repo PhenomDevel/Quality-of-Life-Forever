@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString MainStatusTrackingBarContainer SecondaryStatusTrackingBarContainer StatusTrackingBarInfo GetTime SecondsToTime RequestTimePlayed GetFramesRegisteredForEvent C_UnitAuras C_Secrets
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_QuestLog GetQuestLogRewardXP UnitLevel GetXPExhaustion AbbreviateNumbers BreakUpLargeNumbers CreateColorFromHexString StatusTrackingBarInfo GetTime SecondsToTime RequestTimePlayed GetFramesRegisteredForEvent C_UnitAuras C_Secrets
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -43,7 +43,7 @@ local L = ns.NewLocale({
 		BG_OPACITY = "Background opacity",
 		BG_OPACITY_DESC = "Opacity of the widget's background and border, 0 % (transparent) to 100 %. Text and bar stay as they are.",
 		HIDE_BLIZZARD = "Hide the standard XP bar",
-		HIDE_BLIZZARD_DESC = "Makes the game's XP bar invisible while the widget is on. Its place stays free, so the action bars don't move; a reputation bar is not affected. The {Experience bar} module then stops updating its text.",
+		HIDE_BLIZZARD_DESC = "Makes the game's XP bar invisible while the widget is on. Its place stays free, so the action bars don't move; a reputation bar stays visible (the {Reputation widget} can hide it). The {Experience bar} module then stops updating its text.",
 		LEVEL = "Level %d  ·  %.1f%%",
 		RATE = "%s/h  ·  %s",
 		VALUES = "%s / %s",
@@ -95,7 +95,7 @@ local L = ns.NewLocale({
 		BG_OPACITY = "Hintergrund-Deckkraft",
 		BG_OPACITY_DESC = "Deckkraft von Hintergrund und Rahmen des Widgets, von 0 % (durchsichtig) bis 100 %. Text und Leiste bleiben unverändert.",
 		HIDE_BLIZZARD = "Standard-EP-Leiste ausblenden",
-		HIDE_BLIZZARD_DESC = "Macht die EP-Leiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine Rufleiste bleibt sichtbar. Das Modul {Erfahrungsleiste} aktualisiert ihren Text dann nicht mehr.",
+		HIDE_BLIZZARD_DESC = "Macht die EP-Leiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine Rufleiste bleibt sichtbar (das {Ruf-Widget} kann sie ausblenden). Das Modul {Erfahrungsleiste} aktualisiert ihren Text dann nicht mehr.",
 		LEVEL = "Stufe %d  ·  %.1f %%",
 		RATE = "%s/h  ·  %s",
 		VALUES = "%s / %s",
@@ -640,18 +640,7 @@ function module:UpdateTicker()
 end
 
 -- Standard XP bar ---------------------------------------------------------------
--- Made invisible through the alpha of its container (bar, frame art and
--- dividers together) instead of Hide(): its shown state feeds the action bar
--- layout, which addon code must not change. Blizzard fades the container in
--- when it switches bars, so the alpha is re-applied after that.
-
-local CONTAINERS = { "MainStatusTrackingBarContainer", "SecondaryStatusTrackingBarContainer" }
-local hiddenContainers = {}
-
-local function ShowsPlayerXP(container)
-	local bar = container.GetShownBar and container:GetShownBar()
-	return bar ~= nil and bar.barIndex == StatusTrackingBarInfo.BarsEnum.Experience, bar
-end
+-- Hidden through ns.StatusBars, which keeps its place for the action bars.
 
 function module:IsBlizzardBarHidden()
 	return self.enabled and self.db.hideBlizzardBar
@@ -659,41 +648,13 @@ end
 
 function module:UpdateBlizzardBar()
 	local hide = self:IsBlizzardBarHidden()
-	for _, name in ipairs(CONTAINERS) do
-		local container = _G[name]
-		if container then
-			local showsXP, bar = ShowsPlayerXP(container)
-			if hide and showsXP then
-				hiddenContainers[container] = true
-				container:SetAlpha(0)
-				bar:EnableMouse(false)
-			elseif hiddenContainers[container] then
-				hiddenContainers[container] = nil
-				container:SetAlpha(1)
-				for _, containerBar in pairs(container.bars or {}) do
-					containerBar:EnableMouse(true)
-				end
-			end
-		end
-	end
+	ns.StatusBars.SetHidden(StatusTrackingBarInfo.BarsEnum.Experience, hide)
 	ns.blizzardXPBarHidden = hide
 	-- The XP bar module skips its text updates while the bar is invisible.
 	local xpBar = ns:GetModule("XPBar")
 	if xpBar and xpBar.enabled then
 		xpBar:UpdateTicker()
 		xpBar:RefreshBarText()
-	end
-end
-
-function module:HookContainers()
-	for _, name in ipairs(CONTAINERS) do
-		local container = _G[name]
-		if container then
-			self:SecureHook(container, "ApplyPendingBarToShow", self.UpdateBlizzardBar)
-			if container.FadeInAnimation then
-				self:HookScript(container.FadeInAnimation, "OnFinished", self.UpdateBlizzardBar)
-			end
-		end
 	end
 end
 
@@ -823,7 +784,7 @@ function module:OnEnable()
 	self:RequestLevelTime()
 	self:UpdateTicker()
 	self:Update()
-	self:HookContainers()
+	ns.StatusBars.Hook(self)
 	self:UpdateBlizzardBar()
 end
 
