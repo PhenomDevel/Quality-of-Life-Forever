@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.13.0 (2026-11-24)
 
 ### Reminders
 - Missing self-buffs: active group buffs (Prayer of Fortitude, Prayer of
