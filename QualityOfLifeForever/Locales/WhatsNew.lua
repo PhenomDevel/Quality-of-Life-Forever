@@ -5,6 +5,25 @@ local _, ns = ...
 -- full list is CHANGELOG.md. Lines starting with "# " are section headings.
 ns.whatsNew = {
 	{
+		version = "1.13",
+		enUS = {
+			"# Reminders",
+			"Missing self-buffs: active group buffs (Prayer of Fortitude, Prayer of Spirit, Gift of the Wild, Arcane Brilliance) now count as active",
+			"# Tooltip",
+			"New module \"Mana efficiency\": spell tooltips show how much healing, damage or absorption a spell gives per point of mana",
+			"# Widgets",
+			"Reputation widget: new option \"Hide the standard reputation bar\"; the action bars don't move",
+		},
+		deDE = {
+			"# Erinnerungen",
+			"Fehlende Selbstbuffs: aktive Gruppenbuffs (Gebet der Seelenstärke, Gebet der Willenskraft, Gabe der Wildnis, Arkane Brillanz) zählen jetzt als aktiv",
+			"# Tooltip",
+			"Neues Modul „Mana-Effizienz“: Zauber-Tooltips zeigen, wie viel Heilung, Schaden oder Absorption ein Zauber pro Manapunkt bringt",
+			"# Widgets",
+			"Ruf-Widget: neue Option „Standard-Rufleiste ausblenden“; die Aktionsleisten verschieben sich dabei nicht",
+		},
+	},
+	{
 		version = "1.12",
 		enUS = {
 			"# Bags & items",
