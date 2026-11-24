@@ -13,6 +13,11 @@
   per mana"; ranges count with their average, effects over time with
   their total
 
+### Widgets
+- Reputation widget: new option "Hide the standard reputation bar", like
+  the XP widget's option for the XP bar; the bar's place stays free, so
+  the action bars don't move
+
 ## v1.12.0 (2026-11-22)
 
 ### Bags & items

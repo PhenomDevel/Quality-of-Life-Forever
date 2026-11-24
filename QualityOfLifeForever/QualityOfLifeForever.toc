@@ -35,6 +35,7 @@ Core\Database.lua
 Core\ModuleManager.lua
 Core\SlashCommands.lua
 Core\XPSession.lua
+Core\StatusBars.lua
 Core\ProfessionCooldowns.lua
 
 # UI
