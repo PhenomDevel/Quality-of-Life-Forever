@@ -118,7 +118,12 @@ local function LastKindBefore(text, stop)
 	return best
 end
 
--- All numbers with their position; "1.5" and "1,5" are one number.
+-- All numbers with their position. Uses the client's decimal mark: "1.5"
+-- is one and a half in enUS, "1.234" is 1234 in deDE; the other mark
+-- followed by exactly three digits groups thousands ("1,234" / "1.234").
+local DECIMAL_MARK = L.DECIMAL
+local GROUP_MARK = DECIMAL_MARK == "," and "." or ","
+
 local function FindNumbers(text)
 	local numbers = {}
 	local init = 1
@@ -127,12 +132,21 @@ local function FindNumbers(text)
 		if not first then
 			break
 		end
-		local decimals = text:match("^[%.,]%d+", last + 1)
-		if decimals then
-			last = last + #decimals
+		local digits = text:sub(first, last)
+		while true do
+			local group = text:match("^%" .. GROUP_MARK .. "(%d%d%d)", last + 1)
+			if not group or text:find("^%d", last + 5) then
+				break
+			end
+			digits = digits .. group
+			last = last + 4
 		end
-		local value = tonumber((text:sub(first, last):gsub(",", ".")))
-		numbers[#numbers + 1] = { first = first, last = last, value = value }
+		local decimals = text:match("^%" .. DECIMAL_MARK .. "(%d+)", last + 1)
+		if decimals then
+			digits = digits .. "." .. decimals
+			last = last + 1 + #decimals
+		end
+		numbers[#numbers + 1] = { first = first, last = last, value = tonumber(digits) }
 		init = last + 1
 	end
 	return numbers
@@ -246,7 +260,9 @@ function module:OnSpellTooltip(tooltip, data)
 	local totals = ParseDescription(description)
 	for _, kind in ipairs(KINDS) do
 		local total = totals[kind]
-		if total and total > 0 and self.db[kind] then
+		-- Below 0.01 per mana the parsed amount is almost certainly not the
+		-- spell's real effect, so show nothing rather than "0".
+		if total and total / cost >= 0.01 and self.db[kind] then
 			tooltip:AddLine(LINES[kind]:format(FormatRatio(total / cost)), 0.4, 0.8, 1)
 		end
 	end
