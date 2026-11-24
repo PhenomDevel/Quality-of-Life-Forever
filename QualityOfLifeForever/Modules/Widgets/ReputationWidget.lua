@@ -1,4 +1,4 @@
--- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_Reputation GetTime UnitGUID UnitSex GetText FACTION_BAR_COLORS AbbreviateNumbers BreakUpLargeNumbers SecondsToTime time
+-- luacheck: read globals CreateFont STANDARD_TEXT_FONT C_Timer C_Reputation GetTime UnitGUID UnitSex GetText FACTION_BAR_COLORS AbbreviateNumbers BreakUpLargeNumbers SecondsToTime time StatusTrackingBarInfo
 local _, ns = ...
 
 local L = ns.NewLocale({
@@ -8,6 +8,7 @@ local L = ns.NewLocale({
 		DESC = "A small movable display of the faction you watch in the reputation tab: standing, progress, reputation per hour and time to the next standing, laid out like the {XP widget}. At max level it can take the XP widget's place. Hidden while no faction is watched. Drag it to move it; scale it in {Edit Mode}.",
 		EDIT_MODE_NAME = "QoL Forever: Reputation widget",
 		SECTION_SHOW = "Show",
+		SECTION_BAR = "Standard reputation bar",
 		SECTION_MAX_LEVEL = "Max level",
 		SECTION_LOOK = "Appearance",
 		SECTION_SESSION = "Session",
@@ -15,6 +16,8 @@ local L = ns.NewLocale({
 		SHOW_PERCENT_DESC = "Shows the progress within the current standing in percent next to the standing, e.g. Honored · 45.3%.",
 		SHOW_RATE = "Reputation per hour and time",
 		SHOW_RATE_DESC = "Shows reputation per hour and the time to the next standing for the current session (see {New session}); appears after the first minute with a gain.",
+		HIDE_BLIZZARD = "Hide the standard reputation bar",
+		HIDE_BLIZZARD_DESC = "Makes the game's reputation bar invisible while the widget is on. Its place stays free, so the action bars don't move; an XP bar stays visible (the {XP widget} can hide it).",
 		REPLACE_XP = "Replace the XP widget",
 		REPLACE_XP_DESC = "At max level, where the {XP widget} is hidden, this widget moves to the XP widget's place (also in the widget column). Moving it there moves that place. Below max level it stays where you put it.",
 		LAYOUT = "Layout",
@@ -44,6 +47,7 @@ local L = ns.NewLocale({
 		DESC = "Eine kleine verschiebbare Anzeige der Fraktion, die du im Ruf-Reiter beobachtest: Ruf-Stufe, Fortschritt, Ruf pro Stunde und Zeit bis zur nächsten Stufe, aufgebaut wie das {EP-Widget}. Auf Maximalstufe kann es den Platz des EP-Widgets einnehmen. Ausgeblendet, solange keine Fraktion beobachtet wird. Zum Verschieben ziehen; skalieren im {Bearbeitungsmodus}.",
 		EDIT_MODE_NAME = "QoL Forever: Ruf-Widget",
 		SECTION_SHOW = "Anzeigen",
+		SECTION_BAR = "Standard-Rufleiste",
 		SECTION_MAX_LEVEL = "Maximalstufe",
 		SECTION_LOOK = "Darstellung",
 		SECTION_SESSION = "Sitzung",
@@ -51,6 +55,8 @@ local L = ns.NewLocale({
 		SHOW_PERCENT_DESC = "Zeigt den Fortschritt in der aktuellen Ruf-Stufe in Prozent neben der Stufe, z. B. Wohlwollend · 45,3 %.",
 		SHOW_RATE = "Ruf pro Stunde und Zeit",
 		SHOW_RATE_DESC = "Zeigt Ruf pro Stunde und die Zeit bis zur nächsten Ruf-Stufe für die aktuelle Sitzung (siehe {Neue Sitzung}); erscheint nach der ersten Minute mit Rufgewinn.",
+		HIDE_BLIZZARD = "Standard-Rufleiste ausblenden",
+		HIDE_BLIZZARD_DESC = "Macht die Rufleiste des Spiels unsichtbar, solange das Widget an ist. Ihr Platz bleibt frei, die Aktionsleisten verschieben sich also nicht; eine EP-Leiste bleibt sichtbar (das {EP-Widget} kann sie ausblenden).",
 		REPLACE_XP = "EP-Widget ersetzen",
 		REPLACE_XP_DESC = "Auf Maximalstufe, wo das {EP-Widget} ausgeblendet ist, rückt dieses Widget an den Platz des EP-Widgets (auch in der Widget-Spalte). Verschiebst du es dort, verschiebt sich dieser Platz. Unter der Maximalstufe bleibt es, wo du es hingesetzt hast.",
 		LAYOUT = "Ausrichtung",
@@ -107,11 +113,14 @@ local module = ns:NewModule("ReputationWidget", {
 		textOutline = "NONE",
 		textShadow = true,
 		showTitle = false,
+		hideBlizzardBar = false,
 	},
 	options = {
 		{ type = "header", label = L.SECTION_SHOW },
 		{ key = "showPercent", type = "checkbox", label = L.SHOW_PERCENT, tooltip = L.SHOW_PERCENT_DESC },
 		{ key = "showRate", type = "checkbox", label = L.SHOW_RATE, tooltip = L.SHOW_RATE_DESC },
+		{ type = "header", label = L.SECTION_BAR },
+		{ key = "hideBlizzardBar", type = "checkbox", label = L.HIDE_BLIZZARD, tooltip = L.HIDE_BLIZZARD_DESC },
 		{ type = "header", label = L.SECTION_MAX_LEVEL },
 		{ key = "replaceXPWidget", type = "checkbox", label = L.REPLACE_XP, tooltip = L.REPLACE_XP_DESC },
 		{ type = "header", label = L.SECTION_LOOK },
@@ -352,6 +361,12 @@ function module:UpdatePlace()
 	ns:SetOverlayPositionKey(frame, replace and XP_WIDGET_KEY or nil)
 end
 
+-- The standard reputation bar is hidden through ns.StatusBars, which keeps its
+-- place for the action bars.
+function module:UpdateBlizzardBar()
+	ns.StatusBars.SetHidden(StatusTrackingBarInfo.BarsEnum.Reputation, self.enabled and self.db.hideBlizzardBar)
+end
+
 local function StandingLabel(reaction)
 	return GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")) or ""
 end
@@ -431,6 +446,10 @@ function module:OnOptionChanged(key)
 	if key == "replaceXPWidget" then
 		self:UpdatePlace()
 	end
+	if key == "hideBlizzardBar" then
+		self:UpdateBlizzardBar()
+		return
+	end
 	self:UpdateTicker()
 	self:Update()
 end
@@ -463,10 +482,13 @@ function module:OnEnable()
 	self:UpdatePlace()
 	self:UpdateTicker()
 	self:Update()
+	ns.StatusBars.Hook(self)
+	self:UpdateBlizzardBar()
 end
 
 function module:OnDisable()
 	self:UpdateTicker()
 	self:UpdatePlace()
+	self:UpdateBlizzardBar()
 	frame:Hide()
 end
